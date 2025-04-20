@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Star</title>
+  <link rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
+</head>
+<body>
+  <h2>Welcome to Star ✨</h2>
+  <div id="firebaseui-auth-container"></div>
+
+  <!-- ✅ 非模組 CDN 載入方式 -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBp_XEBrLGAtOkSL9re9K5P0WgPumueuOA",
+      authDomain: "star-platform-bf3e7.firebaseapp.com",
+      projectId: "star-platform-bf3e7",
+      storageBucket: "star-platform-bf3e7.appspot.com",
+      messagingSenderId: "965516728684",
+      appId: "1:965516728684:web:8f8648cb424a4434a37b49",
+      measurementId: "G-X54H7KXE5Y"
+    };
+
+    // ✅ 初始化 firebase
+    firebase.initializeApp(firebaseConfig);
+
+    const ui = new firebaseui.auth.AuthUI(firebase.auth());
+    ui.start('#firebaseui-auth-container', {
+      signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
+      signInSuccessUrl: '/profile.html'
+    });
+  </script>
+</body>
+</html>
