@@ -303,7 +303,7 @@ export function setLang(langCode = "en") {
     }
 
     if (typeof text === "string") {
-      el.textContent = text;
+      el.innerHTML = text;
     }
   });
 }
