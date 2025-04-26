@@ -18,7 +18,10 @@
      --color-surface:        #ffffff;
      --color-border:         #ddd;
    
-     /* Spacing scale (defined in variables.css) */
+     --color-primary: #0056b3;
+     --color-primary-alt: #0069d9;
+     --color-secondary: #e2e8f0;
+     --color-secondary-alt: #cbd5e0;
    }
    
    /* ==========================================================================
