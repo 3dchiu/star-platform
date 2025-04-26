@@ -65,22 +65,17 @@
   ============================= */
   .features-grid {
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 32px;
     margin: 64px auto 0;
-    max-width: 960px; /* 加這個 */
-  }
+    max-width: 1100px; /* 原本 960 改成 1100 */
+  }  
   
   .feature-card {
-    flex: 0 0 300px;   /* 固定 300px，不要縮、不要放 */
-    background: var(--color-surface);
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    padding: 24px;
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
+    flex: 0 0 300px;
+    max-width: 300px;
+  }  
   
   .feature-card:hover {
     transform: translateY(-4px);
