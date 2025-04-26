@@ -17,7 +17,8 @@
      --color-bg:             #f7f9fc;
      --color-surface:        #ffffff;
      --color-border:         #ddd;
-   
+     
+     /*Add color-primary variables*/
      --color-primary: #0056b3;
      --color-primary-alt: #0069d9;
      --color-secondary: #e2e8f0;
@@ -563,6 +564,96 @@
   .company-section {
     page-break-inside: auto;
     break-inside: auto;
+  }
+}
+/* ==========================================================================
+   Home Page 微調
+   ========================================================================== */
+
+/* Hero 區主標題 */
+.hero-title {
+  font-size: 2.25rem;
+  color: var(--brand-blue);
+  font-weight: 700;
+  margin-bottom: 16px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* Hero 區副標題 */
+.hero-subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 32px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* Hero CTA 按鈕 */
+.hero-cta {
+  display: inline-block;
+  background: var(--brand-blue);
+  color: #fff;
+  padding: 12px 24px;
+  font-size: 1.125rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+.hero-cta:hover {
+  background: var(--color-primary-alt);
+}
+
+/* Features 區塊卡片 */
+.feature-card {
+  background: var(--color-surface);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 24px;
+  text-align: center;
+}
+
+/* Features 卡片標題 */
+.feature-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+  color: var(--color-text-primary);
+}
+
+/* Features 卡片說明文字 */
+.feature-card p {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Section 間距統一 */
+section {
+  margin-top: 64px;
+}
+
+/* 行動呼籲區 (底部 CTA) */
+.final-cta {
+  text-align: center;
+  margin: 64px 0;
+}
+
+/* ==========================================================================
+   Home Page 響應式 (手機版調整)
+   ========================================================================== */
+@media (max-width: 600px) {
+  .hero-title {
+    font-size: 1.75rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  .hero-cta {
+    font-size: 1rem;
+    padding: 10px 20px;
+  }
+  section {
+    margin-top: 48px;
   }
 }
 
