@@ -57,5 +57,11 @@
 
   <!-- 6) Header Script -->
   <script type="module" src="/js/app-header.js"></script>
+  <!-- 7) 啟動語系 -->
+  <script type="module">
+    import { setLang } from '/js/i18n.js';
+    const lang = localStorage.getItem('lang') || 'zh-Hant'; // 預設繁體中文
+    setLang(lang);
+  </script>  
 </body>
 </html>
