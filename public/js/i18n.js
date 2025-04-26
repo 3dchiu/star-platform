@@ -120,7 +120,24 @@ export const i18n = {
       label_relation: "Relation:",
       label_highlight: "Highlight:",
 
-    }
+    },
+    // index.html
+    home: {
+      heroTitle: "Let Recommendations Be the Light in Your Career",
+      heroSubtitle: "Create your career network profile, invite real collaborators to recommend you, and build your professional credibility.",
+      startButton: "Get Started",
+      aboutTitle: "About Star",
+      aboutText: "Star is a platform that turns real collaboration experiences into career credentials.",
+      features: {
+        buildProfileTitle: "Build Your Career Network Profile",
+        buildProfileText: "Edit your personal information, record each career experience, and establish your exclusive career system.",
+        inviteRecoTitle: "Invite Real Collaboration Recommendations",
+        inviteRecoText: "Through the recommendation link, invite your collaborators to leave authentic recommendations for you.",
+        buildTrustTitle: "Build Professional Credibility",
+        buildTrustText: "View, filter, and print your recommendation results anytime to build a comprehensive professional profile."
+      },
+      finalCta: "Start Building Your Network Profile"
+    },
   },
 
   "zh-Hant": {
@@ -244,7 +261,24 @@ export const i18n = {
       label_relation: "推薦關係：",
       label_highlight: "亮點：",
 
-    }
+    },
+    // index.html
+    home: {
+      heroTitle: "讓推薦成為你職涯中的一束光",
+      heroSubtitle: "建立你的職涯人脈檔案，邀請真實合作夥伴留下推薦，累積你的專業信譽。",
+      startButton: "立即開始",
+      aboutTitle: "關於 Star",
+      aboutText: "Star 是一個將真實合作經驗，變成職涯證明的平台。",
+      features: {
+        buildProfileTitle: "建立職涯人脈檔案",
+        buildProfileText: "編輯個人資料，記錄每段職場經歷，建立專屬職涯系統。",
+        inviteRecoTitle: "邀請真實合作推薦",
+        inviteRecoText: "透過推薦連結，邀請你的合作夥伴留下實際推薦，成為最佳職場證明。",
+        buildTrustTitle: "累積專業信譽",
+        buildTrustText: "隨時檢視、篩選、列印你的推薦成果，建立全方位職場專業證明。"
+      },
+      finalCta: "開始建立你的人脈檔案"
+    },
   }
 };
 
