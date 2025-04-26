@@ -4,12 +4,14 @@
   <!-- 1. Firebase Compat (App + Auth) 一定要最先載入 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-
+  <!-- html2canvas & jsPDF 從 CDN 載入 -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <meta charset="UTF-8" />
   <title id="pageTitle">My Recommendation Summary</title>
 
   <!-- 全域樣式（含 token 與 thank-you / summary 共用規則） -->
-  <link rel="stylesheet" href="/src/main.css" />
+  <link rel="stylesheet" href="./src/main.css" />
 
   <!-- 共用 i18n 與頂欄 -->
   <script type="module" src="/js/i18n.js"></script>
@@ -63,7 +65,15 @@
     </select>    
     
   </div>
-  
+  <!-- 匯出 PDF 按鈕 -->
+  <div class="mb-4">
+    <button id="export-pdf"
+          class="btn btn-primary px-4 py-2"
+          data-i18n="exportPDF">
+      匯出 PDF
+    </button>
+  </div>
+
     <!-- 推薦列表 -->
     <section id="summaryArea"></section>
   </main>  

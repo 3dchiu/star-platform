@@ -1,5 +1,4 @@
 // public/js/recommend-summary.js
-
 import { i18n, setLang } from "./i18n.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import {
@@ -14,6 +13,9 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
+// html2canvas、jsPDF 現在都已經從 CDN 掛到全域 window 上
+  const html2canvas = window.html2canvas;
+  const { jsPDF }  = window.jspdf;
 
 // 把 highlights 陣列轉成 <span class="badge">...</span>
 function renderBadges(tags) {
@@ -63,6 +65,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   const userNameEl  = document.getElementById("userName");
   const descEl      = document.getElementById("description");
   const backBtn     = document.getElementById("backBtn");
+  const filters   = document.getElementById("filters");
+  const exportBtn = document.getElementById("export-pdf");
 
   // 4) 核心加载函数
   async function loadAndRender(userId, loggedIn) {
@@ -73,6 +77,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       summaryArea.innerHTML = `<p>${t("noProfile")}</p>`;
       return;
     }
+
     const profile = snap.data();
     // ▶️ 【清空舊資料】先把每個 job.recommendations 歸零  
     (profile.workExperiences || [])
@@ -90,6 +95,22 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     // 渲染列表
      renderRecommendations(profile);
+     exportBtn.addEventListener('click', () => {
+      // 隱藏篩選和匯出按鈕
+      filters.style.display   = 'none';
+      exportBtn.style.display = 'none';
+    
+      // 叫出瀏覽器列印視窗（選「存成 PDF」即可）
+      window.print();
+    
+      // 印完或取消後，還原
+      window.onafterprint = () => {
+        filters.style.display   = '';
+        exportBtn.style.display = 'inline-block';
+      };
+    });
+    
+      
     // ⚙️ 綁定篩選器：改變時重新渲染
     document.getElementById("relationFilter")
       .addEventListener("change", () => renderRecommendations(profile));

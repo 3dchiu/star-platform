@@ -546,6 +546,25 @@
   color: #fff;
   border-color: var(--brand-blue);
 }
+/* Print styles */
+@media print {
+  /* 隱藏篩選區與匯出按鈕 */
+  #filters,
+  #export-pdf {
+    display: none !important;
+  }
+  /* 只阻止推薦框被切 */
+  .recommendation {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  /* 取消對公司區塊的 avoid 規則 */
+  .company-section {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+}
+
 
 
   
