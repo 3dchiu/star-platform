@@ -1,10 +1,552 @@
-body {
-  font-family: sans-serif;
-  max-width: 600px;
-  margin: 40px auto;
-  text-align: center;
+/* ==========================================================================
+   1. Imports & CSS Variables
+   ========================================================================== */
+   @import './style/variables.css';
+
+   :root {
+     /* Brand colors */
+     --brand-blue:    #0056b3;
+     --brand-green:   #28a745;
+   
+     /* Grayscale */
+     --gray-600:      #6b7280;
+     --gray-400:      #9ca3af;
+     --gray-200:      #e5e7eb;
+   
+     /* Surface & text */
+     --color-text-primary:   #333;
+     --color-text-secondary: rgba(0,0,0,0.6);
+     --color-bg:             #f7f9fc;
+     --color-surface:        #ffffff;
+     --color-border:         #ddd;
+   
+     /* Spacing scale (defined in variables.css) */
+   }
+   
+   /* ==========================================================================
+      2. Reset & Base Styles
+      ========================================================================== */
+   html {
+     scroll-behavior: smooth;
+   }
+   
+   body {
+     margin: 0;
+     padding-top: 60px; /* avoid header overlay */
+     font-family: 'Noto Sans TC', 'Inter', sans-serif;
+     color: var(--color-text-primary);
+     background-color: var(--color-bg);
+   }
+   
+   /* ==========================================================================
+      3. Layout Containers
+      ========================================================================== */
+   .page-container {
+     max-width: 600px;
+     margin: 40px auto;
+     padding: 0 var(--spacing-md);
+   }
+   
+   /* ==========================================================================
+      4. Header
+      ========================================================================== */
+   .header {
+     position: fixed;
+     top: 0; left: 0; right: 0;
+     height: 60px;
+     padding: 0 var(--spacing-lg);
+     background-color: var(--color-primary);
+     color: #fff;
+     display: flex;
+     align-items: center;
+     z-index: 100;
+   }
+   .header__inner {
+     max-width: 1200px;
+     margin: 0 auto;
+     display: flex;
+     justify-content: flex-end;
+     gap: var(--spacing-md);
+   }
+   .lang-selector {
+     padding: var(--spacing-xs) var(--spacing-sm);
+     font-size: 1rem;
+     border: 1px solid var(--color-border);
+     border-radius: 4px;
+     background-color: var(--color-surface);
+     color: var(--color-text-primary);
+   }
+   .hidden {
+     display: none !important;
+   }
+   
+   /* ==========================================================================
+      5. Buttons
+      ========================================================================== */
+   .btn {
+     display: inline-block;
+     min-width: 80px;
+     padding: var(--spacing-sm) var(--spacing-md);
+     font-size: 1rem;
+     text-align: center;
+     border: none;
+     border-radius: 8px;
+     cursor: pointer;
+     transition: background-color 0.2s, transform 0.15s;
+     white-space: nowrap;
+   }
+   .btn-primary {
+     background-color: var(--color-primary);
+     color: #fff;
+   }
+   .btn-primary:hover {
+     background-color: var(--color-primary-alt);
+   }
+   .btn-secondary {
+     background-color: var(--color-secondary);
+     color: var(--color-text-primary);
+   }
+   .btn-secondary:hover {
+     background-color: var(--color-secondary-alt);
+   }
+   .cta-btn {
+     display: inline-block;
+     margin-top: var(--spacing-lg);
+     padding: 12px 24px;
+     background: #ffd500;
+     border: none;
+     border-radius: 6px;
+     font-size: 1rem;
+   }
+   .cta-btn:hover {
+     filter: brightness(1.1);
+     transform: translateY(-2px);
+     box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+   }
+   
+   /* ==========================================================================
+      6. Forms & Inputs
+      ========================================================================== */
+   .form-group {
+     margin-bottom: var(--spacing-xl);
+   }
+   .form-group label {
+     display: block;
+     font-weight: 500;
+     margin-bottom: var(--spacing-xs);
+   }
+   input, select, textarea {
+     width: 100%;
+     padding: var(--spacing-sm);
+     margin-top: var(--spacing-xs);
+     border: 1px solid var(--color-border);
+     border-radius: 4px;
+     background: var(--color-surface);
+     font-size: 1rem;
+     color: var(--color-text-primary);
+     box-sizing: border-box;
+   }
+   input:focus, select:focus, textarea:focus, button:focus {
+     outline: 2px solid var(--color-primary);
+     outline-offset: 2px;
+     border-color: var(--color-primary);
+     box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
+   }
+   input:invalid, textarea:invalid, select:invalid {
+     border-color: #dc3545;
+   }
+  
+  .checkbox-group input[type="checkbox"] {
+    margin-bottom: 6px;
+    transform: scale(1.2);
+  }
+   .checkbox-label {
+     padding: 4px 8px;
+     margin-right: var(--spacing-md);
+     border-radius: 6px;
+     cursor: pointer;
+     transition: background-color 0.2s;
+   }
+   .checkbox-label:hover {
+     background-color: var(--color-surface);
+   }
+   .checkbox-label input {
+     margin: 0;
+   }
+   .date-fields {
+     display: flex;
+     align-items: center;
+     gap: var(--spacing-sm);
+   }
+   small.hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.875rem;
+    /* 改为更深一点的灰，或直接用 primary 文本色 */
+    color: var(--color-text-secondary, #666);
+    /* 去掉模糊阴影，让文字更锐利 */
+    text-shadow: none;
+  }
+   form br {
+     display: none;
+   }
+   
+   /* ==========================================================================
+      7. Cards & Panels
+      ========================================================================== */
+   .white-card {
+     background: var(--color-surface);
+     border-radius: 20px;
+     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+   }
+   .soft-shadow {
+     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+   }
+   .job-info {
+     background: var(--color-surface);
+     border-radius: 6px;
+     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+     padding: var(--spacing-md);
+     margin-bottom: var(--spacing-xl);
+   }
+   
+   /* ==========================================================================
+      8. Profile Dashboard Extras
+      ========================================================================== */
+   .company-card {
+     background: var(--color-surface);
+     border-left: 8px solid var(--brand-blue);
+     border-radius: 20px;
+     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+     padding: 20px;
+     margin-bottom: 32px;
+   }
+   .company-title {
+     font-size: 1.125rem;
+     font-weight: 600;
+     margin-bottom: 8px;
+   }
+   .role-card {
+     position: relative;
+     background: var(--color-surface);
+     border-radius: 12px;
+     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+     padding: 16px;
+     margin-top: 12px;
+     margin-left: 16px;
+   }
+   .role-card .del-btn {
+     position: absolute;
+     top: 8px;
+     right: 8px;
+     background: none;
+     border: none;
+     font-size: 16px;
+     cursor: pointer;
+     color: #889;
+   }
+   .role-card .del-btn:hover {
+     color: #d11;
+   }
+   /* =====  Profile Dashboard – lock / edit  ===== */
+   .locked {
+    background: #f3f4f6;         /* 淺灰底提示不可編輯 */
+    cursor: not-allowed;
+   }
+
+   .lock-tip {
+    font-size: 0.75rem;
+    color: #d11;
+    margin-left: 4px;
+    position: absolute;
+    top: 8px;
+    right: 36px;                 /* 讓 🔒 在 🗑 左邊 */
+   }
+
+   .edit-btn {
+    position: absolute;
+    top: 8px;
+    right: 36px;                 /* 讓 📝 在 🗑 左邊 */
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #667;
+   }
+   .edit-btn:hover { color: var(--brand-blue); }
+   .rec-card{
+    background: var(--color-surface);
+    border-left: 4px solid var(--brand-green);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 12px;
+    font-size: .875rem;
+  }
+  .rec-card .name{ font-weight:600; }
+  .rec-card .meta{ color: var(--gray-600); }
+  
+   /* ----- Role card 功能 icon ----- */
+    .link-btn, .edit-btn, .del-btn {
+    position:absolute; top:8px;
+    background:none; border:none;
+    font-size:16px; cursor:pointer; color:#667;
+  }
+    .link-btn:hover { color:var(--brand-green); }
+    .edit-btn       { right:36px; }
+    .link-btn       { right:60px; }
+
+   /* ----- date select 寬度 ----- */
+    .date-fields select{ width:auto; min-width:4.2rem; }
+    .date-fields span { margin:0 4px; }
+   /* ===== toast ===== */
+
+    .toast {
+    position: fixed;               /* 固定在视窗上 */
+    bottom: 1rem;                  /* 距离底部 16px */
+    left: 50%;                     /* 水平居中 */
+    transform: translateX(-50%);   /* 真正水平居中 */
+    background: rgba(0, 0, 0, 0.8);/* 半透明黑底 */
+    color: #fff;                   /* 白字 */
+    padding: 0.5rem 1rem;          /* 内边距 */
+    border-radius: 0.375rem;       /* 圆角 */
+    font-size: 0.875rem;           /* 字体稍微小一点 */
+    z-index: 10000;                /* 确保盖在最上面 */
+    animation: toast-fade 3s ease forwards; 
+    }
+
+   /* 动画：前 10% 逐渐出现，保持到 80%，最后 20% 逐渐消失 */
+    @keyframes toast-fade {
+    0%   { opacity: 0; }
+    10%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; }
+    }
+
+    @keyframes fadeInOut{
+      0%   {opacity:0; transform:translate(-50%,20px);}
+      10%  {opacity:1; transform:translate(-50%,0);}
+      90%  {opacity:1;}
+      100% {opacity:0; transform:translate(-50%,-10px);}
+    }
+
+   /* role-card icon hit-area (更好點擊) */
+    .role-card button{
+      padding:4px; border-radius:4px;
+    }
+    .role-card button:hover{
+      background:rgba(0,0,0,.05);
+    }
+    
+    textarea::placeholder {
+    color: #999;
+    font-style: italic;
+    }
+
+   /* ==========================================================================
+      9. Recommend Summary Styles
+      ========================================================================== */
+   .summary-container {
+     max-width: 960px;
+     margin: 64px auto;
+     padding: 24px;
+     background: var(--color-surface);
+     border-radius: 20px;
+     box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+   }
+   .company-section {
+     margin-bottom: 48px;
+   }
+   .company-name {
+     font-size: 1.25rem;
+     font-weight: 600;
+     color: var(--brand-blue);
+     margin-bottom: 12px;
+   }
+   .job-card {
+     /* Note: profile-dashboard .job-card is overridden by .role-card in dashboard view */
+     background: var(--color-surface);
+     border-radius: 12px;
+     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+     border-left: 6px solid var(--brand-blue);
+     padding: 20px;
+     margin-bottom: 20px;
+   }
+   .job-title {
+     font-size: 1rem;
+     font-weight: 600;
+     margin-bottom: 4px;
+   }
+   .job-date {
+     font-size: 0.875rem;
+     color: var(--gray-600);
+     margin-bottom: 12px;
+   }
+   .recommendation {
+     background: var(--color-surface);
+     border: 1px solid var(--gray-200);
+     border-left: 5px solid var(--brand-green);
+     padding: 12px 16px;
+     border-radius: 8px;
+     margin-bottom: 12px;
+   }
+   .no-recommendation {
+     font-size: 0.875rem;
+     color: var(--gray-400);
+   }
+   
+   /* ==========================================================================
+      10. Thank-You Page (Stars & Animations)
+      ========================================================================== */
+   .star-bg {
+     background: url("/img/star-bg.png") center top / cover no-repeat fixed;
+     color: #fff;
+     min-height: 100vh;
+   }
+   .fade-in {
+     animation: fadePageIn 0.8s ease-out both;
+   }
+   @keyframes fadePageIn {
+     from { opacity: 0; }
+     to   { opacity: 1; }
+   }
+   .thanks-title {
+     font-size: 2rem;
+     margin-bottom: var(--spacing-md);
+     color: var(--color-primary);
+     text-align: center;
+   }
+   .thanks-message {
+     color: rgba(255,255,255,0.85);
+     text-shadow: 0 0 2px #000;
+     text-align: center;
+   }
+   .summary-link {
+     text-align: center;
+     margin-bottom: var(--spacing-xl);
+   }
+   .summary-link a {
+     font-size: 1rem;
+     text-decoration: none;
+     color: var(--color-primary);
+     border-bottom: 1px dashed var(--color-primary);
+   }
+   .summary-link a:hover {
+     border-bottom: 1px solid var(--color-primary);
+   }
+   .next-action-card {
+     background: var(--color-surface);
+     padding: var(--spacing-lg);
+     border-radius: 12px;
+     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+     text-align: center;
+     animation: fadeUp 0.8s ease-out 0.3s both;
+   }
+   @keyframes fadeUp {
+     from { opacity: 0; transform: translateY(10px); }
+     to   { opacity: 1; transform: translateY(0); }
+   }
+   .cta-btn, .next-action-card a, .next-action-card p {
+     color: var(--color-text-primary);
+   }
+   .network {
+    max-width: 100%;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    display: block;
+    margin: 0 auto 24px;
+  }  
+   @media (max-width: 480px) {
+   .network {
+    max-width: 240px;
+   }
+  }
+   
+   /* ==========================================================================
+      11. Responsive Adjustments
+      ========================================================================== */
+
+
+   @media (max-width: 768px) {
+     .summary-container {
+       margin: 32px 16px;
+       padding: 20px;
+     }
+     .company-name {
+       font-size: 1.125rem;
+     }
+     .job-card {
+       padding: 16px;
+     }
+   }
+   @media (max-width: 400px) {
+     .page-container {
+       padding-left: var(--spacing-sm);
+       padding-right: var(--spacing-sm);
+     }
+   }
+   
+  .summary-container > header {
+    display: flex;
+    align-items: center;       /* 垂直置中 */
+    justify-content: space-between; /* 左右兩端對齊 */
+    margin-bottom: 1.5rem;     /* 和下方內容的間距 */
+   }
+
+  /* 小尺寸的「返回按鈕」 */
+  #backBtn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1;
+  /* 你也可以改成 .btn-secondary override：
+     background: var(--color-secondary);
+     color: var(--color-text-primary);
+  */
 }
-button {
-  padding: 10px 20px;
-  font-size: 16px;
+/* Badge 樣式 */
+.badge {
+  display: inline-block;
+  background-color: var(--gray-200);
+  color: var(--color-text-primary);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  margin-right: 6px;
+  margin-bottom: 4px;
 }
+
+/* Chip 多選標籤（改成 flex） */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.checkbox-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin: 0;
+  transform: scale(1.1);
+}
+
+.checkbox-group input[type="checkbox"]:checked + span {
+  background: var(--brand-blue);
+  color: #fff;
+  border-color: var(--brand-blue);
+}
+
+
+  
+   

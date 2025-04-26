@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- 1. Firebase Compat (App + Auth) 一定要最先載入 -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  
+  <meta charset="UTF-8" />
+  <title data-i18n="profileTitle">My Career Profile</title>
+
+  <!-- 全站 CSS（在 public/src/main.css） -->
+  <link rel="stylesheet" href="/src/main.css" />
+
+  <!-- 先設定語系，這支 JS 在 public/js/i18n.js -->
+  <script type="module">
+    import { setLang } from "./js/i18n.js";
+    const lang = localStorage.getItem("lang") || "en";
+    setLang(lang);
+  </script>
+
+  <!-- 公共 header -->
+  <script type="module" src="./js/app-header.js"></script>
+
+  <!-- 這才是 Profile Dashboard 的邏輯 -->
+  <script type="module" src="./js/profile-dashboard.js"></script>
+</head>
+<body>
+  <div id="appHeader"></div>
+
+  <main class="page-container">
+    <!-- Basic Info -->
+    <section id="basicInfo" class="white-card soft-shadow"></section>
+
+    <!-- About Me -->
+    <section id="bioSection" class="white-card soft-shadow p-6 mb-6">
+      <h3 class="text-lg font-semibold mb-2" data-i18n="editBio">Edit Bio</h3>
+      <p id="bioText" class="mb-4 text-gray-600" data-i18n="noBio"></p>
+      <button id="editBioBtn" class="btn btn-secondary" data-i18n="editBio">
+        Edit Bio
+      </button>
+    </section>
+
+    <!-- Work Experiences -->
+    <h2 class="mt-8 mb-4 text-xl font-semibold brand-blue-text" data-i18n="workExperiences">
+      Work Experiences
+    </h2>
+    <div id="experienceList"></div>
+
+    <button id="addBtn" class="cta-btn block w-max mt-6" data-i18n="addExperience">
+      + Add New Experience
+    </button>
+  </main>
+
+  <!-- Experience Modal (Add / Edit + 首次填姓名) -->
+  <dialog id="expModal" class="white-card p-6">
+    <form id="expForm" novalidate>
+      <h3 id="modalTitle" class="text-lg font-semibold mb-4" data-i18n="addExperienceTitle">
+        Add Experience
+      </h3>
+
+      <!-- 首次填姓名 -->
+      <div id="nameSection" class="form-group mb-4" hidden>
+        <label for="chineseNameInput" data-i18n="labelChineseName">
+          姓名（母語）
+        </label>
+        <input id="chineseNameInput" autocomplete="off" />
+
+        <label for="englishNameInput" data-i18n="labelEnglishName">
+          英文姓名（選填）
+        </label>
+        <input id="englishNameInput" />
+      </div>
+
+      <!-- 公司 -->
+      <div class="form-group">
+        <label for="companyInput" data-i18n="company">Company</label>
+        <input id="companyInput" />
+      </div>
+
+      <!-- 職稱 -->
+      <div class="form-group">
+        <label for="positionInput" data-i18n="position">Position</label>
+        <input id="positionInput" />
+      </div>
+
+      <!-- 期間 -->
+      <div class="form-group date-fields">
+        <label data-i18n="period" style="width:100%">Period </label>
+        <select id="startYear"></select>
+        <select id="startMonth"></select>
+        <span>–</span>
+        <select id="endYear"></select>
+        <select id="endMonth"></select>
+        <label class="checkbox-group">
+          <input type="checkbox" id="stillWorking" />
+          <span data-i18n="currentlyWorking">Currently working</span>
+        </label>
+      </div>
+
+      <!-- 描述 -->
+      <div class="form-group">
+        <label for="descInput" data-i18n="descriptionOptional">
+          Description (optional)
+        </label>
+        <textarea id="descInput" rows="4" placeholder="Responsibilities…"></textarea>
+      </div>
+
+      <!-- Action -->
+      <div class="flex justify-end gap-4">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('expModal').close()" data-i18n="cancel">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" data-i18n="save">
+          Save
+        </button>
+      </div>
+    </form>
+  </dialog>
+    <!-- Bio Modal -->
+    <dialog id="bioModal" class="white-card p-6">
+        <form id="bioForm" novalidate>
+          <h3 class="text-lg font-semibold mb-4" data-i18n="editBio">Edit Bio</h3>
+          <textarea id="bioTextarea" rows="6"
+                    placeholder="A short introduction about yourself…"></textarea>
+          <div class="flex justify-end gap-4 mt-4">
+            <button type="button"
+                    onclick="document.getElementById('bioModal').close()"
+                    class="btn btn-secondary"
+                    data-i18n="cancel">Cancel</button>
+            <button type="submit" class="btn btn-primary" data-i18n="save">Save</button>
+          </div>
+        </form>
+      </dialog>
+  <!-- 邀請語編輯 Modal（複製推薦連結用） -->
+  <dialog id="inviteModal" class="white-card p-6">
+    <h3 … data-i18n="editInviteTitle">編輯邀請語</h3>
+  
+    <!-- 1. 先選風格 -->
+    <label for="inviteStyleSelect" … data-i18n="inviteStyleLabel">邀請語風格：</label>
+    <select id="inviteStyleSelect" …>
+      <option value="direct" data-i18n="styleDirect">中性版</option>
+      <option value="warmth" data-i18n="styleWarmth">溫暖版</option>
+    </select>
+  
+    <!-- 2. 再編輯文字 -->
+    <textarea id="inviteTextarea" rows="4" …></textarea>
+  
+    <!-- 3. 按鈕 -->
+    <div …>
+      <button id="inviteCancelBtn" … data-i18n="cancel">取消</button>
+      <button id="inviteSaveBtn" … data-i18n="save">儲存並複製</button>
+    </div>
+  </dialog>  
+</body>
+</html>

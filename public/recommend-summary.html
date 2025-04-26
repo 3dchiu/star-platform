@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- 1. Firebase Compat (App + Auth) 一定要最先載入 -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+
+  <meta charset="UTF-8" />
+  <title id="pageTitle">My Recommendation Summary</title>
+
+  <!-- 全域樣式（含 token 與 thank-you / summary 共用規則） -->
+  <link rel="stylesheet" href="/src/main.css" />
+
+  <!-- 共用 i18n 與頂欄 -->
+  <script type="module" src="/js/i18n.js"></script>
+  <script type="module" src="/js/app-header.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+  <!-- 共用頂欄由 app-header.js 動態插入 -->
+  <div id="appHeader"></div>
+
+  <!-- 主要內容 -->
+  <main class="summary-container fade-in">
+
+    <!-- Header：姓名 + 返回按鈕 同行 -->
+    <header class="flex items-center justify-between mb-6">
+      <!-- 使用者名稱 -->
+      <h1 id="userName" class="text-2xl font-semibold brand-blue-text"></h1>
+      <!-- 返回按鈕：小尺寸、secondary 樣式 -->
+      <button id="backBtn"
+              class="btn btn-secondary px-3 py-1 text-sm hidden"
+              data-i18n="backToProfile">
+        回到個人檔案
+      </button>
+    </header>
+  
+    <!-- 自我介紹 (存在才顯示) -->
+    <p id="description" class="text-base text-gray-600 mb-6"></p>
+
+    <!-- 🔍 篩選器區塊 -->
+  <div id="filters" class="filters mb-4">
+    <label for="relationFilter" class="mr-2" data-i18n="label_relation">🔗 推薦關係：</label>
+    <select id="relationFilter" class="px-2 py-1 border rounded mr-4">
+      <option value="" data-i18n="allRelations">全部關係</option>
+      <option value="我是他的直屬主管" data-i18n="relation_direct">我是他的直屬主管</option>
+      <option value="我是他的跨部門主管" data-i18n="relation_cross_direct">我是他的跨部門主管</option>
+      <option value="我是他的同部門同事" data-i18n="relation_same_dept">我是他的同部門同事</option>
+      <option value="我是他的跨部門同事" data-i18n="relation_cross_dept">我是他的跨部門同事</option>
+      <option value="我是他的部屬" data-i18n="relation_subordinate">我是他的部屬</option>
+      <option value="我是他的客戶" data-i18n="relation_client">我是他的客戶</option>
+      <option value="我是他的供應商或外部合作夥伴" data-i18n="relation_vendor">我是他的供應商或外部合作夥伴</option>
+    </select>    
+    
+
+    <label for="highlightFilter" class="mr-2" data-i18n="label_highlight">🌟 亮點：</label>
+    <select id="highlightFilter" class="px-2 py-1 border rounded">
+      <option value="" data-i18n="allHighlights">全部亮點</option>
+      <option value="professional" data-i18n="highlight_professional">專業能力</option>
+      <option value="workEthic" data-i18n="highlight_workEthic">工作態度</option>
+      <option value="interpersonal" data-i18n="highlight_interpersonal">人際互動</option>
+      <option value="collaboration" data-i18n="highlight_collaboration">團隊協作</option>
+    </select>    
+    
+  </div>
+  
+    <!-- 推薦列表 -->
+    <section id="summaryArea"></section>
+  </main>  
+  
+  <!-- 專屬邏輯 -->
+  <script type="module" src="/js/recommend-summary.js"></script>
+</body>
+</html>

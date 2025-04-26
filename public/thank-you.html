@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- title 由下方 JS 動態設定 -->
+  <title id="pageTitle"></title>
+ 
+  <!-- 站內共用樣式 -->
+  <link rel="stylesheet" href="/src/main.css" />
+
+  <!-- 1. Firebase Compat: 必須最先載入 -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+
+  <!-- 2. Header（裡面會用到 firebase） -->
+  <script type="module" src="/js/app-header.js"></script>
+</head>
+
+<body class="star-bg">
+  <div id="appHeader"></div>
+
+  <main class="page-container fade-in">
+    <img src="img/network.png"
+         alt="Network Illustration: 人際連結"
+         class="network"
+         loading="lazy"
+         decoding="async" />
+
+    <h1 id="title" class="thanks-title"></h1>
+    <p id="thanksText" class="thanks-message"></p>
+
+    <div id="summaryArea" class="summary-link">
+      <a id="summaryLink" href="recommend-summary.html" target="_blank"></a>
+    </div>
+
+    <div class="next-action-card fadeUp">
+      <p id="inviteText"></p>
+      <a href="#" id="startFresh" class="cta-btn"></a>
+      <p id="footerText"
+         style="font-size:0.875rem;
+                color:var(--color-text-secondary);
+                margin-top:12px;"></p>
+    </div>
+  </main>
+
+  <!-- ========= 行為腳本 ========= -->
+  <script type="module">
+    import { i18n } from "./js/i18n.js";
+
+    // 1. URL 參數
+    const urlParams       = new URLSearchParams(location.search);
+    const userId          = urlParams.get("userId");
+    const style           = urlParams.get("style") || "direct";
+    const recommenderName = urlParams.get("recommenderName") || "";
+    const recommenderEmail = urlParams.get("recommenderEmail") || "";
+
+
+    // 2. 讀語系與文案
+    const lang = localStorage.getItem("lang") || "zh-Hant";
+    // 這裡統一用 thankYou namespace，下方 key 對應 i18n.js 的 thankYou 裡面
+    const t    = i18n[lang].thankYou;
+
+    // 3. 套用文案
+    document.title                                = t.pageTitle;
+    document.getElementById("pageTitle").innerText = t.pageTitle;
+    document.getElementById("title").innerText     = t.title;
+    document.getElementById("thanksText").innerText= t.message;
+    document.getElementById("summaryLink").innerText = t.viewSummary;
+    // 取得 summaryLink 元素
+    const summaryLink = document.getElementById("summaryLink");
+    // 將 href 改成公開模式的網址
+    summaryLink.href = `recommend-summary.html?public=true&userId=${userId}`;
+    // 如果想要從第一份工作開始，也可加上 &jobIndex=0
+    // summaryLink.href += "&jobIndex=0";
+
+    document.getElementById("footerText").innerText  = t.footer;
+
+    // 4. 根據 style 切換 CTA 文案
+    if (style === "warmth") {
+      document.getElementById("inviteText").innerText = t.warmthThanks;
+      document.getElementById("startFresh").innerText = t.warmthStart;
+    } else {
+      document.getElementById("inviteText").innerText = t.invite;
+      document.getElementById("startFresh").innerText = t.start;
+    }
+
+    // 5. userId 比對，顯示「查看總表」
+    const profile = JSON.parse(localStorage.getItem("profile") || "{}");
+    if (profile.userId === userId) {
+      document.getElementById("summaryArea").style.display = "block";
+    }
+
+    // 6. CTA 按鈕：先存推薦人，再導向登入／建立頁
+    document.getElementById("startFresh")
+      .addEventListener("click", e => {
+        e.preventDefault();
+        // 💾 已有：存姓名
+        sessionStorage.setItem("prefillName", recommenderName);
+        // 🔥 新增：存 Email
+        sessionStorage.setItem("prefillEmail", recommenderEmail);
+        // 接著導向登入，保持原本的 next 參數
+        location.href = `login.html?next=profile-dashboard.html`;
+      });
+  </script>
+
+  <!-- confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.25 } });
+      }, 600);
+    });
+  </script>
+</body>
+</html>

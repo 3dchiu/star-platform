@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>建立您的職涯檔案</title>
+
+  <!-- 1. 全站主樣式 -->
+  <link rel="stylesheet" href="/src/main.css" />
+
+  <!-- 2. 多語 i18n 腳本 (module) -->
+  <script type="module" src="/js/i18n.js"></script>
+
+  <!-- 3. Header 插入腳本 (module) -->
+  <script type="module" src="/js/app-header.js"></script>
+</head>
+<body>
+  <!-- Header 容器 -->
+  <div id="appHeader"></div>
+
+  <!-- 主要內容容器 -->
+  <main class="page-container">
+    <h1 id="heading">建立您的職涯檔案</h1>
+
+    <form id="profileForm">
+      <!-- 姓名欄位 -->
+      <div id="nameFields">
+        <label for="chineseName" id="labelChineseName">姓名（建議填寫母語）</label>
+        <input type="text" id="chineseName" name="chineseName" required autocomplete="off" />
+
+        <label for="englishName" id="labelEnglishName">英文姓名（選填）</label>
+        <input type="text" id="englishName" name="englishName" />
+      </div>
+
+      <!-- 開始日期 -->
+      <div class="form-group">
+        <label id="labelStart">開始日期：</label>
+        <div class="date-fields">
+          <select id="startYear" name="startYear" required></select>
+          <span id="labelYear1">年</span>
+          <select id="startMonth" name="startMonth" required></select>
+          <span id="labelMonth1">月</span>
+        </div>
+      </div>
+
+      <!-- 結束日期 -->
+      <div class="form-group" id="endDateFields">
+        <label id="labelEnd">結束日期：</label>
+        <div class="date-fields">
+          <select id="endYear" name="endYear"></select>
+          <span id="labelYear2">年</span>
+          <select id="endMonth" name="endMonth"></select>
+          <span id="labelMonth2">月</span>
+        </div>
+      </div>
+
+      <!-- 目前在職 -->
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="stillWorking" />
+        <label for="stillWorking" id="labelStillWorking">目前在職</label>
+      </div>
+
+      <!-- 公司名稱 -->
+      <div class="form-group">
+        <label for="company" id="labelCompany">公司名稱：</label>
+        <input type="text" id="company" name="company" required />
+      </div>
+
+      <!-- 職稱 -->
+      <div class="form-group">
+        <label for="position" id="labelPosition">職稱：</label>
+        <input type="text" id="position" name="position" required />
+      </div>
+
+      <!-- 送出按鈕 -->
+      <button type="submit" id="submitBtn" class="btn btn-primary">
+        送出
+      </button>
+    </form>
+  </main>
+
+  <!-- Firebase UI styles -->
+  <link
+    rel="stylesheet"
+    href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css"
+  />
+
+  <!-- Firebase + i18n + form 處理程式 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBp_XEBrLGAtOkSL9re9K5P0WgPumueuOA",
+      authDomain: "star-platform-bf3e7.firebaseapp.com",
+      projectId: "star-platform-bf3e7",
+      storageBucket: "star-platform-bf3e7.appspot.com",
+      messagingSenderId: "965516728684",
+      appId: "1:965516728684:web:8f8648cb424a4434a37b49",
+      measurementId: "G-X54H7KXE5Y"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        const stored = JSON.parse(localStorage.getItem("profile"));
+        if (stored && stored.firebaseUid && stored.firebaseUid !== user.uid) {
+          localStorage.removeItem("profile");
+        }
+        console.log("✅ Logged in:", user.uid);
+      } else {
+        console.log("⏳ Not logged in yet, redirecting...");
+        setTimeout(() => {
+          window.location.href = "/auth/login.html";
+        }, 500);
+      }
+    });
+
+    const i18n = {
+      en: {
+        pageTitle: "Create Your Career Profile",
+        heading: "Create Your Career Profile",
+        labelChineseName: "Name (in your native language):",
+        labelEnglishName: "Name in English (optional):",
+        labelStart: "Start Date:",
+        labelEnd: "End Date:",
+        labelYear: "Year",
+        labelMonth: "Month",
+        labelStillWorking: "Currently Working",
+        labelCompany: "Company Name:",
+        labelPosition: "Position Title:",
+        submitBtn: "Submit",
+        endBeforeStart: "⚠️ End date cannot be earlier than start date.",
+        endAfterNow: "⚠️ End date cannot be in the future.",
+        currentlyWorking: "Currently Working"
+      },
+      "zh-Hant": {
+        pageTitle: "建立您的職涯檔案",
+        heading: "建立您的職涯檔案",
+        labelChineseName: "姓名（建議填寫母語）",
+        labelEnglishName: "英文姓名（選填）",
+        labelStart: "開始日期：",
+        labelEnd: "結束日期：",
+        labelYear: "年",
+        labelMonth: "月",
+        labelStillWorking: "目前在職",
+        labelCompany: "公司名稱：",
+        labelPosition: "職稱：",
+        submitBtn: "送出",
+        endBeforeStart: "⚠️ 結束年月不可早於開始年月",
+        endAfterNow: "⚠️ 結束年月不能超過現在",
+        currentlyWorking: "目前在職"
+      }
+    };
+
+    // 多語套用
+    const lang = localStorage.getItem("lang") || "en";
+    const t = i18n[lang];
+    function applyLanguage() {
+      document.title = t.pageTitle;
+      document.getElementById("heading").innerText = t.heading;
+      document.getElementById("labelChineseName").innerText = t.labelChineseName;
+      document.getElementById("labelEnglishName").innerText = t.labelEnglishName;
+      document.getElementById("labelStart").innerText = t.labelStart;
+      document.getElementById("labelEnd").innerText = t.labelEnd;
+      document.getElementById("labelYear1").innerText = t.labelYear;
+      document.getElementById("labelMonth1").innerText = t.labelMonth;
+      document.getElementById("labelYear2").innerText = t.labelYear;
+      document.getElementById("labelMonth2").innerText = t.labelMonth;
+      document.getElementById("labelStillWorking").innerText = t.labelStillWorking;
+      document.getElementById("labelCompany").innerText = t.labelCompany;
+      document.getElementById("labelPosition").innerText = t.labelPosition;
+      document.getElementById("submitBtn").innerText = t.submitBtn;
+
+      ["startYear", "startMonth", "endYear", "endMonth"].forEach(id => {
+        const select = document.getElementById(id);
+        if (select?.options[0]) select.options[0].textContent = "--";
+      });
+    }
+    applyLanguage();
+
+    // DOM 準備完畢後填年／月
+    window.addEventListener("DOMContentLoaded", () => {
+      populateYearAndMonth();
+      const prefillName = sessionStorage.getItem("prefillName");
+      if (prefillName) {
+        document.getElementById("chineseName").value = prefillName;
+        sessionStorage.removeItem("prefillName");
+      }
+      const profile = JSON.parse(localStorage.getItem("profile")) || {};
+      if (profile.chineseName) {
+        document.getElementById("chineseName").value = profile.chineseName;
+        document.getElementById("chineseName").readOnly = true;
+      }
+      if (profile.englishName) {
+        document.getElementById("englishName").value = profile.englishName;
+        document.getElementById("englishName").readOnly = true;
+      }
+      document.getElementById("stillWorking").addEventListener("change", e => {
+        document.getElementById("endDateFields").style.display = e.target.checked
+          ? "none"
+          : "flex";
+      });
+    });
+
+    function populateYearAndMonth() {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+      const startYear = currentYear - 40;
+
+      let yOpts = `<option value="">--</option>`;
+      for (let y = startYear; y <= currentYear; y++) {
+        yOpts += `<option value="${y}">${y}</option>`;
+      }
+      let mOpts = `<option value="">--</option>`;
+      for (let m = 1; m <= 12; m++) {
+        const mm = m.toString().padStart(2, "0");
+        mOpts += `<option value="${mm}">${mm}</option>`;
+      }
+
+      document.getElementById("startYear").innerHTML = yOpts;
+      document.getElementById("endYear").innerHTML = yOpts;
+      document.getElementById("startMonth").innerHTML = mOpts;
+      document.getElementById("endMonth").innerHTML = mOpts;
+
+      document.getElementById("endYear").value = currentYear;
+      document.getElementById("endMonth").value = currentMonth;
+    }
+
+    document.getElementById("profileForm").addEventListener("submit", e => {
+      e.preventDefault();
+      let profile = JSON.parse(localStorage.getItem("profile")) || {};
+      if (!profile.userId) profile.userId = crypto.randomUUID();
+      if (!profile.workExperiences) profile.workExperiences = [];
+      if (!profile.chineseName) {
+        profile.chineseName = document.getElementById("chineseName").value;
+        profile.englishName = document.getElementById("englishName").value;
+      }
+
+      const start = `${document.getElementById("startYear").value}-${document.getElementById("startMonth").value}`;
+      let end = "";
+      if (document.getElementById("stillWorking").checked) {
+        end = t.currentlyWorking;
+      } else {
+        end = `${document.getElementById("endYear").value}-${document.getElementById("endMonth").value}`;
+        if (end < start) {
+          return alert(t.endBeforeStart);
+        }
+        const max = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,"0")}`;
+        if (end > max) {
+          return alert(t.endAfterNow);
+        }
+      }
+
+      profile.workExperiences.push({
+        company: document.getElementById("company").value,
+        position: document.getElementById("position").value,
+        startDate: start,
+        endDate: end
+      });
+      localStorage.setItem("profile", JSON.stringify(profile));
+      window.location.href = "recommend.html";
+    });
+  </script>
+</body>
+</html>

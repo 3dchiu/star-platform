@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title data-i18n="pageTitle">推薦表單</title>
+  <link rel="stylesheet" href="/src/main.css" />
+
+  <!-- 多語 & 共用 Header -->
+  <script type="module" src="/js/i18n.js"></script>
+  <script type="module" src="/js/app-header.js"></script>
+  <!-- 這頁的主要邏輯 -->
+  <script type="module" src="/js/recommend-form.js"></script>
+</head>
+<body>
+  <div id="appHeader"></div>
+
+  <main class="page-container">
+    <h1 id="formTitle" data-i18n="formTitle"></h1>
+
+    <div id="jobInfo" class="form-group job-info"></div>
+
+    <!-- 顯示邀請訊息 -->
+    <div id="inviteMessage" class="form-group" 
+         style="background-color:#fff9e6;
+                border-left:4px solid #ffc107;
+                padding:10px;
+                margin-top:12px;
+                font-style:italic;">
+      <!-- 內容由 recommend-form.js 填入 -->
+    </div>
+
+    <form id="recommendForm">
+      <div class="form-group">
+        <label for="name" id="labelName" data-i18n="name"></label>
+        <input type="text" id="name" required minlength="2" maxlength="50" />
+        <small class="hint" data-i18n="hintName">請填寫您的姓名。</small>
+      </div>
+
+      <div class="form-group">
+        <label for="email" id="labelEmail" data-i18n="email"></label>
+        <input type="email" id="email" required />
+        <small class="hint" data-i18n="hintEmail">我們僅用於確認聯絡。</small>
+      </div>
+
+      <div class="form-group">
+        <label for="relation" id="labelRelation" data-i18n="relation"></label>
+        <select id="relation" required></select>
+      </div>
+
+      <div class="form-group">
+        <label id="labelHighlights" data-i18n="highlightLabel"></label>
+        <div id="highlightsContainer" class="checkbox-group">
+          <label>
+            <input type="checkbox" name="highlight" value="Professional Skills" />
+            <span data-i18n="highlightOption.professional">專業能力</span>
+          </label>
+          <label>
+            <input type="checkbox" name="highlight" value="Work Ethic" />
+            <span data-i18n="highlightOption.workEthic">工作態度</span>
+          </label>
+          <label>
+            <input type="checkbox" name="highlight" value="Collaboration" />
+            <span data-i18n="highlightOption.interpersonal">人際互動</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="customHighlight" data-i18n="highlightOptionCustomLabel"></label>
+        <input
+          type="text"
+          id="customHighlight"
+          maxlength="30"
+          data-i18n-placeholder="highlightOptionCustomPlaceholder"
+          placeholder=""
+        />
+
+      <!-- Hint 由 i18n.js 補文字 -->
+      <small class="hint" data-i18n="hintCustomHighlight"></small>
+      </div>
+       
+      </div>
+
+      <div class="form-group">
+        <label for="content" id="labelContent" data-i18n="content"></label>
+        <textarea id="content" rows="5" required maxlength="500"></textarea>
+        <small class="hint" data-i18n="hintContent">最多 500 字，請聚焦亮點。</small>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn btn-primary"></button>
+    </form>
+  </main>
+</body>
+</html>

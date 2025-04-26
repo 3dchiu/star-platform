@@ -1,13 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- 1) Firebase Compat 一定要最先載入 -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+
+  <!-- 2) 全站 CSS 與 meta -->
+  <link rel="stylesheet" href="/src/main.css">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Welcome to Star</title>
+
+  <!-- 3) 多語支援 -->
+  <script type="module" src="/js/i18n.js"></script>
+
 </head>
 <body>
+  <!-- 5) Header 會自動插入到這裡 -->
+  <div id="appHeader"></div>
+
   <h1>Welcome to Star 🌟</h1>
   <p>Let your work relationships shine.</p>
-  <a href="/login.html"><button>Login</button></a>
+
+- <!-- 6) 刪除這個，Header 裡已經有 Login 按鈕 -->
+- <a href="/login.html" id="loginBtnBody" class="btn btn-primary">Login</a>
+  <!-- 在 body 結尾前載入，確保 body 已存在 -->
+<script type="module" src="/js/app-header.js"></script>
 </body>
 </html>

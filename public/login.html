@@ -4,18 +4,54 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login – Star</title>
-  <link rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css" />
-</head>
-<body>
-  <h2>Welcome to Star ✨</h2>
-  <div id="firebaseui-auth-container"></div>
-
-  <!-- ✅ 非模組 CDN 載入方式 -->
+  <link rel="stylesheet" href="./src/main.css" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+  <script type="module" src="./js/i18n.js"></script>
+  <script type="module" src="./js/app-header.js"></script>
+</head>
+<body>
+  <div id="appHeader"></div>
+  <h2>Welcome to Star ✨</h2>
+  <!-- 🔐 登入表單 -->
+<div id="loginSection">
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" required />
+    <input type="password" id="loginPassword" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+  <p><a href="#" id="resetPassword">忘記密碼？</a></p>
+  <p>還沒有帳號？<a href="#" id="showRegister">註冊</a></p>
+</div>
+
+<!-- 🆕 註冊表單（預設隱藏） -->
+<div id="registerSection" style="display: none;">
+  <form id="registerForm">
+    <input type="email" id="registerEmail" placeholder="Email" required />
+    <input type="password" id="registerPassword" placeholder="Password" required />
+    <button type="submit">Register</button>
+  </form>
+  <p>已經有帳號了？<a href="#" id="showLogin">返回登入</a></p>
+</div>
+
+<!-- 錯誤或訊息顯示 -->
+<div id="error-message" style="color: red; display: none;"></div>
 
   <script>
+  // —— 如果有預存的 Email，就同時填入 loginEmail 和 registerEmail —— 
+  const prefillEmail = sessionStorage.getItem("prefillEmail");
+  if (prefillEmail) {
+    // 登入欄位
+    const loginInput = document.getElementById("loginEmail");
+    if (loginInput) loginInput.value = prefillEmail;
+    // 註冊欄位
+    const registerInput = document.getElementById("registerEmail");
+    if (registerInput) registerInput.value = prefillEmail;
+    // 清掉，避免下次又自動帶入
+    sessionStorage.removeItem("prefillEmail");
+  }
+  // ————————————————————————————————
+
     const firebaseConfig = {
       apiKey: "AIzaSyBp_XEBrLGAtOkSL9re9K5P0WgPumueuOA",
       authDomain: "star-platform-bf3e7.firebaseapp.com",
@@ -25,15 +61,115 @@
       appId: "1:965516728684:web:8f8648cb424a4434a37b49",
       measurementId: "G-X54H7KXE5Y"
     };
-
-    // ✅ 初始化 firebase
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    const ui = new firebaseui.auth.AuthUI(firebase.auth());
-    ui.start('#firebaseui-auth-container', {
-      signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
-      signInSuccessUrl: '/profile.html'
+    const loginForm = document.getElementById("loginForm");
+    const resetPasswordLink = document.getElementById("resetPassword");
+    const errorMessage = document.getElementById("error-message");
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          console.log("登入成功");
+          const params = new URLSearchParams(location.search);
+          const next = params.get("next") || "/profile-dashboard.html";
+          location.href = next;
+        })
+        .catch((error) => {
+          console.error("登入失敗:", error);
+          errorMessage.style.display = "block";
+          errorMessage.textContent = `登入失敗：${error.code} - ${error.message}`;
+          if (error.code === "auth/invalid-email") {
+            errorMessage.textContent = "Email 格式不正確，請檢查。";
+          } else if (error.code === "auth/user-not-found") {
+            errorMessage.textContent = "帳號不存在，請註冊。";
+          } else if (error.code === "auth/wrong-password") {
+            errorMessage.textContent = "密碼錯誤，請重試或重置密碼。";
+          } else if (error.code === "auth/too-many-requests") {
+            errorMessage.textContent = "請求過多，請稍後再試。";
+          } else {
+            errorMessage.textContent = `登入失敗：${error.message}`;
+          }
+        });
     });
-  </script>
+
+    resetPasswordLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      if (!email) {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "請輸入 Email 以重置密碼。";
+        return;
+      }
+      auth.sendPasswordResetEmail(email, {
+        url: "https://star-platform-bf3e7.firebaseapp.com/login.html"
+      })
+        .then(() => {
+          errorMessage.style.display = "block";
+          errorMessage.textContent = "重置密碼郵件已發送，請檢查您的郵箱：" + email;
+        })
+        .catch((error) => {
+          console.error("發送重置密碼郵件失敗:", error);
+          errorMessage.style.display = "block";
+          errorMessage.textContent = `無法發送重置密碼郵件：${error.code} - ${error.message}`;
+        });
+    });
+
+   // 🔁 區塊切換邏輯
+  document.getElementById("showRegister").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("registerSection").style.display = "block";
+    errorMessage.style.display = "none";
+  });
+
+  document.getElementById("showLogin").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("registerSection").style.display = "none";
+    document.getElementById("loginSection").style.display = "block";
+    errorMessage.style.display = "none";
+  });
+
+  // 🆕 註冊流程
+  const registerForm = document.getElementById("registerForm");
+  registerForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(() => {
+        console.log("註冊成功");
+        window.location.href = "/profile-dashboard.html";
+      })
+      .catch((error) => {
+        errorMessage.style.display = "block";
+        if (error.code === "auth/email-already-in-use") {
+          errorMessage.textContent = "此 Email 已被註冊，請直接登入。";
+        } else if (error.code === "auth/invalid-email") {
+          errorMessage.textContent = "Email 格式不正確。";
+        } else if (error.code === "auth/weak-password") {
+          errorMessage.textContent = "密碼太簡單，請至少輸入 6 字元。";
+        } else {
+          errorMessage.textContent = `註冊失敗：${error.message}`;
+        }
+      });
+    });
+  // ✅ 用戶登入狀態監聽（搬出來放這）    
+  auth.onAuthStateChanged((user) => {
+      if (user) {
+        console.log("用戶已登入:", user.email);
+        const params = new URLSearchParams(location.search);
+        const next = params.get("next") || "/profile-dashboard.html";
+        location.href = next;
+      } else {
+        console.log("用戶未登入");
+      }
+  });
+</script>
 </body>
 </html>
