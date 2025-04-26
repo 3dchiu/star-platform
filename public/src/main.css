@@ -396,7 +396,7 @@
       10. Thank-You Page (Stars & Animations)
       ========================================================================== */
    .star-bg {
-     background: url("./img/star-bg.png") center top / cover no-repeat fixed;
+     background: url("/img/star-bg.png") center top / cover no-repeat fixed;
      color: #fff;
      min-height: 100vh;
    }
