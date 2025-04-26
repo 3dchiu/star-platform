@@ -603,7 +603,12 @@
 .hero-cta:hover {
   background: var(--color-primary-alt);
 }
-
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+}
 /* Features 區塊卡片 */
 .feature-card {
   background: var(--color-surface);
