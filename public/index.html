@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <!-- 1) Firebase Compat 一定要最先載入 -->
+  <!-- 1) Firebase Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
 
   <!-- 2) 全站 CSS 與 meta -->
   <link rel="stylesheet" href="./src/main.css">
+  <link rel="stylesheet" href="./src/homepage.css">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -16,25 +17,25 @@
   <script type="module" src="./js/i18n.js"></script>
 </head>
 <body>
-  <!-- 5) Header 會自動插入到這裡 -->
+  <!-- 5) Header 自動插入 -->
   <div id="appHeader"></div>
 
-  <main class="page-container">
+  <main class="page-container fade-in">
     <!-- Hero Section -->
-    <section class="white-card" style="text-align: center; padding: 60px 20px;">
+    <section class="hero-section">
       <h1 class="hero-title" data-i18n="home.heroTitle"></h1>
       <p class="hero-subtitle" data-i18n="home.heroSubtitle"></p>
-      <a href="/login.html" class="hero-cta" data-i18n="home.startButton"></a>
+      <a href="/login.html" class="hero-cta btn btn-primary" data-i18n="home.startButton"></a>
     </section>
 
     <!-- About Star Section -->
-    <section style="margin-top: 64px; text-align: center;">
+    <section class="about-section">
       <h2 data-i18n="home.aboutTitle"></h2>
-      <p style="color: var(--color-text-secondary);" data-i18n="home.aboutText"></p>
+      <p data-i18n="home.aboutText"></p>
     </section>
 
     <!-- Features Section -->
-    <section style="margin-top: 64px; display: grid; gap: 32px;">
+    <section class="features-grid">
       <div class="feature-card">
         <h3 data-i18n="home.features.buildProfileTitle"></h3>
         <p data-i18n="home.features.buildProfileText"></p>
@@ -60,8 +61,8 @@
   <!-- 7) 啟動語系 -->
   <script type="module">
     import { setLang } from '/js/i18n.js';
-    const lang = localStorage.getItem('lang') || 'zh-Hant'; // 預設繁體中文
+    const lang = localStorage.getItem('lang') || 'zh-Hant';
     setLang(lang);
-  </script>  
+  </script>
 </body>
 </html>
