@@ -1,4 +1,4 @@
-// public/js/recommend-form.js
+// public./js/recommend-form.js
 import { i18n, setLang } from "./i18n.js";
 import { firebaseConfig } from "./firebase-config.js";
 

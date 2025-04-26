@@ -1,4 +1,4 @@
-// public/js/profile-dashboard.js
+// public./js/profile-dashboard.js
 import { i18n } from "./i18n.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
