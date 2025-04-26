@@ -1,29 +1,21 @@
-/* ----------------------------------------------------
- *  共用 Header
- *  1. 動態插入 /partials/header.html
- *  2. 多語選單
- *  3. Firebase Auth：Login / Logout
- *  -------------------------------------------------- */
-
 import { i18n, setLang } from "./i18n.js";
 
-(async () => {
-  /* ❶ 先把 header.html 插入到 <body> 最前面 ---------------- */
+document.addEventListener('DOMContentLoaded', async () => {
+  /* ❶ 插入 header.html */
   const html = await fetch("./partials/header.html").then(r => r.text());
   document.body.insertAdjacentHTML("afterbegin", html);
 
-  /* ❷ 語言下拉選單 --------------------------------------- */
+  /* ❷ 語言選單 */
   const langSel = document.getElementById("langSelector");
   const currentLang = localStorage.getItem("lang") || "en";
   langSel.value = currentLang;
 
   langSel.addEventListener("change", e => {
     setLang(e.target.value);
-    location.reload(); // 重新整理讓頁面文字生效
+    location.reload();
   });
 
-  /* ❸ 初始化 Firebase ------------------------------------ */
-  // 將 firebaseConfig 移到前面
+  /* ❸ 初始化 Firebase */
   const firebaseConfig = {
     apiKey: "AIzaSyBp_XEBrLGAtOkSL9re9K5P0WgPumueuOA",
     authDomain: "star-platform-bf3e7.firebaseapp.com",
@@ -37,22 +29,19 @@ import { i18n, setLang } from "./i18n.js";
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  /* ❹ Login / Logout 按鈕 ------------------------------- */
+  /* ❹ Login / Logout 按鈕 */
   const loginBtn = document.getElementById("loginBtn");
   const logoutBtn = document.getElementById("logoutBtn");
 
-  // 檢查按鈕是否存在，避免 null 錯誤
   if (loginBtn && logoutBtn) {
     loginBtn.textContent = i18n[currentLang].login;
     logoutBtn.textContent = i18n[currentLang].logout;
 
-    // 點 Login：帶 next=目前頁面，完成登入後自動返回
     loginBtn.addEventListener("click", () => {
       const next = encodeURIComponent(location.pathname + location.search);
       location.href = `login.html?next=${next}`;
     });
 
-    // 點 Logout：Firebase signOut
     logoutBtn.addEventListener("click", () => {
       auth.signOut()
         .then(() => location.href = "/login.html")
@@ -66,4 +55,4 @@ import { i18n, setLang } from "./i18n.js";
   } else {
     console.error("找不到 loginBtn 或 logoutBtn，請檢查 header.html");
   }
-})();
+});
