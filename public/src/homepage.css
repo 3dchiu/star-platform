@@ -70,24 +70,31 @@
      4. Features 區塊
   ============================= */
   .features-grid {
-    max-width: 960px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    justify-content: center;
     gap: 32px;
+    flex-wrap: wrap;
     margin-top: 48px;
   }
+  
   .feature-card {
+    width: 300px; /* 固定每塊寬度 */
     background: var(--color-surface);
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     padding: 24px;
     text-align: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 讓文字靠上，外觀一致 */
+    min-height: 360px; /* 固定最小高度，讓高度一致 */
+    transition: transform 0.2s ease;
   }
+  
   .feature-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    
   }
   .feature-card h3 {
     font-size: 1.25rem;
