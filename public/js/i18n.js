@@ -287,10 +287,24 @@ export function setLang(langCode = "en") {
   document.documentElement.lang = langCode;
 
   const dict = i18n[langCode] || i18n.en;
+
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
-    if (dict[key] != null) {
-      el.textContent = dict[key];
+    const keys = key.split(".");
+    let text = dict;
+
+    for (const k of keys) {
+      if (text && k in text) {
+        text = text[k];
+      } else {
+        text = null;
+        break;
+      }
+    }
+
+    if (typeof text === "string") {
+      el.textContent = text;
     }
   });
 }
+
