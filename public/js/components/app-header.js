@@ -9,11 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const langSel = document.getElementById("langSelector");
   const currentLang = localStorage.getItem("lang") || "en";
   langSel.value = currentLang;
-
-  langSel.addEventListener("change", e => {
-    setLang(e.target.value);
-    location.reload();
-  });
+  setLang(currentLang);
 
   /* ❸ 初始化 Firebase */
   const firebaseConfig = {
@@ -39,12 +35,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     loginBtn.addEventListener("click", () => {
       const next = encodeURIComponent(location.pathname + location.search);
-      location.href = `login.html?next=${next}`;
+      location.href = `/pages/login.html?next=${next}`;
     });
 
     logoutBtn.addEventListener("click", () => {
       auth.signOut()
-        .then(() => location.href = "login.html")
+        .then(() => location.href = "./pages/login.html")
         .catch(err => console.error(err));
     });
 
@@ -52,6 +48,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       loginBtn.style.display = user ? "none" : "inline-block";
       logoutBtn.style.display = user ? "inline-block" : "none";
     });
+
+    // 【⭐加在這裡：語言切換時更新 login/logout 按鈕】
+    langSel.addEventListener("change", e => {
+      const selectedLang = e.target.value;
+      setLang(selectedLang);
+
+      loginBtn.textContent = i18n[selectedLang].login;
+      logoutBtn.textContent = i18n[selectedLang].logout;
+    });
+
   } else {
     console.error("找不到 loginBtn 或 logoutBtn，請檢查 header.html");
   }

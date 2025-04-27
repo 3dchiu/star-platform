@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ===== 監聽登入狀態 & 初始渲染 =====
   onAuthStateChanged(auth, async user => {
-    if (!user) return location.href = "login.html";
+    if (!user) return location.href = "./pages/login.html";
     profile.userId = user.uid;
     // 🏷️ 是否用過 sessionStorage 的預填功能
     let prefillUsed = false;

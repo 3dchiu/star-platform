@@ -8,7 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   <script type="module" src="../js/i18n.js"></script>
-  <script type="module" src="../js/components/app-header.js"></script>
 </head>
 <body>
   <div id="appHeader"></div>
@@ -106,7 +105,7 @@
         return;
       }
       auth.sendPasswordResetEmail(email, {
-        url: "https://star-platform-bf3e7.firebaseapp.com/login.html"
+        url: "https://star-platform-bf3e7.firebaseapp.com/pages/login.html"
       })
         .then(() => {
           errorMessage.style.display = "block";
@@ -171,5 +170,6 @@
       }
   });
 </script>
+<script type="module" src="../js/components/app-header.js"></script>
 </body>
 </html>

@@ -128,6 +128,7 @@ export const i18n = {
       startButton: "Start Building",
       aboutTitle: "About Star",
       aboutText: "At Star, we believe every real collaboration deserves to be seen. Here, your everyday efforts — big or small — become shining credentials that carry your story forward.",
+      learnMore: "Learn More",
       features: {
         buildProfileTitle: "Craft Your Story",
         buildProfileText: "Showcase your journey and milestones — just one experience to start your story.",
@@ -296,6 +297,7 @@ export const i18n = {
       startButton: "開始建立",
       aboutTitle: "關於 Star",
       aboutText: "在 Star，我們相信每一段真實的合作都值得被看見。無論大小，每一份努力，都將成為照亮你職涯故事的光芒。",
+      learnMore: "了解更多",
       features: {
         buildProfileTitle: "打造你的故事",
         buildProfileText: "展現你的職涯旅程與成就，只需新增一段經歷，就能開啟你的故事。",
@@ -360,5 +362,11 @@ export function setLang(langCode = "en") {
       el.innerHTML = text;
     }
   });
+  // 自動在 DOMContentLoaded 時執行 setLang()
+  document.addEventListener("DOMContentLoaded", () => {
+    const lang = localStorage.getItem("lang") || "en";
+    setLang(lang);
+  });
+
 }
 

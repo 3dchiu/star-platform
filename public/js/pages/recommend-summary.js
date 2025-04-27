@@ -146,7 +146,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     // 私有：先等 auth，再載入
     onAuthStateChanged(auth, async user => {
       if (!user) {
-        return (location.href = "login.html");
+        return (location.href = "/pages/login.html");
       }
       await loadAndRender(user.uid, true);
     });
