@@ -1,6 +1,28 @@
 /* =============================
    1. 動畫效果
 ============================= */
+@keyframes fadeSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeBounceUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .fade-in {
     animation: fadeInUp 0.8s ease-out both;
   }
@@ -25,19 +47,32 @@
     color: var(--brand-blue);
     margin-bottom: 1rem;
     line-height: 1.2;
+    animation: fadeSlideUp 0.8s ease-out forwards;
+    animation-delay: 0.2s;
+    opacity: 0;
   }
+  
   .hero-subtitle {
     font-size: 1.25rem;
     color: var(--gray-600);
     margin-bottom: 2rem;
     line-height: 1.6;
+    animation: fadeSlideUp 0.8s ease-out forwards;
+    animation-delay: 0.4s;
+    opacity: 0;
   }
+  
   .hero-cta {
     padding: 14px 28px;
     font-size: 1.125rem;
     border-radius: 999px;
     transition: all 0.3s ease;
+    animation: fadeBounceUp 0.8s ease-out forwards;
+    animation-delay: 0.6s;
+    opacity: 0;
   }
+  
+  
   .hero-cta:hover {
     filter: brightness(1.1);
     transform: translateY(-2px);
@@ -76,8 +111,8 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 32px;
     margin-top: 48px;
-  }  
-  
+  }
+
   .feature-card {
     background: var(--color-surface);
     border-radius: 16px;
@@ -85,22 +120,40 @@
     padding: 24px;
     text-align: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
   
+    /* ⭐ 新增：動畫初始狀態 */
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeSlideUp 0.8s ease-out forwards;
+  }
+
   .feature-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 16px rgba(0,0,0,0.08);
   }
+
   .feature-card h3 {
     font-size: 1.25rem;
     font-weight: 700;
     margin-bottom: 12px;
     color: var(--color-text-primary);
   }
+
   .feature-card p {
     font-size: 1rem;
     color: var(--color-text-secondary);
     line-height: 1.6;
+  }
+
+  /* ⭐ 新增：各卡片延遲出場時間 */
+  .features-grid .feature-card:nth-child(1) {
+    animation-delay: 0.2s;
+  }
+  .features-grid .feature-card:nth-child(2) {
+    animation-delay: 0.4s;
+  }
+  .features-grid .feature-card:nth-child(3) {
+    animation-delay: 0.6s;
   }
   
   /* =============================
