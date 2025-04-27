@@ -123,20 +123,21 @@ export const i18n = {
     },
     // index.html
     home: {
-      heroTitle: "Let Recommendations Be the Light in Your Career",
-      heroSubtitle: "Create your career network profile, invite real collaborators to recommend you, and build your professional credibility.",
-      startButton: "Get Started",
+      heroTitle: "Shine your career with real recommendations",
+      heroSubtitle: "Build your profile with authentic collaborations and let your story shine.",
+      startButton: "Start Building",
       aboutTitle: "About Star",
-      aboutText: "Star is a platform that turns real collaboration experiences into career credentials.",
+      aboutText: "At Star, we believe every real collaboration deserves to be seen. Here, your everyday efforts — big or small — become shining credentials that carry your story forward.",
       features: {
-        buildProfileTitle: "Build Your Career Network Profile",
-        buildProfileText: "Edit your personal information, record each career experience, and establish your exclusive career system.",
-        inviteRecoTitle: "Invite Real Collaboration Recommendations",
-        inviteRecoText: "Through the recommendation link, invite your collaborators to leave authentic recommendations for you.",
-        buildTrustTitle: "Build Professional Credibility",
-        buildTrustText: "View, filter, and print your recommendation results anytime to build a comprehensive professional profile."
+        buildProfileTitle: "Craft Your Story",
+        buildProfileText: "Showcase your journey and milestones — just one experience to start your story.",
+        inviteRecoTitle: "Invite and Celebrate",
+        inviteRecoText: "Invite collaborators to share real moments and build lasting trust.",
+        buildTrustTitle: "Grow Your Trusted Network",
+        buildTrustText: "Turn real experiences into your career momentum and trusted connections."
       },
-      finalCta: "Start Building Your Network Profile"
+      finalCta: "Start Your Journey Today",
+      finalCtaHint: "You don't have to finish everything to get started. Just add one experience and begin building your trusted network."
     },
   },
 
@@ -264,20 +265,21 @@ export const i18n = {
     },
     // index.html
     home: {
-      heroTitle: "讓推薦成為你職涯中的一束光",
-      heroSubtitle: "建立你的職涯人脈檔案，邀請真實合作夥伴留下推薦，累積你的專業信譽。",
-      startButton: "立即開始",
+      heroTitle: "讓真實推薦照亮你的職涯",
+      heroSubtitle: "以真實合作建立個人檔案，讓你的故事閃耀。",
+      startButton: "開始建立",
       aboutTitle: "關於 Star",
-      aboutText: "Star 是一個將真實合作經驗，變成職涯證明的平台。",
+      aboutText: "在 Star，我們相信每一段真實的合作都值得被看見。無論大小，每一份努力，都將成為照亮你職涯故事的光芒。",
       features: {
-        buildProfileTitle: "建立職涯人脈檔案",
-        buildProfileText: "編輯個人資料，記錄每段職場經歷，建立專屬職涯系統。",
-        inviteRecoTitle: "邀請真實合作推薦",
-        inviteRecoText: "透過推薦連結，邀請你的合作夥伴留下實際推薦，成為最佳職場證明。",
-        buildTrustTitle: "累積專業信譽",
-        buildTrustText: "隨時檢視、篩選、列印你的推薦成果，建立全方位職場專業證明。"
+        buildProfileTitle: "打造你的故事",
+        buildProfileText: "展現你的職涯旅程與成就，只需新增一段經歷，就能開啟你的故事。",
+        inviteRecoTitle: "邀請與見證",
+        inviteRecoText: "邀請共事夥伴，分享真實時刻，累積長遠信任。",
+        buildTrustTitle: "擴展信任網絡",
+        buildTrustText: "將真實經驗轉化為職涯動能，建立可信人脈網絡。"
       },
-      finalCta: "開始建立你的人脈檔案"
+      finalCta: "立即展開你的旅程",
+      finalCtaHint: "不需要完成整份履歷，只要新增一段經歷，就能開始建立你的信任網絡。"
     },
   }
 };
