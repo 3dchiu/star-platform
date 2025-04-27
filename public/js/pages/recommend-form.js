@@ -1,6 +1,6 @@
 // public./js/recommend-form.js
-import { i18n, setLang } from "./i18n.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { i18n, setLang } from "../i18n.js";
+import { firebaseConfig } from "../firebase-config.js";
 
 window.addEventListener("DOMContentLoaded", async () => {
   const lang = localStorage.getItem("lang") || "en";
@@ -31,8 +31,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     const lab = document.createElement("label");
     lab.className = "checkbox-label";
     lab.innerHTML = `
-      <input type="checkbox" name="highlight" value="${key}" />
-      ${labels[key] || key}
+      <input type="checkbox" name="highlight" value="${key}"><span>${labels[key] || key}</span>
     `;
     hlContainer.appendChild(lab);
   });

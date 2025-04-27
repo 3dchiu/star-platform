@@ -124,7 +124,7 @@ export const i18n = {
     // index.html
     home: {
       heroTitle: "Shine your career with real recommendations",
-      heroSubtitle: "Build your profile with authentic collaborations and let your story shine.",
+      heroSubtitle: "Build your story with authentic collaborations and let your light shine.",
       startButton: "Start Building",
       aboutTitle: "About Star",
       aboutText: "At Star, we believe every real collaboration deserves to be seen. Here, your everyday efforts — big or small — become shining credentials that carry your story forward.",
@@ -137,8 +137,34 @@ export const i18n = {
         buildTrustText: "Turn real experiences into your career momentum and trusted connections."
       },
       finalCta: "Start Your Journey Today",
-      finalCtaHint: "You don't have to finish everything to get started. Just add one experience and begin building your trusted network."
+      finalCtaHint: "Your story doesn't have to be complete to shine. Add one experience and let trust begin."
     },
+    about: {
+      heroTitle: "Every star deserves to shine.",
+      heroSubtitle: "At Star, every collaboration and connection becomes the start of your constellation.",
+      heroButton: "Start Building",
+      beliefTitle: "Our Belief",
+      belief1: "Connections are the constellation of your story.",
+      belief2: "Recommendations are the proof of trust built over time.",
+      belief3: "Your career is a journey of connections and growth.",
+      whyTitle: "Why Choose Star",
+      whyText: "At Star, we see more than titles and achievements. We value the trust and stories built through real collaborations.",
+      traditionalPlatform: "Traditional Platforms",
+      traditional1: "Focus on resumes and job applications",
+      traditional2: "Emphasis on hard skills and experiences",
+      traditional3: "Purpose limited to job seeking",
+      starPlatform: "Star Platform",
+      star1: "Focus on real collaboration and trusted connections",
+      star2: "Emphasis on stories, character, and interactions",
+      star3: "Purpose to build long-term professional trust",
+      howTitle: "How It Works",
+      howStep1: "Add one real experience to start your story.",
+      howStep2: "Invite collaborators to share their authentic impressions.",
+      howStep3: "Grow your constellation of trusted connections.",
+      finalTitle: "Your story deserves to be seen by the world.",
+      finalSubtitle: "Start now and let every real connection become the light for your future.",
+      finalButton: "Start Building"
+    }
   },
 
   "zh-Hant": {
@@ -279,7 +305,33 @@ export const i18n = {
         buildTrustText: "將真實經驗轉化為職涯動能，建立可信人脈網絡。"
       },
       finalCta: "立即展開你的旅程",
-      finalCtaHint: "不需要完成整份履歷，只要新增一段經歷，就能開始建立你的信任網絡。"
+      finalCtaHint: "你的故事，不必等待完整。新增一段經歷，讓信任開始發光。"
+    },
+    about: {
+      heroTitle: "讓每顆星都被看見。",
+      heroSubtitle: "在 Star，每段合作與連結，都是未來星光的起點。",
+      heroButton: "開始建立",
+      beliefTitle: "我們相信",
+      belief1: "人脈是故事的星圖。",
+      belief2: "推薦是信任的證明。",
+      belief3: "職涯是連結與成長的旅程。",
+      whyTitle: "為什麼選擇 Star",
+      whyText: "在 Star，我們不只看見你的職稱與成就，更重視你與人真實互動所累積的信任與故事。",
+      traditionalPlatform: "傳統平台",
+      traditional1: "聚焦填寫履歷與求職",
+      traditional2: "強調硬技能與經歷",
+      traditional3: "以求職為目的",
+      starPlatform: "Star 平台",
+      tar1: "聚焦真實合作與信任連結",
+      star2: "強調故事、人格與互動",
+      star3: "以建立長期職涯信任網絡為目標",
+      howTitle: "開始你的星光之旅",
+      howStep1: "從一個真實合作開始，建立你的故事起點。",
+      howStep2: "邀請共事夥伴，見證你的專業與人格。",
+      howStep3: "隨著推薦累積，點亮你的職涯星圖。",
+      finalTitle: "你的故事，值得被世界看見。",
+      finalSubtitle: "立即開始，讓每一段真實連結，成為你閃耀未來的光芒。",
+      finalButton: "開始建立"
     },
   }
 };

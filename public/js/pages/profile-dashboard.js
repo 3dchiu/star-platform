@@ -1,9 +1,9 @@
 // public./js/profile-dashboard.js
-import { i18n } from "./i18n.js";
+import { i18n } from "../i18n.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig } from "../firebase-config.js";
 
 // 初始化 Firebase
 const app = initializeApp(firebaseConfig);
@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ===== 監聽登入狀態 & 初始渲染 =====
   onAuthStateChanged(auth, async user => {
-    if (!user) return location.href = "/login.html";
+    if (!user) return location.href = "login.html";
     profile.userId = user.uid;
     // 🏷️ 是否用過 sessionStorage 的預填功能
     let prefillUsed = false;
@@ -337,11 +337,11 @@ document.addEventListener("DOMContentLoaded", () => {
       currentInviteStyle = inviteStyleSelect.value;
       const msg = inviteTextarea.value.trim()||currentDefaultMsg;
       const jobId = profile.workExperiences[currentJobIndex].id;
-      const url = `${location.origin}/recommend-form.html`
-               + `?userId=${profile.userId}`
-               + `&jobId=${encodeURIComponent(jobId)}`
-               + `&message=${encodeURIComponent(msg)}`
-               + `&style=${currentInviteStyle}`;
+      const url = `${location.origin}/pages/recommend-form.html`
+           + `?userId=${profile.userId}`
+           + `&jobId=${encodeURIComponent(jobId)}`
+           + `&message=${encodeURIComponent(msg)}`
+           + `&style=${currentInviteStyle}`;
 
       navigator.clipboard.writeText(url)
         .then(()=>showToast(t.linkCopied))

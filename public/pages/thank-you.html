@@ -5,24 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- title 由下方 JS 動態設定 -->
-  <title id="pageTitle"></title>
+  <title id="pageTitle">Star - Thank You</title>
  
   <!-- 站內共用樣式 -->
-  <link rel="stylesheet" href="./src/main.css" />
+  <link rel="stylesheet" href="../styles/main.css" />
 
   <!-- 1. Firebase Compat: 必須最先載入 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
 
   <!-- 2. Header（裡面會用到 firebase） -->
-  <script type="module" src="/js/app-header.js"></script>
+  <script type="module" src="../js/components/app-header.js"></script>
 </head>
 
 <body class="star-bg">
   <div id="appHeader"></div>
 
   <main class="page-container fade-in">
-    <img src="./img/network.png"
+    <img src="../img/network.png"
          alt="Network Illustration: 人際連結"
          class="network"
          loading="lazy"
@@ -47,7 +47,7 @@
 
   <!-- ========= 行為腳本 ========= -->
   <script type="module">
-    import { i18n } from "./js/i18n.js";
+    import { i18n } from "../js/i18n.js";
 
     // 1. URL 參數
     const urlParams       = new URLSearchParams(location.search);

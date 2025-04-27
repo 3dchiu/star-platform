@@ -1,5 +1,5 @@
 // public/js/recommend-summary.js
-import { i18n, setLang } from "./i18n.js";
+import { i18n, setLang } from "../i18n.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import {
   getFirestore,
@@ -12,7 +12,7 @@ import {
   getAuth,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-import { firebaseConfig } from "./firebase-config.js";
+import { firebaseConfig } from "../firebase-config.js";
 // html2canvas、jsPDF 現在都已經從 CDN 掛到全域 window 上
   const html2canvas = window.html2canvas;
   const { jsPDF }  = window.jspdf;

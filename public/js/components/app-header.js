@@ -1,8 +1,8 @@
-import { i18n, setLang } from "./i18n.js";
+import { i18n, setLang } from "../i18n.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
   /* ❶ 插入 header.html */
-  const html = await fetch("./partials/header.html").then(r => r.text());
+  const html = await fetch("../partials/header.html").then(r => r.text());
   document.body.insertAdjacentHTML("afterbegin", html);
 
   /* ❷ 語言選單 */
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     logoutBtn.addEventListener("click", () => {
       auth.signOut()
-        .then(() => location.href = "/login.html")
+        .then(() => location.href = "login.html")
         .catch(err => console.error(err));
     });
 

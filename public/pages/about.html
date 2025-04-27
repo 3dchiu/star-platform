@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Star</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/about.css"> <!-- 建議另開一個 about.css 做排版 -->
+  <script type="module" src="../js/i18n.js"></script>
+  <script type="module" src="../js/components/app-header.js"></script>
+</head>
+<body>
+
+  <!-- 1. Hero Banner -->
+  <section class="about-hero">
+    <div class="star-background"></div> 
+    <h1 data-i18n="about.heroTitle"></h1>
+    <p data-i18n="about.heroSubtitle"></p>
+    <a href="login.html" class="btn btn-primary" data-i18n="about.heroButton"></a>
+  </section>
+
+  <!-- 2. Our Belief -->
+  <section class="about-belief">
+    <h2 data-i18n="about.beliefTitle"></h2>
+    <ul class="belief-list">
+      <li><span data-i18n="about.belief1"></span></li>
+      <li><span data-i18n="about.belief2"></span></li>
+      <li><span data-i18n="about.belief3"></span></li>
+    </ul>
+  </section>
+
+  <!-- 3. Why Star -->
+  <section class="about-why">
+    <h2 data-i18n="about.whyTitle"></h2>
+    <p data-i18n="about.whyText"></p>
+
+    <div class="comparison-table">
+      <div>
+        <h3 data-i18n="about.traditionalPlatform"></h3>
+        <ul>
+          <li data-i18n="about.traditional1"></li>
+          <li data-i18n="about.traditional2"></li>
+          <li data-i18n="about.traditional3"></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="about.starPlatform"></h3>
+        <ul>
+          <li data-i18n="about.star1"></li>
+          <li data-i18n="about.star2"></li>
+          <li data-i18n="about.star3"></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. How It Works -->
+  <section class="about-how">
+    <h2 data-i18n="about.howTitle"></h2>
+    <div class="how-steps">
+      <div class="step">
+        <span>1️⃣</span>
+        <p data-i18n="about.howStep1"></p>
+      </div>
+      <div class="step">
+        <span>2️⃣</span>
+        <p data-i18n="about.howStep2"></p>
+      </div>
+      <div class="step">
+        <span>3️⃣</span>
+        <p data-i18n="about.howStep3"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Final CTA -->
+  <section class="about-final-cta">
+    <h2 data-i18n="about.finalTitle"></h2>
+    <p data-i18n="about.finalSubtitle"></p>
+    <a href="login.html" class="btn btn-primary" data-i18n="about.finalButton"></a>
+  </section>
+
+  <script type="module">
+    import { setLang } from '../js/i18n.js';
+    const lang = localStorage.getItem('lang') || 'zh-Hant';
+    setLang(lang);
+  </script>
+
+</body>
+</html>

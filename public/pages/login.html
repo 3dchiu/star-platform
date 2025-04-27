@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login – Star</title>
-  <link rel="stylesheet" href="./src/main.css" />
+  <link rel="stylesheet" href="../styles/main.css" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-  <script type="module" src="./js/i18n.js"></script>
-  <script type="module" src="./js/app-header.js"></script>
+  <script type="module" src="../js/i18n.js"></script>
+  <script type="module" src="../js/components/app-header.js"></script>
 </head>
 <body>
   <div id="appHeader"></div>
@@ -76,7 +76,7 @@
         .then(() => {
           console.log("登入成功");
           const params = new URLSearchParams(location.search);
-          const next = params.get("next") || "/profile-dashboard.html";
+          const next = params.get("next") || "profile-dashboard.html";
           location.href = next;
         })
         .catch((error) => {
@@ -144,7 +144,7 @@
     auth.createUserWithEmailAndPassword(email, password)
       .then(() => {
         console.log("註冊成功");
-        window.location.href = "/profile-dashboard.html";
+        window.location.href = "profile-dashboard.html";
       })
       .catch((error) => {
         errorMessage.style.display = "block";
@@ -164,7 +164,7 @@
       if (user) {
         console.log("用戶已登入:", user.email);
         const params = new URLSearchParams(location.search);
-        const next = params.get("next") || "/profile-dashboard.html";
+        const next = params.get("next") || "profile-dashboard.html";
         location.href = next;
       } else {
         console.log("用戶未登入");

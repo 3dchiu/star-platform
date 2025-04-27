@@ -480,6 +480,10 @@
      .job-card {
        padding: 16px;
      }
+     .checkbox-group label {
+      flex: 0 1 45%;
+    }
+
    }
    @media (max-width: 400px) {
      .page-container {
@@ -517,37 +521,55 @@
   margin-bottom: 4px;
 }
 
-/* Chip 多選標籤（改成 flex） */
+/* 1. 讓整列顯示 4 個格子 */
 .checkbox-group {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
+  flex-wrap: wrap;        /* 小螢幕可換行 */
+  gap: 12px;              /* 格子間距 */
 }
 
+/* 2. 每格佔 25% 減掉間距，最小寬度 100px，最大寬度 140px */
 .checkbox-group label {
-  display: inline-flex;
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  justify-content: center;
+  flex: 0 1 120px;       /* 固定成 120px 寬，可擴可縮 */
+  min-width: 100px;      /* 縮到最小 100px */
+  max-width: 140px;      /* 放大到最大 140px */
+  height: 60px;           /* 高度可再微調 */
+  padding: 0 8px;
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: 6px;     /* 圓角不要太大 */
   background: var(--color-surface);
-  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;      /* 字體小一點 */
+  white-space: nowrap;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
+  margin-block: 12px; /* 上下各 12px */
 }
 
-.checkbox-group input[type="checkbox"] {
-  margin: 0;
-  transform: scale(1.1);
+.checkbox-group label:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-.checkbox-group input[type="checkbox"]:checked + span {
-  background: var(--brand-blue);
+/* 3. 隱藏原生 checkbox，整格都可點 */
+.checkbox-group label input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* 4. 選中後整格變主色、文字變白 */
+.checkbox-group label:has(input[type="checkbox"]:checked) {
+  background-color: var(--brand-blue);
   color: #fff;
   border-color: var(--brand-blue);
 }
+
 /* Print styles */
 @media print {
   /* 隱藏篩選區與匯出按鈕 */

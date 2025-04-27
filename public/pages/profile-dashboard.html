@@ -8,21 +8,21 @@
   <meta charset="UTF-8" />
   <title data-i18n="profileTitle">My Career Profile</title>
 
-  <!-- 全站 CSS（在 public./src/main.css） -->
-  <link rel="stylesheet" href="./src/main.css" />
+  <!-- 全站 CSS（在 public../styles/main.css） -->
+  <link rel="stylesheet" href="../styles/main.css" />
 
-  <!-- 先設定語系，這支 JS 在 public./js/i18n.js -->
+  <!-- 先設定語系，這支 JS 在 public../js/i18n.js -->
   <script type="module">
-    import { setLang } from "./js/i18n.js";
+    import { setLang } from "../js/i18n.js";
     const lang = localStorage.getItem("lang") || "en";
     setLang(lang);
   </script>
 
   <!-- 公共 header -->
-  <script type="module" src="./js/app-header.js"></script>
+  <script type="module" src="../js/components/app-header.js"></script>
 
   <!-- 這才是 Profile Dashboard 的邏輯 -->
-  <script type="module" src="./js/profile-dashboard.js"></script>
+  <script type="module" src="../js/pages/profile-dashboard.js"></script>
 </head>
 <body>
   <div id="appHeader"></div>

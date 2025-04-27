@@ -1,0 +1,227 @@
+/* =============================
+   About Star Page 基本排版
+============================= */
+
+/* 通用容器 */
+.about-hero,
+.about-belief,
+.about-why,
+.about-how,
+.about-final-cta {
+  max-width: 960px;
+  margin: 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+/* Hero 區域 */
+.about-hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+  margin-bottom: 1rem;
+}
+
+.about-hero p {
+  font-size: 1.25rem;
+  color: var(--gray-600);
+  margin-bottom: 2rem;
+}
+
+.about-hero a {
+  padding: 14px 28px;
+  font-size: 1.125rem;
+  border-radius: 999px;
+  background-color: var(--brand-blue);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.about-hero a:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* 我們相信區塊 */
+.about-belief h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.belief-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.belief-list li {
+  font-size: 1.125rem;
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+}
+
+/* Why Star 區塊 */
+.about-why h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.about-why p {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 2rem;
+}
+
+.comparison-table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.comparison-table div {
+  flex: 1 1 300px;
+  background: var(--color-surface);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 24px;
+}
+
+.comparison-table h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.comparison-table ul {
+  list-style: none;
+  padding: 0;
+}
+
+.comparison-table li {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+/* How It Works 區塊 */
+.about-how h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.how-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.how-steps .step {
+  flex: 1 1 280px;
+  background: var(--color-surface);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 24px;
+}
+
+.how-steps .step span {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--brand-blue);
+}
+
+.how-steps .step p {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+/* Final CTA 區塊 */
+.about-final-cta h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+  margin-bottom: 1rem;
+}
+
+.about-final-cta p {
+  font-size: 1.125rem;
+  color: var(--gray-600);
+  margin-bottom: 2rem;
+}
+
+.about-final-cta a {
+  padding: 16px 32px;
+  font-size: 1.125rem;
+  border-radius: 999px;
+  background-color: var(--brand-blue);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.about-final-cta a:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* 響應式調整 */
+@media (max-width: 768px) {
+  .comparison-table,
+  .how-steps {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+/* =============================
+   Hero 區星光背景動畫
+============================= */
+
+.star-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0; /* 在內容下方 */
+  }
+  
+  .star-background::before,
+  .star-background::after {
+    content: "";
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(white 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: starMove 60s linear infinite;
+    opacity: 0.4;
+  }
+  
+  .star-background::after {
+    background-size: 80px 80px;
+    animation-direction: reverse;
+    opacity: 0.6;
+  }
+  
+  /* 星光緩慢移動 */
+  @keyframes starMove {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(-50px, -50px);
+    }
+  }
+  
+  /* 讓 about-hero 本體有定位層，才能正常覆蓋 */
+  .about-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 120px 20px 80px; /* 上下padding再大一點，更有呼吸感 */
+  }
+  
