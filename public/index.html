@@ -6,15 +6,15 @@
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
 
   <!-- 2) 全站 CSS 與 meta -->
-  <link rel="stylesheet" href="../styles/main.css">
-  <link rel="stylesheet" href="../styles/homepage.css">
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./styles/homepage.css">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Star 人脈推薦平台</title>
 
   <!-- 3) 多語支援 -->
-  <script type="module" src="../js/i18n.js"></script>
+  <script type="module" src="./js/i18n.js"></script>
 </head>
 <body>
   <!-- 5) Header 自動插入 -->
@@ -58,13 +58,7 @@
   </main>
 
   <!-- 6) Header Script -->
-  <script type="module" src="../js/components/app-header.js"></script>
+  <script type="module" src="./js/components/app-header.js"></script>
 
-  <!-- 7) 啟動語系 -->
-  <script type="module">
-    import { setLang } from '../js/i18n.js';
-    const lang = localStorage.getItem('lang') || 'zh-Hant';
-    setLang(lang);
-  </script>
 </body>
 </html>
