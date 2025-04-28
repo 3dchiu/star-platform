@@ -1,18 +1,26 @@
 <!-- public/partials/header.html -->
 <header class="header">
-  <div class="header__inner">
-    <!-- 語言選單 -->
-    <select id="langSelector" class="lang-selector">
-      <option value="en">English</option>
-      <option value="zh-Hant">繁體中文</option>
-    </select>
+  <div class="header__inner flex justify-between items-center px-4 py-2">
+    
+    <!-- 左邊：Logo or Home Link -->
+    <a href="/" class="brand-link text-lg font-semibold text-brand-blue">
+      🌟 Star
+    </a>
 
-    <!-- Auth 按鈕 -->
-    <button id="loginBtn" class="btn btn-primary" style="display:none;">
-      登入
-    </button>
-    <button id="logoutBtn" class="btn btn-secondary" style="display:none;">
-      登出
-    </button>
+    <!-- 右邊：語言選單 + 登入/登出按鈕 -->
+    <div class="flex items-center space-x-4">
+      <select id="langSelector" class="lang-selector">
+        <option value="en">English</option>
+        <option value="zh-Hant">繁體中文</option>
+      </select>
+
+      <button id="loginBtn" class="btn btn-primary hidden">
+        登入
+      </button>
+      <button id="logoutBtn" class="btn btn-secondary hidden">
+        登出
+      </button>
+    </div>
+
   </div>
 </header>

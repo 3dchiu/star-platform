@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     logoutBtn.addEventListener("click", () => {
       auth.signOut()
-        .then(() => location.href = "./pages/login.html")
+        .then(() => location.href = "/pages/login.html")
         .catch(err => console.error(err));
     });
 

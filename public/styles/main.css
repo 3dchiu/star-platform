@@ -81,6 +81,18 @@
    .hidden {
      display: none !important;
    }
+   /* Star Logo 小動畫效果 */
+   .brand-link {
+     color: var(--brand-blue, #0056b3);
+     text-decoration: none;
+     transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
+   }
+
+   .brand-link:hover {
+     color: #0070f3; /* Hover 時稍微變亮 */
+     transform: scale(1.05); /* 稍微放大 */
+     text-shadow: 0 0 8px rgba(0, 112, 243, 0.5); /* 微微發光效果 */
+   }
    
    /* ==========================================================================
       5. Buttons
