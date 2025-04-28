@@ -359,14 +359,13 @@ export function setLang(langCode = "en") {
     }
 
     if (typeof text === "string") {
-      el.innerHTML = text;
+      if (el.tagName === "OPTION") {
+        el.textContent = text; // <option> 要用 textContent
+      } else {
+        el.innerHTML = text;
+      }
     }
   });
-  // 自動在 DOMContentLoaded 時執行 setLang()
-  document.addEventListener("DOMContentLoaded", () => {
-    const lang = localStorage.getItem("lang") || "en";
-    setLang(lang);
-  });
-
+  window.dispatchEvent(new CustomEvent("langChanged", { detail: langCode }));
 }
 

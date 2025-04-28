@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+  <!-- Firebase (compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
@@ -8,89 +9,80 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- 頁面標題由 JS 自動填入 -->
   <title data-i18n="pageTitle">推薦表單</title>
   <link rel="stylesheet" href="../styles/main.css" />
 
   <!-- 多語 & 共用 Header -->
   <script type="module" src="../js/i18n.js"></script>
   <script type="module" src="../js/components/app-header.js"></script>
-  <!-- 這頁的主要邏輯 -->
+  <!-- 本頁主要邏輯 -->
   <script type="module" src="../js/pages/recommend-form.js"></script>
 </head>
 <body>
+  <!-- Header 容器 -->
   <div id="appHeader"></div>
 
   <main class="page-container">
+    <!-- 表單標題 -->
     <h1 id="formTitle" data-i18n="formTitle"></h1>
 
+    <!-- 被推薦職缺資訊 -->
     <div id="jobInfo" class="form-group job-info"></div>
 
-    <!-- 顯示邀請訊息 -->
-    <div id="inviteMessage" class="form-group" 
-         style="background-color:#fff9e6;
-                border-left:4px solid #ffc107;
-                padding:10px;
-                margin-top:12px;
-                font-style:italic;">
-      <!-- 內容由 recommend-form.js 填入 -->
+    <!-- 邀請訊息區塊 -->
+    <div class="form-group">
+      <strong id="inviteTitle" data-i18n="inviteTitle"></strong><br>
+      <textarea id="inviteContent" rows="4" 
+                style="width:100%; border:none; background:transparent; font-style:italic;"></textarea>
     </div>
 
+    <!-- 推薦表單 -->
     <form id="recommendForm">
+      <!-- 推薦人姓名 -->
       <div class="form-group">
         <label for="name" id="labelName" data-i18n="name"></label>
         <input type="text" id="name" required minlength="2" maxlength="50" />
         <small class="hint" data-i18n="hintName">請填寫您的姓名。</small>
       </div>
 
+      <!-- 推薦人 Email -->
       <div class="form-group">
         <label for="email" id="labelEmail" data-i18n="email"></label>
         <input type="email" id="email" required />
         <small class="hint" data-i18n="hintEmail">我們僅用於確認聯絡。</small>
       </div>
 
+      <!-- 與被推薦者的關係 -->
       <div class="form-group">
         <label for="relation" id="labelRelation" data-i18n="relation"></label>
         <select id="relation" required></select>
       </div>
 
+      <!-- 推薦亮點（四選一或多選） -->
       <div class="form-group">
         <label id="labelHighlights" data-i18n="highlightLabel"></label>
         <div id="highlightsContainer" class="checkbox-group">
-          <label>
-            <input type="checkbox" name="highlight" value="Professional Skills" />
-            <span data-i18n="highlightOption.professional">專業能力</span>
-          </label>
-          <label>
-            <input type="checkbox" name="highlight" value="Work Ethic" />
-            <span data-i18n="highlightOption.workEthic">工作態度</span>
-          </label>
-          <label>
-            <input type="checkbox" name="highlight" value="Collaboration" />
-            <span data-i18n="highlightOption.interpersonal">人際互動</span>
-          </label>
+          <!-- JS 會在此動態產生四個 <label>…</label> -->
+        </div>
       </div>
+
+      <!-- 自訂其他亮點 -->
       <div class="form-group">
         <label for="customHighlight" data-i18n="highlightOptionCustomLabel"></label>
-        <input
-          type="text"
-          id="customHighlight"
-          maxlength="30"
-          data-i18n-placeholder="highlightOptionCustomPlaceholder"
-          placeholder=""
-        />
-
-      <!-- Hint 由 i18n.js 補文字 -->
-      <small class="hint" data-i18n="hintCustomHighlight"></small>
-      </div>
-       
+        <input type="text" id="customHighlight" maxlength="30"
+               placeholder="" data-i18n-placeholder="highlightOptionCustomPlaceholder"/>
+        <small class="hint" data-i18n="hintCustomHighlight"></small>
       </div>
 
+      <!-- 推薦內容 -->
       <div class="form-group">
-        <label for="content" id="labelContent" data-i18n="content"></label>
+        <label for="content" id="labelContent" data-i18n="contentLabel"></label>
         <textarea id="content" rows="5" required maxlength="500"></textarea>
-        <small class="hint" data-i18n="hintContent">最多 500 字，請聚焦亮點。</small>
+        <small class="hint" id="hintContent" data-i18n="hintContent">最多 500 字，請聚焦亮點。</small>
       </div>
 
+      <!-- 送出按鈕 -->
       <button type="submit" id="submitBtn" class="btn btn-primary"></button>
     </form>
   </main>

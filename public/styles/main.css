@@ -63,13 +63,27 @@
      align-items: center;
      z-index: 100;
    }
+
    .header__inner {
-     max-width: 1200px;
-     margin: 0 auto;
+     width: 100%;
      display: flex;
-     justify-content: flex-end;
-     gap: var(--spacing-md);
+     justify-content: space-between;
+     align-items: center;
+     padding: 12px 24px;
    }
+
+   .brand-link {
+     color: var(--brand-blue, #0056b3);
+     text-decoration: none;
+     transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
+   }
+
+   .brand-link:hover {
+     color: #0070f3;
+     transform: scale(1.05);
+     text-shadow: 0 0 8px rgba(0, 112, 243, 0.5);
+   }
+
    .lang-selector {
      padding: var(--spacing-xs) var(--spacing-sm);
      font-size: 1rem;
@@ -78,22 +92,63 @@
      background-color: var(--color-surface);
      color: var(--color-text-primary);
    }
+
    .hidden {
      display: none !important;
    }
-   /* Star Logo 小動畫效果 */
-   .brand-link {
-     color: var(--brand-blue, #0056b3);
-     text-decoration: none;
-     transition: transform 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
+    /* 🌐 地球語言選單 */
+    .lang-switcher {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      width: 40px;        /* 固定寬度，比如跟地球 icon 大小相當 */
+      height: 40px;       /* 固定高度 */
+      justify-content: center; /* 地球置中 */
+      overflow: visible;  /* 語言選單超出範圍時不裁切 */
+    }
+    
+   #langButton {
+     background: none;
+     border: none;
+     cursor: pointer;
+     font-size: 24px;
+     color: white;
+     padding: 4px;
    }
 
-   .brand-link:hover {
-     color: #0070f3; /* Hover 時稍微變亮 */
-     transform: scale(1.05); /* 稍微放大 */
-     text-shadow: 0 0 8px rgba(0, 112, 243, 0.5); /* 微微發光效果 */
+   .lang-menu {
+    display: none;
+    position: absolute;
+    top: 100%;         /* 從地球正下方開始 */
+    right: 0;          /* 往右對齊地球 */
+    margin-top: 8px;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 120px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
    }
-   
+
+   .lang-menu.show {
+    display: block;
+  }
+
+   .lang-menu .lang-option {
+     width: 100%;
+     padding: 8px 12px;
+     text-align: left;
+     background: white;
+     border: none;
+     font-size: 14px;
+   }
+
+   .lang-menu .lang-option:hover {
+     background-color: #f0f0f0;
+   }
+
+
    /* ==========================================================================
       5. Buttons
       ========================================================================== */
@@ -691,7 +746,4 @@ section {
   }
 }
 
-
-
-  
    

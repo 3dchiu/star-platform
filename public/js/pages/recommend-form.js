@@ -1,153 +1,144 @@
-// public./js/recommend-form.js
+// public/js/recommend-form.js
 import { i18n, setLang } from "../i18n.js";
 import { firebaseConfig } from "../firebase-config.js";
 
-window.addEventListener("DOMContentLoaded", async () => {
-  const lang = localStorage.getItem("lang") || "en";
-  setLang(lang);
-  const t = i18n[lang] || i18n.en;
+// 解析 URL 參數
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("userId");
+const jobId = params.get("jobId");
+const urlMessage = params.get("message");
+const style = params.get("style") || "direct";
 
+// 控制邀請內容是否為預設公版
+let userEdited = false;
+let isUsingDefaultInvite = false;
+
+// 暫存被推薦者與職缺資料
+let profileData = null;
+let jobData = null;
+
+// 渲染函式：刷新整個表單的動態區塊
+function renderPageByLang() {
+  const langNow = localStorage.getItem("lang") || "en";
+  const t = i18n[langNow] || i18n.en;
+  const defaultInvite = t[`defaultInvite_${style}`] || t.defaultInvite_direct;
+
+  // 更新頁面標題
   document.title = t.pageTitle;
   document.getElementById("formTitle").innerText = t.formTitle;
+
+  // 更新推薦對象小標
+  const titleEl = document.getElementById("formTitle");
+  const raw = t.recommendingTo;
+  const name = profileData.chineseName || profileData.name || "";
+  const greeting = typeof raw === "function" ? raw(name) : raw.replace("{name}", name);
+  const oldSub = titleEl.querySelector(".sub-title");
+  if (oldSub) oldSub.remove();
+  titleEl.insertAdjacentHTML("beforeend", `<div class=\"sub-title text-lg text-gray-600 mt-1\">${greeting}</div>`);
+
+  // 更新職缺區塊
+  const jobInfoDiv = document.getElementById("jobInfo");
+  jobInfoDiv.innerHTML = `
+    <p><strong>${t.company}:</strong> ${jobData.company || t.undefinedCompany}</p>
+    <p><strong>${t.position}:</strong> ${jobData.position || t.undefinedPosition}</p>
+    <p><strong>${t.period}:</strong> ${jobData.startDate || "--"} ～ ${jobData.endDate || t.currentlyWorking}</p>
+  `;
+
+  // 更新邀請區
+  const inviteTitleEl = document.getElementById("inviteTitle");
+  const inviteArea = document.getElementById("inviteContent");
+  inviteTitleEl.innerText = t.inviteTitle;
+  if (isUsingDefaultInvite && !userEdited) {
+    inviteArea.value = defaultInvite;
+  }
+
+  // 更新表單欄位
   document.getElementById("labelName").innerText = t.name;
   document.getElementById("labelEmail").innerText = t.email;
   document.getElementById("labelRelation").innerText = t.relation;
+  document.getElementById("labelHighlights").innerText = t.highlightLabel;
   document.getElementById("labelContent").innerText = t.contentLabel;
+  document.getElementById("hintContent").innerText = t.hintContent;
   document.getElementById("submitBtn").innerText = t.submitRecommendation;
 
-  const relSelect = document.getElementById("relation");
+  // 更新 relation 下拉
+  const relSel = document.getElementById("relation"); relSel.innerHTML = "";
   t.relationOptions.forEach(opt => {
-    const o = document.createElement("option");
-    o.textContent = opt;
-    relSelect.appendChild(o);
+    const o = document.createElement("option"); o.textContent = opt; relSel.appendChild(o);
   });
 
-  document.getElementById("labelHighlights").innerText = t.highlightLabel;
-  const hlContainer = document.getElementById("highlightsContainer");
-  hlContainer.innerHTML = "";
-  const keys = i18n[lang].highlightOptions;
-  const labels = i18n[lang].highlightOptionLabels;
-  keys.forEach(key => {
-    const lab = document.createElement("label");
-    lab.className = "checkbox-label";
-    lab.innerHTML = `
-      <input type="checkbox" name="highlight" value="${key}"><span>${labels[key] || key}</span>
-    `;
+  // 更新四個推薦亮點
+  const hlContainer = document.getElementById("highlightsContainer"); hlContainer.innerHTML = "";
+  t.highlightOptions.forEach(key => {
+    const lab = document.createElement("label"); lab.className = "checkbox-label";
+    lab.innerHTML = `<input type=\"checkbox\" name=\"highlight\" value=\"${key}\"> <span>${t.highlightOptionLabels[key] || key}</span>`;
     hlContainer.appendChild(lab);
   });
+}
 
-  const params = new URLSearchParams(window.location.search);
-  const userId = params.get("userId");
-  const jobId = params.get("jobId");
-  const inviteMsg = params.get("message");
-  const style = params.get("style") || "direct";
+window.addEventListener("DOMContentLoaded", async () => {
+  // 延遲確保 DOM 可用
+  await new Promise(r => setTimeout(r, 200));
 
-  const jobInfoDiv = document.getElementById("jobInfo");
-  const inviteDiv = document.getElementById("inviteMessage");
-  const form = document.getElementById("recommendForm");
+  // 初始語系設定並更新所有 data-i18n 靜態文字
+  const initLang = localStorage.getItem("lang") || "en";
+  setLang(initLang);
 
-  // ✅ 初始化 firebase（compat）
+  // 取得初始預設邀請文字
+  const tInit = i18n[initLang] || i18n.en;
+  const defaultInviteInit = tInit[`defaultInvite_${style}`] || tInit.defaultInvite_direct;
+
+  // 初始邀請內容
+  const inviteArea = document.getElementById("inviteContent");
+  if (urlMessage) {
+    inviteArea.value = decodeURIComponent(urlMessage);
+    isUsingDefaultInvite = true;
+  } else {
+    inviteArea.value = defaultInviteInit;
+    isUsingDefaultInvite = true;
+  }
+  inviteArea.addEventListener("input", () => { userEdited = true; });
+
+  // 監聽 header.js 發出的語系變更事件，立即重繪
+  window.addEventListener("langChanged", () => {
+    renderPageByLang();
+  });
+
+  // 初始化 Firebase, 讀取使用者 profile & 職缺
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
-  const userRef = db.doc(`users/${userId}`);
-  const userSnap = await userRef.get();
+  const snap = await db.doc(`users/${userId}`).get();
+  if (!snap.exists) return document.getElementById("recommendForm").style.display = "none";
+  profileData = snap.data();
+  let exps = profileData.workExperiences;
+  if (!Array.isArray(exps)) exps = Object.values(exps || {});
+  exps.sort((a,b) => b.startDate.localeCompare(a.startDate));
+  jobData = exps.find(j => j.id === jobId);
+  if (!jobData) return document.getElementById("recommendForm").style.display = "none";
 
-  if (!userSnap.exists) {
-    // 使用者不存在
-    jobInfoDiv.innerHTML = `<p>${t.notFound}</p>`;
-    form.style.display   = "none";
-    return;
-  }  
+  // 首次渲染
+  renderPageByLang();
 
-  const profile = userSnap.data();
-  // 🔥 確保 workExperiences 一定是陣列
-  if (!Array.isArray(profile.workExperiences)) {
-    profile.workExperiences = Object.values(profile.workExperiences || {});
-  }
-  const userName = profile.chineseName || profile.name || "";
-  // ◆ 正確處理 recommendingTo 可能是 function 或字串
-  const titleEl = document.getElementById("formTitle");
-  const raw     = t.recommendingTo;
-  const text    = typeof raw === "function"
-    ? raw(userName)
-    : (raw || "").replace("{name}", userName);
-   titleEl.insertAdjacentHTML(
-    "beforeend",
-     `<div class="text-lg text-gray-600 mt-1">${text}</div>`
-   );
-  const sorted = [...(profile.workExperiences || [])].sort((a, b) =>
-    b.startDate.localeCompare(a.startDate)
-  );
-  const job = sorted.find(j => j.id === jobId);
-  if (!job) {
-    jobInfoDiv.innerHTML = `<p>${t.notFoundJob}</p>`;
-    form.style.display = "none";
-    return;
-  }
-
-  jobInfoDiv.innerHTML = `
-    <p><strong>${t.company}:</strong> ${job.company || t.undefinedCompany}</p>
-    <p><strong>${t.position}:</strong> ${job.position || t.undefinedPosition}</p>
-    <p><strong>${t.period}:</strong> ${job.startDate || "--"} ～ ${job.endDate || t.currentlyWorking}</p>
-  `;
-
-
-  const finalMsg = inviteMsg
-    ? decodeURIComponent(inviteMsg)
-    : (t[`defaultInvite_${style}`] || t.defaultInvite_direct);
-
-  inviteDiv.innerHTML = `
-    <strong>${t.inviteTitle}:</strong><br>
-    ${finalMsg}
-  `;
-
+  // 表單送出邏輯
+  const form = document.getElementById("recommendForm");
   form.addEventListener("submit", async e => {
     e.preventDefault();
-    // 禁止重複點擊
-    const submitBtn = document.getElementById("submitBtn");
-    submitBtn.disabled = true;
-    submitBtn.innerText = lang === "zh-Hant" ? "送出中..." : "Submitting...";
-  
-    // 1) 讀取表單欄位
-    const recommenderName = document.getElementById("name").value.trim();
-    const recommenderEmail = document.getElementById("email").value.trim();
-    const relation = document.getElementById("relation").value;
-    const content  = document.getElementById("content").value.trim();
-    const selected = Array.from(
-      document.querySelectorAll('input[name="highlight"]:checked')
-    ).map(cb => cb.value);
-    const custom   = document.getElementById("customHighlight").value.trim();
-    const highlights = custom ? [...selected, custom] : selected;
-  
-    // 2) 構造推薦物件，記得帶上 jobIndex
-    const rec = {
-      name: recommenderName,
-      email: recommenderEmail,
-      relation,
-      highlights,
-      content,
-      jobId 
-    };
-    
-  
-    // 3) 新增到子集合 recommendations
-    //    相較於 update() 整筆文件，add() 只在 child path 裡新增一筆 doc
-    const recCol = firebase
-      .firestore()
-      .collection("users")
-      .doc(userId)
-      .collection("recommendations");
-    
-    console.log("📤 send rec:", rec);
-    await recCol.add(rec);
-  
-   // 4) 跳到 Thank You 頁面（帶出推薦人姓名與 Email）
-  window.location.href =
-  `thank-you.html?`
-    + `userId=${profile.userId}`
-    + `&style=${style}`
-    + `&recommenderName=${encodeURIComponent(recommenderName)}`
-    + `&recommenderEmail=${encodeURIComponent(recommenderEmail)}`;
+    const btn = document.getElementById("submitBtn"); btn.disabled = true;
+    btn.innerText = (localStorage.getItem("lang") === "zh-Hant") ? "送出中..." : "Submitting...";
 
- });
-});  
+    const rec = {
+      name: document.getElementById("name").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      relation: document.getElementById("relation").value,
+      highlights: Array.from(document.querySelectorAll('input[name="highlight"]:checked')).map(cb => cb.value)
+                   .concat(document.getElementById("customHighlight").value.trim() || []),
+      content: document.getElementById("content").value.trim(),
+      inviteMessage: document.getElementById("inviteContent").value.trim(),
+      jobId
+    };
+    await db.collection("users").doc(userId).collection("recommendations").add(rec);
+    window.location.href = `thank-you.html?userId=${profileData.userId}&style=${style}`
+      + `&recommenderName=${encodeURIComponent(rec.name)}`
+      + `&recommenderEmail=${encodeURIComponent(rec.email)}`;
+  });
+});

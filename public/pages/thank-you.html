@@ -47,7 +47,7 @@
 
   <!-- ========= 行為腳本 ========= -->
   <script type="module">
-    import { i18n } from "../js/i18n.js";
+    import { i18n, setLang } from "../js/i18n.js";
 
     // 1. URL 參數
     const urlParams       = new URLSearchParams(location.search);
@@ -59,7 +59,7 @@
 
     // 2. 讀語系與文案
     const lang = localStorage.getItem("lang") || "zh-Hant";
-    // 這裡統一用 thankYou namespace，下方 key 對應 i18n.js 的 thankYou 裡面
+    setLang(lang);
     const t    = i18n[lang].thankYou;
 
     // 3. 套用文案

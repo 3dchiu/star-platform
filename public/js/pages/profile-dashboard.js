@@ -1,5 +1,5 @@
 // public./js/profile-dashboard.js
-import { i18n } from "../i18n.js";
+import { i18n, setLang } from "../i18n.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
@@ -13,6 +13,7 @@ const db   = getFirestore(app);
 document.addEventListener("DOMContentLoaded", () => {
   // 多語
   const lang = localStorage.getItem("lang") || "en";
+  setLang(lang);
   const t    = i18n[lang] || i18n.en;
 
   // 元件對應
@@ -324,11 +325,17 @@ document.addEventListener("DOMContentLoaded", () => {
         currentCompany  = profile.workExperiences[idx].company;
         inviteStyleSelect.value = "warmth";
         currentInviteStyle = "warmth";
-        currentDefaultMsg  = (t[`defaultInvite_warmth`]||"")
+        
+        // ✨ 新增：即時抓取最新語言
+        const langNow = localStorage.getItem("lang") || "en";
+        const tNow = i18n[langNow] || i18n.en;
+      
+        currentDefaultMsg  = (tNow[`defaultInvite_warmth`] || "")
           .replace("{{company}}", currentCompany);
+        
         inviteTextarea.value = currentDefaultMsg;
         inviteModal.showModal();
-      }
+      }      
     });
 
     // 邀請 Modal 按鈕

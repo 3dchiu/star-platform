@@ -162,9 +162,6 @@
   auth.onAuthStateChanged((user) => {
       if (user) {
         console.log("用戶已登入:", user.email);
-        const params = new URLSearchParams(location.search);
-        const next = params.get("next") || "profile-dashboard.html";
-        location.href = next;
       } else {
         console.log("用戶未登入");
       }

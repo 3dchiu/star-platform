@@ -18,15 +18,13 @@ import { firebaseConfig } from "../firebase-config.js";
   const { jsPDF }  = window.jspdf;
 
 // 把 highlights 陣列轉成 <span class="badge">...</span>
-function renderBadges(tags) {
-  const lang = localStorage.getItem("lang") || "en";
-  const pack = (i18n[lang] && i18n[lang].recommendSummary) || {};
-  return (tags || [])
-    .map(tag => {
-      const label = pack[`highlight_${tag}`] || tag;
-      return `<span class="badge">${label}</span>`;
-    })
-    .join("");
+function renderBadges(tags, tFn) {
+  return (tags||[])
+  .map(tag => {
+     const label = tFn(`highlight_${tag}`) || tag;
+     return `<span class="badge">${label}</span>`;
+  })
+  .join("");
 }
 
 // 進入點
@@ -53,12 +51,18 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   // 2) 替換所有 data-i18n
   document
-    .querySelectorAll("[data-i18n]")
-    .forEach(el => {
-      const key = el.getAttribute("data-i18n");
-      const txt = t(key);
-      if (txt) el.innerText = txt;
-    });
+  .querySelectorAll("[data-i18n]")
+  .forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    const txt = t(key);
+    if (txt) {
+      if (el.tagName === "OPTION") {
+        el.textContent = txt; // 針對 option 特別用 textContent
+      } else {
+        el.innerText = txt; // 其他元素用 innerText
+      }
+    }
+  });
 
   // 3) 取得主要元素
   const summaryArea = document.getElementById("summaryArea");
@@ -94,7 +98,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
 
     // 渲染列表
-     renderRecommendations(profile);
+     renderRecommendations(profile, t, lang);
      exportBtn.addEventListener('click', () => {
       // 隱藏篩選和匯出按鈕
       filters.style.display   = 'none';
@@ -113,9 +117,9 @@ window.addEventListener("DOMContentLoaded", async () => {
       
     // ⚙️ 綁定篩選器：改變時重新渲染
     document.getElementById("relationFilter")
-      .addEventListener("change", () => renderRecommendations(profile));
+      .addEventListener("change", () => renderRecommendations(profile, t, lang));
     document.getElementById("highlightFilter")
-      .addEventListener("change", () => renderRecommendations(profile));
+      .addEventListener("change", () => renderRecommendations(profile, t, lang));
     // 標題 & Bio
     document.title = t("pageTitle");
     document.getElementById("pageTitle").innerText = t("pageTitle");
@@ -136,6 +140,38 @@ window.addEventListener("DOMContentLoaded", async () => {
       userNameEl.innerText = "";      
       backBtn.classList.add("hidden");
     }
+    // ✨ 保存 profile 到 window
+    window._loadedProfile = profile;
+    // ─────── 新增全域切語言後廣播的監聽 ───────
+  window.addEventListener("langChanged", () => {
+    const langNow = localStorage.getItem("lang") || "en";
+    const packNow = (i18n[langNow] && i18n[langNow].recommendSummary) || {};
+    const tNow = (key, ...args) => {
+      const v = packNow[key];
+      return typeof v === "function" ? v(...args) : v || "";
+    };
+    // 更新所有 [data-i18n] 的靜態文字（含 <option>）
+    document.querySelectorAll("[data-i18n]").forEach(el => { 
+      const key = el.getAttribute("data-i18n");
+      const txt = tNow(key);
+      if (txt) {
+        if (el.tagName === "OPTION") el.textContent = txt;
+        else el.innerText = txt;
+      }
+    });
+
+    window.dispatchEvent(new Event("langChanged"));
+    
+    // 更新 <title> 與返回按鈕
+    document.title = tNow("pageTitle");
+    const backBtn = document.getElementById("backBtn");
+    if (backBtn) backBtn.innerText = tNow("backToProfile");
+    // 重新渲染推薦列表
+    if (window._loadedProfile) {
+      renderRecommendations(window._loadedProfile, tNow, langNow);
+    }
+  });
+  // ────────────────────────────────────────
   }
 
   // 5) 根據模式呼叫 loadAndRender
@@ -152,13 +188,16 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  function renderRecommendations(profile) {
-    summaryArea.innerHTML = "";
-    const exps = profile.workExperiences || [];
-    if (exps.length === 0) {
-      summaryArea.innerHTML = `<p>${t("noExperience")}</p>`;
-      return;
-    }
+  function renderRecommendations(profile, tCurrent, langCurrent) {
+      summaryArea.innerHTML = "";
+      const exps = profile.workExperiences || [];
+      if (exps.length === 0) {
+        summaryArea.innerHTML = `<p>${tCurrent("noExperience")}</p>`;
+        return;
+      }      
+      function tRelation(relation) {
+        return tCurrent(`relation_${relation}`) || relation;
+      }
 
     // 取得篩選值
     const selectedRelation  = document.getElementById("relationFilter").value;
@@ -186,8 +225,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         card.innerHTML = `
           <div class="job-title">${job.position}</div>
           <div class="job-date">
-            ${job.startDate} ～ ${job.endDate || (lang === "zh-Hant" ? "目前在職" : "Present")}
+            ${job.startDate} ～ ${job.endDate || (langCurrent === "zh-Hant" ? "目前在職" : "Present")}
           </div>
+
         `;
 
         let anyMatch = false;
@@ -206,9 +246,9 @@ window.addEventListener("DOMContentLoaded", async () => {
           recDiv.innerHTML = `
             🧑‍🤝‍🧑 ${
               isPublic ? "" : `<span class="recommender">${r.name}</span>`
-            } (${r.relation}):
-            <div class="badge-container">${renderBadges(r.highlights)}</div>
-            <p>${r.content}</p>
+            } (${tRelation(r.relation, tCurrent)}):
+            <div class="badge-container">
+            ${renderBadges(r.highlights, tCurrent)}</div>
           `;
           card.appendChild(recDiv);
         });
@@ -226,7 +266,9 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
 
     if (!hasMatch && isFiltering) {
-      summaryArea.innerHTML = `<p>${t("noFilteredMatch")}</p>`;
-    }
+      summaryArea.innerHTML = `<p>${tCurrent("noFilteredMatch")}</p>`;
+    }    
   }
 });
+  
+
