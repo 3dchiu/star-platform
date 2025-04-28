@@ -92,17 +92,26 @@
       document.getElementById("summaryArea").style.display = "block";
     }
 
-    // 6. CTA 按鈕：先存推薦人，再導向登入／建立頁
-    document.getElementById("startFresh")
-      .addEventListener("click", e => {
-        e.preventDefault();
-        // 💾 已有：存姓名
-        sessionStorage.setItem("prefillName", recommenderName);
-        // 🔥 新增：存 Email
-        sessionStorage.setItem("prefillEmail", recommenderEmail);
-        // 接著導向登入，保持原本的 next 參數
-        location.href = `./pages/login.html?next=profile-dashboard.html`;
-      });
+    // 6. CTA 按鈕：先存推薦人資訊，再導向登入頁（帶 next 參數）
+document.getElementById("startFresh")
+  .addEventListener("click", e => {
+    e.preventDefault();
+    // 儲存推薦人的姓名和 Email
+    if (recommenderName) {
+      sessionStorage.setItem("prefillName", recommenderName);
+    }
+    if (recommenderEmail) {
+      sessionStorage.setItem("prefillEmail", recommenderEmail);
+    }
+
+    // 取得網址上原本帶的 next 參數（如果有）
+    const urlParams = new URLSearchParams(location.search);
+    const next = urlParams.get("next") || "profile-dashboard.html";
+
+    // 正確導向：登入頁並帶上 next 參數
+    location.href = `/pages/login.html?next=${encodeURIComponent(next)}`;
+  });
+
   </script>
 
   <!-- confetti -->
