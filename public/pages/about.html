@@ -32,33 +32,18 @@
 
     <!-- 2. Our Story 區 -->
     <section class="about-story card">
-      <h2>我們的願景</h2>
+      <!-- 用 data-i18n 取代死寫的「我們的願景」 -->
+      <h2 data-i18n="aboutPage.ourVisionTitle"></h2>
     
-      <div class="paragraph">
-        <p>
-          在 AI 普及的時代，履歷可以被美化，形象可以被包裝，但一個人的真實價值，卻越來越難被看見。
-        </p>
+      <!-- 第一段文字也由 i18n 負責 -->
+      <div class="paragraph" data-i18n="aboutPage.ourVisionContent"></div>
     
-        <ul>
-          <li>履歷上的文字，無法完整代表我們。</li>
-          <li>社群上的發文，無法完整代表我們。</li>
-          <li>LinkedIn 上的資料，更無法完整代表我們。</li>
-        </ul>
+      <!-- 留一個空的 ul，之後用 JS 把 bullets 塞進來 -->
+      <ul class="vision-list"></ul>
     
-        <p>
-          真正的我們，是在一次次共事裡被認識，在一次次挑戰中被理解，在一次次陪伴下被記錄。
-        </p>
-    
-        <p><strong>我們相信，每一顆努力發光的星星，都應該有自己的名字。</strong></p>
-      </div>
-    
-      <h2 class="subheading">為何創立 Star</h2>
-      <div class="paragraph">
-        <p>
-          於是，我們想做點不一樣的事：建立一個能讓彼此真實被看見的地方。  
-          讓合作的每個瞬間，成為你專業旅程中的一份證明。
-        </p>
-      </div>
+      <!-- 下一個子標題 & 內文依然用 data-i18n -->
+      <h2 class="subheading" data-i18n="aboutPage.whyStarTitle"></h2>
+      <div class="paragraph" data-i18n="aboutPage.whyStarContent"></div>
     </section>
     
 
@@ -93,17 +78,24 @@
         `).join('');
       }
     }
+    function renderVisionBullets() {
+      const lang = localStorage.getItem('lang') || 'en';
+      const bullets = (i18n[lang]?.aboutPage?.ourVisionBullets) || [];
+      const ul = document.querySelector('.vision-list');
+      if (!ul) return;
+      ul.innerHTML = bullets.map(item => `<li>${item}</li>`).join('');
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const lang = localStorage.getItem('lang') || 'en';
       setLang(lang);
       renderHowItWorksSteps();
+      renderVisionBullets();   // ← 新增
     });
 
     window.addEventListener('langChanged', () => {
       renderHowItWorksSteps();
+      renderVisionBullets();   // ← 新增
     });
   </script>
-
 </body>
 </html>
