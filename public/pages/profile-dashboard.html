@@ -27,7 +27,14 @@
 <body>
   <div id="appHeader"></div>
 
-  <main class="page-container">
+  <main class="container">
+      <!-- Onboarding 小卡 Start -->
+  <section id="quickStartCard" class="white-card soft-shadow p-6 mb-6 onboarding-card" style="display: none;">
+    <h2 id="onboardingTitle" class="text-xl font-semibold mb-4"></h2>
+    <ol id="onboardingSteps" class="list-decimal list-inside mb-4"></ol>
+  </section>
+      <!-- Onboarding 小卡 End -->
+
     <!-- Basic Info -->
     <section id="basicInfo" class="white-card soft-shadow"></section>
 
@@ -147,8 +154,8 @@
   
     <!-- 3. 按鈕 -->
     <div …>
-      <button id="inviteCancelBtn" … data-i18n="cancel">取消</button>
-      <button id="inviteSaveBtn" … data-i18n="save">儲存並複製</button>
+      <button id="inviteCancelBtn" data-i18n="inviteCancel"></button>
+      <button id="inviteSaveBtn"   data-i18n="inviteSaveAndCopy"></button>
     </div>
   </dialog>  
 </body>

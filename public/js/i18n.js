@@ -5,6 +5,14 @@ export const i18n = {
     logout: "Logout",  
 
     // profile-dashboard.html
+    onboarding: {
+      title: "Quick Start ✨",
+      steps: [
+        "📄 Create a work experience: just company, title, dates – takes 30 seconds!",
+        "Invite collaborators: click 🔗 to copy a link and send it – choose EN or ZH templates!",
+        "🧑‍🤝‍🧑 Build your career reputation: once submitted, it’s shown on your profile!"
+      ]
+    },
     workExperiences: "Work Experiences",
     addExperience: "+ Add New Experience",
     addExperienceTitle: "Add Experience",
@@ -21,6 +29,8 @@ export const i18n = {
     errEndBeforeStart: "End date cannot be before start date",
     selectEnd:         "Select end date",
     errEndAfterToday: "End date cannot be in the future",
+    inviteCancel:       "Cancel",
+    inviteSaveAndCopy:  "Save & Copy",
 
     // invitation templates & UI
     defaultInvite_direct: "I'm building my professional career profile and would love to invite you to write a short recommendation about our time working together. If you're open to it, I'd be happy to return the favor!",
@@ -198,6 +208,14 @@ export const i18n = {
     logout: "登出",
 
     // profile-dashboard.html
+    onboarding: {
+      title: "快速開始 ✨",
+      steps: [
+        "📄 建立一段經歷：填寫公司、職稱、起訖日期，只要 30 秒！",
+        "邀請合作夥伴推薦：點 🔗 複製連結，發給共事過的人，中英文範本可選！",
+        "🧑‍🤝‍🧑 累積你的職涯推薦：完成後，推薦會自動出現在你的個人檔案，展現你的專業價值！"
+      ]
+    },
     workExperiences: "工作經歷",
     addExperience: "＋ 新增工作經歷",
     addExperienceTitle: "新增工作經歷",
@@ -214,6 +232,8 @@ export const i18n = {
     errEndBeforeStart: "結束日期不可早於開始日期",
     selectEnd:         "請選擇結束年月",
     errEndAfterToday: "結束日期不可晚於今天",
+    inviteCancel:       "取消",
+    inviteSaveAndCopy:  "儲存並複製",
 
     // invitation templates & UI
     defaultInvite_direct: "我正在建立自己的職涯推薦檔案，想邀請您幫我寫一段我們合作時期的推薦文字。如果您願意，我也很樂意回饋推薦您！",

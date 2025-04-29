@@ -1,4 +1,4 @@
-// public./js/profile-dashboard.js
+// public/js/profile-dashboard.js
 import { i18n, setLang } from "../i18n.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
@@ -13,7 +13,8 @@ const db   = getFirestore(app);
 document.addEventListener("DOMContentLoaded", () => {
   // 多語
   const lang = localStorage.getItem("lang") || "en";
-  setLang(lang);
+  // 切換語系時，自動更新所有 [data-i18n] 文案（含動態按鈕）
+  window.addEventListener("langChanged", renderStaticText);
   const t    = i18n[lang] || i18n.en;
 
   // 元件對應
@@ -51,7 +52,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // 暫存
   let profile = { userId:"", chineseName:"", englishName:"", bio:"", workExperiences:[] };
   let editIdx, currentJobIndex, currentCompany, currentDefaultMsg, currentInviteStyle;
-
+  // ===== 新增這段 =====
+  // 1. 把更新小卡文字的邏輯包成函式
+  function updateOnboardingText() {
+    const langNow = localStorage.getItem("lang") || "en";
+    const onb = i18n[langNow]?.onboarding || i18n.en.onboarding;
+    document.getElementById("onboardingTitle").innerText = onb.title;
+    document.getElementById("onboardingSteps").innerHTML =
+      onb.steps.map(s => `<li>${s}</li>`).join("");
+  }
+  // ===== 結束新增 =====
   // ===== 工具函式 =====
   function populateYearMonth() {
     const now = new Date(), thisYear = now.getFullYear();
@@ -70,11 +80,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderStaticText() {
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-      const key = el.getAttribute("data-i18n");
-      if (t[key] != null) el.textContent = t[key];
+       // 每次都抓最新語系
+      const langNow = localStorage.getItem("lang") || "en";
+      const currentT = i18n[langNow] || i18n.en;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (currentT[key] != null) el.textContent = currentT[key];
     });
   }
+  // ===== 新增：當 header.js dispatch langChanged 時，自動重跑小卡文字 =====
+  window.addEventListener("langChanged", updateOnboardingText);
+  // ===== 結束新增 =====
 
   async function saveProfile() {
     if (!profile.userId) return;
@@ -209,23 +225,63 @@ document.addEventListener("DOMContentLoaded", () => {
     renderBasic();
     renderBio();
     renderExperienceCards();
+    
+    // 直接呼叫函式，裡面會自動更新標題與步驟
+    updateOnboardingText();
 
-    // 查看總覽按鈕
-    if (addBtn) {
-      const btn = document.createElement("a");
-      btn.href   = `recommend-summary.html?userId=${profile.userId}&jobIndex=0`;
-      btn.target = "_blank";
-      btn.className = "cta-btn";
-      btn.textContent = t.viewSummaryAll;
-      addBtn.insertAdjacentElement("afterend", btn);
+
+    // 3. 顯示小卡（由 toggleQuickStartCard 決定 display）並觸發淡入
+    const card = document.getElementById("quickStartCard");
+    // 注意：toggleQuickStartCard 已幫你做 display:block/none
+    setTimeout(() => card.classList.add("show"), 300);
+    // ===== 結束 Onboarding 小卡多語＆淡入動畫 =====
+    // ===== 新增：快速開始小卡的顯示邏輯 =====
+    function toggleQuickStartCard() {
+      const card = document.getElementById("quickStartCard");
+      if (!card) return;
+
+      const hasExp = profile.workExperiences.length > 0;
+      const hasReco = profile.workExperiences.some(job =>
+        Array.isArray(job.recommendations) && job.recommendations.length > 0
+      );
+    // 如果「完全沒經歷」或「有經歷但一則推薦都沒有」，就顯示小卡，否則隱藏
+      card.style.display = (!hasExp || !hasReco) ? "block" : "none";
     }
+    // 立刻執行一次
+    toggleQuickStartCard();
+    // —— 正確綁定：點卡片就開啟「第一次填姓名 + 新增經歷」 ——
+    const quickCard = document.getElementById("quickStartCard");
+    if (quickCard) {
+      quickCard.style.cursor = "pointer";       // 滑鼠變手指
+      quickCard.addEventListener("click", e => {
+        e.preventDefault();
+        openModalForAdd(true);  // 傳 true → 顯示姓名欄位
+      });
+    }
+    // 1. 用 <button> 取代 <a>，並保留原本 addBtn 的 class 以保持樣式一致
+    const btn = document.createElement("button");
+    btn.type      = "button";
+    btn.className = addBtn.className;
+    btn.setAttribute("data-i18n", "viewSummaryAll");
+
+    // 2. 點擊時打開新分頁
+    btn.addEventListener("click", () => {
+      window.open(
+        `/pages/recommend-summary.html?userId=${profile.userId}&jobIndex=0`,
+        "_blank"
+      );
+    });
+
+    // 3. 插入並立即渲染文字
+    addBtn.insertAdjacentElement("afterend", btn);
+    renderStaticText();
+    
 
     // 第一次 fill vs 無經歷都要開 Modal
     if (!snap.exists()) {
       openModalForAdd(true);
     } else if (!profile.workExperiences.length && !prefillUsed) {
-    // 只有在沒有預填過姓名時，才開（填經歷）模式
-      openModalForAdd(false);
+      openModalForAdd(true);   // 改成 true → 顯示姓名欄位
     }
 
     // ===== 所有事件綁定放在這裡 =====

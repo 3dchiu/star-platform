@@ -15,6 +15,13 @@
 
   <!-- 共用 i18n 與頂欄 -->
   <script type="module" src="../js/i18n.js"></script>
+  <script type="module">
+    import { setLang, renderStaticText } from "../js/i18n.js";
+    const lang = localStorage.getItem("lang") || "en";
+    setLang(lang);
+    renderStaticText();
+    window.addEventListener("langChanged", renderStaticText);
+  </script>
   <script type="module" src="../js/components/app-header.js"></script>
 </head>
 
@@ -23,7 +30,7 @@
   <div id="appHeader"></div>
 
   <!-- 主要內容 -->
-  <main class="summary-container fade-in">
+  <main class="container summary-container fade-in">
 
     <!-- Header：姓名 + 返回按鈕 同行 -->
     <header class="flex items-center justify-between mb-6">
