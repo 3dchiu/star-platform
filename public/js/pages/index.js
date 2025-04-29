@@ -1,4 +1,9 @@
+import { setLang } from "../i18n.js";
 import { firebaseConfig } from "../firebase-config.js";
+
+// 初始化語言
+const lang = localStorage.getItem("lang") || "en";
+setLang(lang);
 
 // 初始化 Firebase
 if (!firebase.apps.length) {

@@ -1,227 +1,217 @@
 /* =============================
-   About Star Page 基本排版
+   About Page 樣式 (優化版)
 ============================= */
 
-/* 通用容器 */
+/* 通用容器設定 */
 .about-hero,
-.about-belief,
-.about-why,
+.about-story,
 .about-how,
 .about-final-cta {
   max-width: 960px;
-  margin: 60px auto;
+  margin: 100px auto;
   padding: 0 20px;
   text-align: center;
 }
 
-/* Hero 區域 */
+/* Hero 區 */
+.about-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 120px 20px 100px;
+}
+
 .about-hero h1 {
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--brand-blue);
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .about-hero p {
   font-size: 1.25rem;
   color: var(--gray-600);
-  margin-bottom: 2rem;
+  margin-bottom: 3rem; /* 加大副標與按鈕間距 */
+  white-space: pre-line;
 }
 
 .about-hero a {
-  padding: 14px 28px;
+  display: inline-block;
+  padding: 16px 32px;
   font-size: 1.125rem;
   border-radius: 999px;
   background-color: var(--brand-blue);
   color: white;
+  text-decoration: none;
+  min-width: 160px;
   transition: all 0.3s ease;
 }
 
 .about-hero a:hover {
   filter: brightness(1.1);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* 我們相信區塊 */
-.about-belief h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.belief-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.belief-list li {
-  font-size: 1.125rem;
-  color: var(--color-text-primary);
-  margin-bottom: 1rem;
-}
-
-/* Why Star 區塊 */
-.about-why h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.about-why p {
-  font-size: 1.125rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 2rem;
-}
-
-.comparison-table {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-}
-
-.comparison-table div {
-  flex: 1 1 300px;
-  background: var(--color-surface);
+/* Story 卡片區 */
+.card {
+  background: white;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  padding: 64px 24px; /* 加大卡片內padding */
+  margin: 60px auto;
+  text-align: center;
+  max-width: 800px;
 }
 
-.comparison-table h3 {
-  font-size: 1.25rem;
+.card h2 {
+  margin-top: 1rem;    /* 标题上方 1rem 空白 */
+  margin-bottom: 1rem; /* 标题下方 1rem 空白 */
+}
+
+.about-page h2,
+.subheading {
+  font-size: 2rem;
   font-weight: 700;
+  color: var(--brand-blue);
   margin-bottom: 1rem;
 }
 
-.comparison-table ul {
-  list-style: none;
-  padding: 0;
+.about-page .paragraph {
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: var(--color-text-primary, #333);
+  white-space: pre-line;
+  max-width: 720px;
+  margin: 0.5rem auto 3rem auto;
+  text-align: center;
 }
 
-.comparison-table li {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 0.5rem;
+/* 调整愿景区块内的列表 */
+.about-story .paragraph ul {
+  list-style-position: inside;  /* bullet 也會隨文字一起置中 */
+  text-align: center;           /* 讓整個 UL 內容水平置中 */
+  margin: 1.25rem 0;      /* 列表上下各 0.75rem */
+  padding-left: 1.5rem;  /* 留点缩进 */
+}
+.about-story .paragraph ul li {
+  display: inline-block;        /* 項目變成 inline-block 可以置中 */
+  margin: 0 1rem 1rem;          /* 左右間隔1rem、下方多留1rem */
+  font-size: 1.25rem;           /* 跟主段落文字一樣大 */
+  line-height: 1.8;             /* 跟主段落行高一致 */
+  text-align: left;             /* 文字自己保持左對齊 */
+}
+.about-story .paragraph > p {
+  font-size: 1.25rem;           /* 從原本 1.125rem → 1.25rem */
+  line-height: 1.8;
+  margin: 1.5rem auto;          /* 上下留 1.5rem，避免太黏 */
+  max-width: 720px;
+  text-align: center;
 }
 
-/* How It Works 區塊 */
+/* How It Works 區 */
 .about-how h2 {
   font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-weight: 700;
+  color: var(--brand-blue);
+  margin-bottom: 2.5rem;
 }
 
 .how-steps {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
-.how-steps .step {
-  flex: 1 1 280px;
-  background: var(--color-surface);
+.step-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+
+  background: var(--color-surface, #fff);
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  padding: 24px;
+  padding: 20px 16px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.how-steps .step span {
-  font-size: 2rem;
-  display: block;
-  margin-bottom: 1rem;
-  color: var(--brand-blue);
+/* 可選：加個 hover 效果 */
+.step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
-.how-steps .step p {
-  font-size: 1rem;
-  color: var(--color-text-secondary);
-}
-
-/* Final CTA 區塊 */
-.about-final-cta h2 {
-  font-size: 2rem;
+.step-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
   font-weight: 700;
   color: var(--brand-blue);
-  margin-bottom: 1rem;
 }
 
-.about-final-cta p {
+.step-card p {
+  font-size: 1rem;
+  margin: 0;           /* 取消預設上下 margin */
+  color: var(--color-text-secondary, #666);
+  line-height: 1.5;    /* 讓 multi-line 文字比較好閱讀 */
+}
+
+/* Final CTA 區 */
+.about-final-cta {
+  margin-top: 100px;
+}
+
+.about-final-cta .paragraph {
   font-size: 1.125rem;
-  color: var(--gray-600);
+  color: var(--color-text-primary, #333);
   margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .about-final-cta a {
+  display: inline-block;
   padding: 16px 32px;
   font-size: 1.125rem;
   border-radius: 999px;
   background-color: var(--brand-blue);
   color: white;
+  text-decoration: none;
+  min-width: 160px;
   transition: all 0.3s ease;
 }
 
 .about-final-cta a:hover {
   filter: brightness(1.1);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* 響應式調整 */
+/* 手機版優化 */
 @media (max-width: 768px) {
-  .comparison-table,
-  .how-steps {
-    flex-direction: column;
-    align-items: center;
+  .about-hero,
+  .about-story,
+  .about-story .card h2 {
+    margin-top: 1.5rem;  /* 或者 1.25rem，按需求微调 */
+  }
+  .about-how,
+  .about-final-cta {
+    margin: 60px auto;
+    padding: 0 16px;
+  }
+
+  .about-page h2,first-child {
+    margin-top: 2rem;  /* 例如 2rem，看起來就不會太靠上了 */
+  }
+
+  .about-page .paragraph,
+  .step-card p {
+    font-size: 1rem;
   }
 }
-/* =============================
-   Hero 區星光背景動畫
-============================= */
-
-.star-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 0; /* 在內容下方 */
-  }
-  
-  .star-background::before,
-  .star-background::after {
-    content: "";
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(white 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: starMove 60s linear infinite;
-    opacity: 0.4;
-  }
-  
-  .star-background::after {
-    background-size: 80px 80px;
-    animation-direction: reverse;
-    opacity: 0.6;
-  }
-  
-  /* 星光緩慢移動 */
-  @keyframes starMove {
-    0% {
-      transform: translate(0, 0);
-    }
-    100% {
-      transform: translate(-50px, -50px);
-    }
-  }
-  
-  /* 讓 about-hero 本體有定位層，才能正常覆蓋 */
-  .about-hero {
-    position: relative;
-    overflow: hidden;
-    padding: 120px 20px 80px; /* 上下padding再大一點，更有呼吸感 */
-  }
-  

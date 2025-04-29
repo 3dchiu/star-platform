@@ -140,32 +140,56 @@ export const i18n = {
       finalCta: "Start Your Journey Today",
       finalCtaHint: "Your story doesn't have to be complete to shine. Add one experience and let trust begin."
     },
-    about: {
-      heroTitle: "Every star deserves to shine.",
-      heroSubtitle: "At Star, every collaboration and connection becomes the start of your constellation.",
+    aboutPage: {
+      heroTitle: "Let every effort be authentically recorded, and every collaboration become a trusted recommendation.",
+      heroSubtitle: "At Star, every real experience builds trust and lights the way for your future.",
       heroButton: "Start Building",
-      beliefTitle: "Our Belief",
-      belief1: "Connections are the constellation of your story.",
-      belief2: "Recommendations are the proof of trust built over time.",
-      belief3: "Your career is a journey of connections and growth.",
-      whyTitle: "Why Choose Star",
-      whyText: "At Star, we see more than titles and achievements. We value the trust and stories built through real collaborations.",
-      traditionalPlatform: "Traditional Platforms",
-      traditional1: "Focus on resumes and job applications",
-      traditional2: "Emphasis on hard skills and experiences",
-      traditional3: "Purpose limited to job seeking",
-      starPlatform: "Star Platform",
-      star1: "Focus on real collaboration and trusted connections",
-      star2: "Emphasis on stories, character, and interactions",
-      star3: "Purpose to build long-term professional trust",
-      howTitle: "How It Works",
-      howStep1: "Add one real experience to start your story.",
-      howStep2: "Invite collaborators to share their authentic impressions.",
-      howStep3: "Grow your constellation of trusted connections.",
-      finalTitle: "Your story deserves to be seen by the world.",
-      finalSubtitle: "Start now and let every real connection become the light for your future.",
-      finalButton: "Start Building"
-    }
+    
+      ourVisionTitle: "Our Vision",
+      ourVisionContent: `In an era where AI can generate anything, resumes can be polished, and images can be packaged,
+    the true value of a person becomes harder and harder to see.
+    
+    The words on a resume cannot fully represent us.
+    The posts on social media cannot fully represent us.
+    Even a LinkedIn profile cannot fully represent us.
+    
+    The real us is revealed through collaboration,
+    understood through challenges,
+    and remembered through companionship.
+    
+    We believe every shining star deserves to have its own name.`,
+    
+      whyStarTitle: "Why Star Exists",
+      whyStarContent: `So we decided to create something different:
+    a place where true collaboration can be seen and remembered.
+    
+    Star shines a light on every authentic moment of your professional journey.`,
+    
+      howItWorksTitle: "How It Works",
+      howItWorksSteps: [
+        { title: "Craft Your Story", desc: "Showcase your journey and milestones — just one experience to start your story." },
+        { title: "Invite and Celebrate", desc: "Invite collaborators to share real moments and build lasting trust." },
+        { title: "Grow Your Trusted Network", desc: "Turn real experiences into your career momentum and trusted connections." }
+      ],
+    
+      joinUsTitle: "Join Us",
+      joinUsContent: `Build trust through real collaboration, and let every piece of professionalism shine.
+    
+    With just one work experience, you can start inviting recommendations.
+    Start building your professional network in just one minute.
+    
+    Every effort deserves to be seen.
+    Create your Star career profile today and let your story shine.`,
+    
+      joinUsButton: "Start Building"
+    },
+    login: {
+      welcomeTitle: "Welcome to Star ✨",
+    },
+    header: {
+      login: "Login",
+      logout: "Logout",
+    },
   },
 
   "zh-Hant": {
@@ -309,33 +333,60 @@ export const i18n = {
       finalCta: "立即展開你的旅程",
       finalCtaHint: "你的故事，不必等待完整。新增一段經歷，讓信任開始發光。"
     },
-    about: {
-      heroTitle: "讓每顆星都被看見。",
-      heroSubtitle: "在 Star，每段合作與連結，都是未來星光的起點。",
+    aboutPage: {
+      heroTitle: "讓每份努力被真實記錄，每一次合作成為可信推薦。",
+      heroSubtitle: "在 Star，每一段真實經歷，都在累積信任，照亮你的未來。",
       heroButton: "開始建立",
-      beliefTitle: "我們相信",
-      belief1: "人脈是故事的星圖。",
-      belief2: "推薦是信任的證明。",
-      belief3: "職涯是連結與成長的旅程。",
-      whyTitle: "為什麼選擇 Star",
-      whyText: "在 Star，我們不只看見你的職稱與成就，更重視你與人真實互動所累積的信任與故事。",
-      traditionalPlatform: "傳統平台",
-      traditional1: "聚焦填寫履歷與求職",
-      traditional2: "強調硬技能與經歷",
-      traditional3: "以求職為目的",
-      starPlatform: "Star 平台",
-      tar1: "聚焦真實合作與信任連結",
-      star2: "強調故事、人格與互動",
-      star3: "以建立長期職涯信任網絡為目標",
-      howTitle: "開始你的星光之旅",
-      howStep1: "從一個真實合作開始，建立你的故事起點。",
-      howStep2: "邀請共事夥伴，見證你的專業與人格。",
-      howStep3: "隨著推薦累積，點亮你的職涯星圖。",
-      finalTitle: "你的故事，值得被世界看見。",
-      finalSubtitle: "立即開始，讓每一段真實連結，成為你閃耀未來的光芒。",
-      finalButton: "開始建立"
+    
+      ourVisionTitle: "我們的願景",
+      ourVisionContent: `在 AI 普及的時代，履歷可以被美化，形象可以被包裝，
+    但一個人的真實價值，卻越來越難被看見。
+    
+    履歷上的文字，無法完整代表我們。
+    社群上的發文，無法完整代表我們。
+    LinkedIn 上的資料，更無法完整代表我們。
+    
+    真正的我們，是在一次次共事裡被認識，
+    在一次次挑戰中被理解，
+    在一次次陪伴下被記錄。
+    
+    我們相信，每一顆努力發光的星星，都應該有自己的名字。`,
+    
+      whyStarTitle: "為何創立 Star",
+      whyStarContent: `於是，我們想做點不一樣的事：
+    建立一個能讓彼此真實被看見的地方。
+    
+    讓合作的每個瞬間，成為你專業旅程中的一部分證明。
+    
+    Star，為每一段真實經歷，點亮信任的光芒。`,
+    
+      howItWorksTitle: "我們如何做到",
+      howItWorksSteps: [
+        { title: "打造你的故事", desc: "從一段經歷開始，展現你的歷程與成就。" },
+        { title: "邀請與見證", desc: "邀請合作夥伴分享真實時刻，建立持久信任。" },
+        { title: "擴展信任網絡", desc: "將真實經歷轉化為職涯動能與可信連結。" }
+      ],
+    
+      joinUsTitle: "邀請一起加入",
+      joinUsContent: `在真實合作中累積信任，讓每一份專業，都有機會被看見。
+    
+    只要一段經歷，就能發出邀請。
+    一分鐘開始建立你的專業人脈網絡。
+    
+    每一份努力，都值得被看見。
+    現在就建立你的 Star 職涯檔案，讓你的故事發光。`,
+    
+      joinUsButton: "開始建立"
     },
+    
+    login: {
+      welcomeTitle: "歡迎來到 Star ✨"
+    },
+    header: {
+      login: "登入",
+      logout: "登出",
   }
+ }
 };
 
 export function setLang(langCode = "en") {

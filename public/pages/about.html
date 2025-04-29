@@ -1,92 +1,108 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
+  <!-- 基本設定 -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Star</title>
+
+  <!-- 外部CSS -->
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="../styles/about.css">
+
+  <!-- Firebase + 語言包 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About Star</title>
-  <link rel="stylesheet" href="../styles/main.css">
-  <link rel="stylesheet" href="../styles/about.css"> <!-- 建議另開一個 about.css 做排版 -->
   <script type="module" src="../js/i18n.js"></script>
   <script type="module" src="../js/components/app-header.js"></script>
 </head>
+
 <body>
+  <!-- Header自動插入 -->
+  <div id="appHeader"></div>
 
-  <!-- 1. Hero Banner -->
-  <section class="about-hero">
-    <div class="star-background"></div> 
-    <h1 data-i18n="about.heroTitle"></h1>
-    <p data-i18n="about.heroSubtitle"></p>
-    <a href="./pages/login.html" class="btn btn-primary" data-i18n="about.heroButton"></a>
-  </section>
+  <main class="about-page">
 
-  <!-- 2. Our Belief -->
-  <section class="about-belief">
-    <h2 data-i18n="about.beliefTitle"></h2>
-    <ul class="belief-list">
-      <li><span data-i18n="about.belief1"></span></li>
-      <li><span data-i18n="about.belief2"></span></li>
-      <li><span data-i18n="about.belief3"></span></li>
-    </ul>
-  </section>
+    <!-- 1. Hero 區 -->
+    <section class="about-hero fade-in">
+      <h1 data-i18n="aboutPage.heroTitle"></h1>
+      <p data-i18n="aboutPage.heroSubtitle"></p>
+      <a href="/pages/login.html" class="btn btn-primary" data-i18n="aboutPage.heroButton"></a>
+    </section>
 
-  <!-- 3. Why Star -->
-  <section class="about-why">
-    <h2 data-i18n="about.whyTitle"></h2>
-    <p data-i18n="about.whyText"></p>
-
-    <div class="comparison-table">
-      <div>
-        <h3 data-i18n="about.traditionalPlatform"></h3>
+    <!-- 2. Our Story 區 -->
+    <section class="about-story card">
+      <h2>我們的願景</h2>
+    
+      <div class="paragraph">
+        <p>
+          在 AI 普及的時代，履歷可以被美化，形象可以被包裝，但一個人的真實價值，卻越來越難被看見。
+        </p>
+    
         <ul>
-          <li data-i18n="about.traditional1"></li>
-          <li data-i18n="about.traditional2"></li>
-          <li data-i18n="about.traditional3"></li>
+          <li>履歷上的文字，無法完整代表我們。</li>
+          <li>社群上的發文，無法完整代表我們。</li>
+          <li>LinkedIn 上的資料，更無法完整代表我們。</li>
         </ul>
+    
+        <p>
+          真正的我們，是在一次次共事裡被認識，在一次次挑戰中被理解，在一次次陪伴下被記錄。
+        </p>
+    
+        <p><strong>我們相信，每一顆努力發光的星星，都應該有自己的名字。</strong></p>
       </div>
-      <div>
-        <h3 data-i18n="about.starPlatform"></h3>
-        <ul>
-          <li data-i18n="about.star1"></li>
-          <li data-i18n="about.star2"></li>
-          <li data-i18n="about.star3"></li>
-        </ul>
+    
+      <h2 class="subheading">為何創立 Star</h2>
+      <div class="paragraph">
+        <p>
+          於是，我們想做點不一樣的事：建立一個能讓彼此真實被看見的地方。  
+          讓合作的每個瞬間，成為你專業旅程中的一份證明。
+        </p>
       </div>
-    </div>
-  </section>
+    </section>
+    
 
-  <!-- 4. How It Works -->
-  <section class="about-how">
-    <h2 data-i18n="about.howTitle"></h2>
-    <div class="how-steps">
-      <div class="step">
-        <span>1️⃣</span>
-        <p data-i18n="about.howStep1"></p>
-      </div>
-      <div class="step">
-        <span>2️⃣</span>
-        <p data-i18n="about.howStep2"></p>
-      </div>
-      <div class="step">
-        <span>3️⃣</span>
-        <p data-i18n="about.howStep3"></p>
-      </div>
-    </div>
-  </section>
+    <!-- 3. How It Works 區 -->
+    <section class="about-how">
+      <h2 data-i18n="aboutPage.howItWorksTitle"></h2>
+      <div class="how-steps"></div>
+    </section>
 
-  <!-- 5. Final CTA -->
-  <section class="about-final-cta">
-    <h2 data-i18n="about.finalTitle"></h2>
-    <p data-i18n="about.finalSubtitle"></p>
-    <a href="./pages/login.html" class="btn btn-primary" data-i18n="about.finalButton"></a>
-  </section>
+    <!-- 4. Final CTA 區 -->
+    <section class="about-final-cta">
+      <div class="paragraph" data-i18n="aboutPage.joinUsContent"></div>
+      <a href="/pages/login.html" class="btn btn-primary" data-i18n="aboutPage.joinUsButton"></a>
+    </section>
 
+  </main>
+
+  <!-- 載入語言與步驟卡片 -->
   <script type="module">
-    import { setLang } from '../js/i18n.js';
-    const lang = localStorage.getItem('lang') || 'zh-Hant';
-    setLang(lang);
+    import { setLang, i18n } from '../js/i18n.js';
+
+    function renderHowItWorksSteps() {
+      const lang = localStorage.getItem('lang') || 'en';
+      const steps = (i18n[lang] && i18n[lang].aboutPage.howItWorksSteps) || [];
+      const stepsContainer = document.querySelector('.how-steps');
+      if (stepsContainer) {
+        stepsContainer.innerHTML = steps.map(step => `
+          <div class="step-card">
+            <h3>${step.title}</h3>
+            <p>${step.desc}</p>
+          </div>
+        `).join('');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const lang = localStorage.getItem('lang') || 'en';
+      setLang(lang);
+      renderHowItWorksSteps();
+    });
+
+    window.addEventListener('langChanged', () => {
+      renderHowItWorksSteps();
+    });
   </script>
 
 </body>

@@ -11,7 +11,7 @@
 </head>
 <body>
   <div id="appHeader"></div>
-  <h2>Welcome to Star ✨</h2>
+  <h2 id="welcomeTitle" data-i18n="login.welcomeTitle"></h2>
   <!-- 🔐 登入表單 -->
 <div id="loginSection">
   <form id="loginForm">
@@ -168,5 +168,10 @@
   });
 </script>
 <script type="module" src="../js/components/app-header.js"></script>
+<script type="module">
+  import { setLang } from "../js/i18n.js";
+  const lang = localStorage.getItem("lang") || "en";
+  setLang(lang);
+</script>
 </body>
 </html>

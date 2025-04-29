@@ -46,8 +46,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const auth = firebase.auth();
 
   /* ❻ 登入登出功能 */
-  loginBtn.textContent = i18n[currentLang].login;
-  logoutBtn.textContent = i18n[currentLang].logout;
+  loginBtn.textContent = i18n[currentLang].header.login;
+  logoutBtn.textContent = i18n[currentLang].header.logout;
 
   loginBtn.addEventListener("click", () => {
     const next = encodeURIComponent(location.pathname + location.search);
@@ -82,8 +82,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         setLang(selectedLang);
 
         // 更新登入登出按鈕文字
-        loginBtn.textContent = i18n[selectedLang].login;
-        logoutBtn.textContent = i18n[selectedLang].logout;
+        loginBtn.textContent = i18n[selectedLang].header.login;
+        logoutBtn.textContent = i18n[selectedLang].header.logout;
+
 
         // ★ 通知全站語系已變更
         window.dispatchEvent(new CustomEvent("langChanged", { detail: selectedLang }));
