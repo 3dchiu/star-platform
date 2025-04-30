@@ -438,12 +438,12 @@ document.getElementById("dashboardLoading").style.display = "flex";
     // 邀請 Modal 按鈕
     inviteCancelBtn.onclick = () => inviteModal.close();
     inviteSaveBtn.onclick = () => {
-      // 直接複製預覽連結的 href（已帶 message、style、lang）
       const previewLinkEl = document.getElementById("invitePreviewLink");
+      // 「預覽按鈕」的 href 已經是那條帶中文的完整鏈結
+      // 直接複製它
       navigator.clipboard.writeText(previewLinkEl.href)
         .then(() => showToast(t.linkCopied))
         .catch(() => showToast(t.linkCopyFailed));
-
       inviteModal.close();
     };
 
