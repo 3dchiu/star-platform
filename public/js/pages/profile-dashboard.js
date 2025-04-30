@@ -449,9 +449,10 @@ document.getElementById("dashboardLoading").style.display = "flex";
            + `&style=${currentInviteStyle}`
            + `&lang=${currentLang}`;
 
-      navigator.clipboard.writeText(url)
-        .then(()=>showToast(t.linkCopied))
-        .catch(()=>showToast(t.linkCopyFailed));
+      const previewLinkEl = document.getElementById("invitePreviewLink");
+      navigator.clipboard.writeText(previewLinkEl.href)
+        .then(() => showToast(t.linkCopied))
+        .catch(() => showToast(t.linkCopyFailed));
       inviteModal.close();
     };
 
