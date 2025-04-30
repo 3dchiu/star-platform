@@ -436,28 +436,19 @@ document.getElementById("dashboardLoading").style.display = "flex";
     });
 
     // 邀請 Modal 按鈕
-    inviteCancelBtn.onclick = ()=>inviteModal.close();
-    inviteSaveBtn.onclick = ()=>{
-      const currentLang = localStorage.getItem("lang") || "en";
-      currentInviteStyle = inviteStyleSelect.value;
-      const msg = inviteTextarea.value.trim()||currentDefaultMsg;
-      const jobId = profile.workExperiences[currentJobIndex].id;
-      const url = `${location.origin}/pages/recommend-form.html`
-           + `?userId=${profile.userId}`
-           + `&jobId=${encodeURIComponent(jobId)}`
-           + `&message=${encodeURIComponent(msg)}`
-           + `&style=${currentInviteStyle}`
-           + `&lang=${currentLang}`;
-
+    inviteCancelBtn.onclick = () => inviteModal.close();
+    inviteSaveBtn.onclick = () => {
+      // 直接複製預覽連結的 href（已帶 message、style、lang）
       const previewLinkEl = document.getElementById("invitePreviewLink");
       navigator.clipboard.writeText(previewLinkEl.href)
         .then(() => showToast(t.linkCopied))
         .catch(() => showToast(t.linkCopyFailed));
+
       inviteModal.close();
     };
 
     // 打開 Add/Edit Modal
-function openModalForAdd(isFirst = false) {
+  function openModalForAdd(isFirst = false) {
   editIdx = null;
   // 顯示「姓名」欄位只在首次填檔案時
   nameSection.hidden = !isFirst;
