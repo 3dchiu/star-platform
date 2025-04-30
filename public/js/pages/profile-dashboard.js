@@ -410,21 +410,18 @@ document.getElementById("dashboardLoading").style.display = "flex";
 
         // —— 新增：計算並顯示預覽用的 URL —— 
       const langNow = localStorage.getItem("lang") || "en";
-      const msgEncoded = encodeURIComponent(currentDefaultMsg);
-      const previewUrl = `${location.origin}/pages/recommend-form.html`
+      // —— 用「原始中文」組 URL 字串，不做 encodeURIComponent —— 
+      const previewUrlRaw = `${location.origin}/pages/recommend-form.html`
         + `?userId=${profile.userId}`
         + `&jobId=${encodeURIComponent(profile.workExperiences[currentJobIndex].id)}`
-        + `&message=${msgEncoded}`
+        + `&message=${currentDefaultMsg}`        // **直接插入原文**
         + `&style=${currentInviteStyle}`
         + `&lang=${langNow}`;
-        // —— 新增：先抓到 <a> 元素 ——  
+
       const previewLinkEl = document.getElementById("invitePreviewLink");
+      // 用 setAttribute 保留你写进去的中文，不自动编码
+      previewLinkEl.setAttribute("href", previewUrlRaw);
 
-        // 取當前語系的「預覽文字」
-      const previewText = (i18n[localStorage.getItem("lang")] || i18n.en).previewLinkText || "🔍 Preview";
-
-        // 設定 <a>
-      previewLinkEl.href        = previewUrl;
       previewLinkEl.textContent = previewText;    // 顯示短標籤
       previewLinkEl.title       = previewUrl;     // 滑鼠移上可見完整連結
       previewLinkEl.classList.add("preview-link");
