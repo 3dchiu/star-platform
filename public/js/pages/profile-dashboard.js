@@ -408,22 +408,25 @@ document.getElementById("dashboardLoading").style.display = "flex";
         // ➌ 第一次打开时填入文案
         updateDefaultMessage();
 
-        // —— 新增：計算並顯示預覽用的 URL —— 
+       // —— 新增：計算並顯示預覽用的 URL —— 
       const langNow = localStorage.getItem("lang") || "en";
-      // —— 用「原始中文」組 URL 字串，不做 encodeURIComponent —— 
+      const previewText = (i18n[langNow] || i18n.en).previewLinkText || "🔍 Preview";
+
+      // 用「原始中文」組 URL 字串，不做 encodeURIComponent
       const previewUrlRaw = `${location.origin}/pages/recommend-form.html`
         + `?userId=${profile.userId}`
         + `&jobId=${encodeURIComponent(profile.workExperiences[currentJobIndex].id)}`
-        + `&message=${currentDefaultMsg}`        // **直接插入原文**
+        + `&message=${currentDefaultMsg}`        // 直接插入原文
         + `&style=${currentInviteStyle}`
         + `&lang=${langNow}`;
 
       const previewLinkEl = document.getElementById("invitePreviewLink");
-      // 用 setAttribute 保留你写进去的中文，不自动编码
+      // 1) 用 setAttribute 保留原始中文字串
       previewLinkEl.setAttribute("href", previewUrlRaw);
-
-      previewLinkEl.textContent = previewText;    // 顯示短標籤
-      previewLinkEl.title       = previewUrl;     // 滑鼠移上可見完整連結
+      // 2) 定义显示给用户看的短标签
+      previewLinkEl.textContent = previewText;
+      // 3) 把鼠标悬停的 title 也设成完整 URL（可选）
+      previewLinkEl.title       = previewUrlRaw;
       previewLinkEl.classList.add("preview-link");
 
         // ➍ 监听用户切换样式
