@@ -77,7 +77,7 @@
         .then(() => {
           console.log("登入成功");
           const params = new URLSearchParams(location.search);
-          const next = params.get("next") || "/pages/profile-dashboard.html";
+          const next = params.get("next") || "profile-dashboard.html";
           location.href = next;
         })
         .catch((error) => {
@@ -145,7 +145,7 @@
     auth.createUserWithEmailAndPassword(email, password)
       .then(() => {
         console.log("註冊成功");
-        window.location.href = "/pages/profile-dashboard.html";
+        window.location.href = "profile-dashboard.html";
       })
       .catch((error) => {
         errorMessage.style.display = "block";
@@ -164,7 +164,7 @@
   auth.onAuthStateChanged(user => {
     if (user) {
       // 如果已经登录，直接去 Dashboard
-      window.location.href = "/pages/profile-dashboard.html";
+      window.location.href = "profile-dashboard.html";
     }
   });
 </script>

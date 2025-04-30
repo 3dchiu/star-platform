@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   loginBtn.addEventListener("click", () => {
     const next = encodeURIComponent(location.pathname + location.search);
-    location.href = `/pages/login.html?next=${next}`;
+    location.href = `login.html?next=${next}`;
   });
 
   logoutBtn.addEventListener("click", () => {
