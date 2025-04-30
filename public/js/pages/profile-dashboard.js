@@ -441,7 +441,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
       const previewLinkEl = document.getElementById("invitePreviewLink");
       // 「預覽按鈕」的 href 已經是那條帶中文的完整鏈結
       // 直接複製它
-      nnavigator.clipboard.writeText(previewLinkEl.getAttribute("href"))
+      navigator.clipboard.writeText(previewLinkEl.getAttribute("href"))
         .then(() => showToast(t.linkCopied))
         .catch(() => showToast(t.linkCopyFailed));
       inviteModal.close();
