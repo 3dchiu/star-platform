@@ -13,6 +13,7 @@ export const i18n = {
         "🧑‍🤝‍🧑 Build your career reputation: once submitted, it’s shown on your profile!"
       ]
     },
+    loadingDashboardMessage: "Loading your profile…",
     workExperiences: "Work Experiences",
     addExperience: "+ Add New Experience",
     addExperienceTitle: "Add Experience",
@@ -40,6 +41,7 @@ export const i18n = {
     inviteStyleLabel: "Invitation Style:",
     styleDirect: "Direct",
     styleWarmth: "Warmth",
+    previewLinkText: "🔍 Preview Invitation",
 
     // toast & confirm
     deleteConfirm: "Delete this experience?",
@@ -50,6 +52,9 @@ export const i18n = {
     linkCopyFailed: "Copy failed, please copy manually",
 
     // recommend-form.html
+    loadingMessage: "Loading recommendation form...",
+    ogTitle:       "⭐ Please write a recommendation for my career profile!",
+    ogDescription: "I'm building my career profile on Star and would love your recommendation on our collaboration.",
     recommendingTo: "You are writing a recommendation for <strong>{name}</strong>",
     recPageTitle: "Recommendation Form",
     formTitle: "Recommendation Form",
@@ -85,7 +90,7 @@ export const i18n = {
     highlightLimitMsg:                "You can select up to 3 highlights only",
 
     // legacy recommend-form highlight keys
-    legacyHighlightOptions: ["Professional Skills","Work Ethic","Collaboration"],
+    legacyHighlightOptions: ["Professional Skills","Work Ethic","Interpersonal Skills","Collaboration"],
 
     // fallback for form invite
     defaultInviteForm: `I'm currently building my professional network profile and thought of you as a great collaborator. I'd truly appreciate a few words of recommendation from you. If you're also building your career network, I'd be happy to write one for you in return!`,
@@ -216,6 +221,7 @@ export const i18n = {
         "🧑‍🤝‍🧑 累積你的職涯推薦：完成後，推薦會自動出現在你的個人檔案，展現你的專業價值！"
       ]
     },
+    loadingDashboardMessage: "正在載入您的個人資料…",
     workExperiences: "工作經歷",
     addExperience: "＋ 新增工作經歷",
     addExperienceTitle: "新增工作經歷",
@@ -243,6 +249,7 @@ export const i18n = {
     inviteStyleLabel: "邀請語風格：",
     styleDirect: "中性版",
     styleWarmth: "溫暖版",
+    previewLinkText: "🔍 預覽邀請頁面",
 
     // toast & confirm
     deleteConfirm: "確定刪除此經歷？",
@@ -253,6 +260,9 @@ export const i18n = {
     linkCopyFailed: "複製失敗，請手動複製",
 
     // recommend-form.html
+    loadingMessage: "正在載入推薦表單…",
+    ogTitle:       "⭐ 邀請你為我的職涯檔案撰寫推薦！",
+    ogDescription: "我正在 Star 平台建立職涯檔案，想邀請您對我的合作經驗寫幾句推薦。",
     recommendingTo: "您正在為 <strong>{name}</strong> 撰寫推薦",
     recPageTitle: "推薦表單",
     formTitle: "推薦表單",
@@ -288,7 +298,7 @@ export const i18n = {
     highlightLimitMsg:                "最多只能選 3 個亮點",
 
     // legacy recommend-form highlight keys
-    legacyHighlightOptions: ["專業能力","工作態度","人際互動"],
+    legacyHighlightOptions: ["專業能力","工作態度","人際互動","團隊協作"],
 
     // fallback for form invite
     defaultInviteForm: `我正在建立自己的專業人脈檔案，想到您是我工作中合作愉快的夥伴，很希望能請您幫我寫幾句推薦。如果您也想建立自己的職涯人脈，我也很樂意回饋推薦您！`,

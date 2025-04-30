@@ -11,11 +11,19 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 document.addEventListener("DOMContentLoaded", () => {
+  // 一進來先隱藏整個主內容、顯示遮罩
+document.getElementById("dashboardLoading").style.display = "flex";
+
   // 多語
   const lang = localStorage.getItem("lang") || "en";
   // 切換語系時，自動更新所有 [data-i18n] 文案（含動態按鈕）
-  window.addEventListener("langChanged", renderStaticText);
+  window.addEventListener("langChanged", () => {
+    renderStaticText();    // 更新所有 data-i18n 文字
+    renderBio();          // 再重新把 bio 內容塞回去
+    updateOnboardingText(); // （如果有這個小卡多語也一起跑）
+  });  
   const t    = i18n[lang] || i18n.en;
+  document.getElementById("loadingDashboardText").innerText = t.loadingDashboardMessage;
 
   // 元件對應
   const nameSection      = document.getElementById("nameSection");
@@ -105,8 +113,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderBio() {
-    bioText.textContent = profile.bio || t.noBio;
+    // 取出存库的文字（可能包含 \n）
+    const raw = profile.bio || "";
+    // 把换行符 ("\n") 全部换成 <br>，再放进 innerHTML
+    bioText.innerHTML = raw
+      ? raw.replace(/\n/g, "<br>")
+      : t.noBio;
   }
+  
   console.log("合併後的 experiences:", profile.workExperiences);
   function renderExperienceCards() {
     list.innerHTML = "";
@@ -225,10 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
     renderBasic();
     renderBio();
     renderExperienceCards();
-    
-    // 直接呼叫函式，裡面會自動更新標題與步驟
     updateOnboardingText();
 
+    // ===== 在這裡插入隱藏遮罩 =====
+    document.getElementById("dashboardLoading").style.display = "none";
 
     // 3. 顯示小卡（由 toggleQuickStartCard 決定 display）並觸發淡入
     const card = document.getElementById("quickStartCard");
@@ -376,27 +390,55 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
       else if (e.target.matches(".edit-btn")) openModalForEdit(idx);
+      // 在 list.addEventListener(... link-btn) 里面
       else if (e.target.matches(".link-btn")) {
         currentJobIndex = idx;
         currentCompany  = profile.workExperiences[idx].company;
+      // ➊ 先定义更新预设文案的函数
+        function updateDefaultMessage() {
+          const style = inviteStyleSelect.value;  // direct or warmth
+          currentInviteStyle = style;
+          const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
+          currentDefaultMsg = (tNow[`defaultInvite_${style}`] || "")
+            .replace("{{company}}", currentCompany);
+          inviteTextarea.value = currentDefaultMsg;
+        }
+        // ➋ 设定下拉选单默认值（如有需要可改成用户上次选择的样式）
         inviteStyleSelect.value = "warmth";
-        currentInviteStyle = "warmth";
-        
-        // ✨ 新增：即時抓取最新語言
-        const langNow = localStorage.getItem("lang") || "en";
-        const tNow = i18n[langNow] || i18n.en;
-      
-        currentDefaultMsg  = (tNow[`defaultInvite_warmth`] || "")
-          .replace("{{company}}", currentCompany);
-        
-        inviteTextarea.value = currentDefaultMsg;
+        // ➌ 第一次打开时填入文案
+        updateDefaultMessage();
+
+        // —— 新增：計算並顯示預覽用的 URL —— 
+      const langNow = localStorage.getItem("lang") || "en";
+      const msgEncoded = encodeURIComponent(currentDefaultMsg);
+      const previewUrl = `${location.origin}/pages/recommend-form.html`
+        + `?userId=${profile.userId}`
+        + `&jobId=${encodeURIComponent(profile.workExperiences[currentJobIndex].id)}`
+        + `&message=${msgEncoded}`
+        + `&style=${currentInviteStyle}`
+        + `&lang=${langNow}`;
+        // —— 新增：先抓到 <a> 元素 ——  
+      const previewLinkEl = document.getElementById("invitePreviewLink");
+
+        // 取當前語系的「預覽文字」
+      const previewText = (i18n[localStorage.getItem("lang")] || i18n.en).previewLinkText || "🔍 Preview";
+
+        // 設定 <a>
+      previewLinkEl.href        = previewUrl;
+      previewLinkEl.textContent = previewText;    // 顯示短標籤
+      previewLinkEl.title       = previewUrl;     // 滑鼠移上可見完整連結
+      previewLinkEl.classList.add("preview-link");
+
+        // ➍ 监听用户切换样式
+        inviteStyleSelect.addEventListener("change", updateDefaultMessage);
         inviteModal.showModal();
-      }      
+      } 
     });
 
     // 邀請 Modal 按鈕
     inviteCancelBtn.onclick = ()=>inviteModal.close();
     inviteSaveBtn.onclick = ()=>{
+      const currentLang = localStorage.getItem("lang") || "en";
       currentInviteStyle = inviteStyleSelect.value;
       const msg = inviteTextarea.value.trim()||currentDefaultMsg;
       const jobId = profile.workExperiences[currentJobIndex].id;
@@ -404,7 +446,8 @@ document.addEventListener("DOMContentLoaded", () => {
            + `?userId=${profile.userId}`
            + `&jobId=${encodeURIComponent(jobId)}`
            + `&message=${encodeURIComponent(msg)}`
-           + `&style=${currentInviteStyle}`;
+           + `&style=${currentInviteStyle}`
+           + `&lang=${currentLang}`;
 
       navigator.clipboard.writeText(url)
         .then(()=>showToast(t.linkCopied))

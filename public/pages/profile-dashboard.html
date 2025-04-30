@@ -25,6 +25,13 @@
   <script type="module" src="../js/pages/profile-dashboard.js"></script>
 </head>
 <body>
+  <div id="dashboardLoading" class="loading-overlay">
+    <div style="display:flex; align-items:center; justify-content:center;">
+      <div class="spinner"></div>
+      <span id="loadingDashboardText" data-i18n="loadingDashboardMessage"></span>
+    </div>
+  </div>
+  
   <div id="appHeader"></div>
 
   <main class="container">
@@ -41,7 +48,7 @@
     <!-- About Me -->
     <section id="bioSection" class="white-card soft-shadow p-6 mb-6">
       <h3 class="text-lg font-semibold mb-2" data-i18n="editBio">Edit Bio</h3>
-      <p id="bioText" class="mb-4 text-gray-600" data-i18n="noBio"></p>
+      <p id="bioText" class="mb-4 text-gray-600"></p>
       <button id="editBioBtn" class="btn btn-secondary" data-i18n="editBio">
         Edit Bio
       </button>
@@ -140,20 +147,31 @@
       </dialog>
   <!-- 邀請語編輯 Modal（複製推薦連結用） -->
   <dialog id="inviteModal" class="white-card p-6">
-    <h3 … data-i18n="editInviteTitle">編輯邀請語</h3>
+    <h3 data-i18n="editInviteTitle">編輯邀請語</h3>
   
     <!-- 1. 先選風格 -->
-    <label for="inviteStyleSelect" … data-i18n="inviteStyleLabel">邀請語風格：</label>
-    <select id="inviteStyleSelect" …>
+    <label for="inviteStyleSelect"  data-i18n="inviteStyleLabel">邀請語風格：</label>
+    <select id="inviteStyleSelect" >
       <option value="direct" data-i18n="styleDirect">中性版</option>
       <option value="warmth" data-i18n="styleWarmth">溫暖版</option>
     </select>
   
     <!-- 2. 再編輯文字 -->
-    <textarea id="inviteTextarea" rows="4" …></textarea>
-  
+    <textarea id="inviteTextarea" rows="4"></textarea>
+
+    <!-- 新增：邀請連結預覽 -->
+    <div class="form-group mt-4">
+      <label data-i18n="previewLinkLabel">預覽連結：</label>
+      <a id="invitePreviewLink"
+         href="#"
+         target="_blank"
+         style="display:block; word-break:break-all; margin-top:4px;">
+    <!-- JS 會填入連結文字 -->
+      </a>
+    </div>
+    
     <!-- 3. 按鈕 -->
-    <div …>
+    <div>
       <button id="inviteCancelBtn" data-i18n="inviteCancel"></button>
       <button id="inviteSaveBtn"   data-i18n="inviteSaveAndCopy"></button>
     </div>

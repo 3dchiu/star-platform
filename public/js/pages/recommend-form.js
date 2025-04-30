@@ -8,10 +8,16 @@ const userId = params.get("userId");
 const jobId = params.get("jobId");
 const urlMessage = params.get("message");
 const style = params.get("style") || "direct";
-
+// —— 新增：如果 URL 有带 lang，就强制套用此語系 ——
+const forcedLang = params.get("lang");
+if (forcedLang) {
+  // 1) 立即切換 i18n
+  setLang(forcedLang);
+  // 2) 同步覆寫 localStorage，供后续取用
+  localStorage.setItem("lang", forcedLang);
+}
 // 控制邀請內容是否為預設公版
 let userEdited = false;
-let isUsingDefaultInvite = false;
 
 // 暫存被推薦者與職缺資料
 let profileData = null;
@@ -21,7 +27,10 @@ let jobData = null;
 function renderPageByLang() {
   const langNow = localStorage.getItem("lang") || "en";
   const t = i18n[langNow] || i18n.en;
-  const defaultInvite = t[`defaultInvite_${style}`] || t.defaultInvite_direct;
+ //切語系時自動覆蓋邀請框 
+ // const defaultInvite = t[`defaultInvite_${style}`] || t.defaultInvite_direct;
+ // const inviteArea = document.getElementById("inviteContent");
+ //   if (!userEdited) {inviteArea.value = defaultInvite;} 
 
   // 更新頁面標題
   document.title = t.pageTitle;
@@ -46,11 +55,7 @@ function renderPageByLang() {
 
   // 更新邀請區
   const inviteTitleEl = document.getElementById("inviteTitle");
-  const inviteArea = document.getElementById("inviteContent");
   inviteTitleEl.innerText = t.inviteTitle;
-  if (isUsingDefaultInvite && !userEdited) {
-    inviteArea.value = defaultInvite;
-  }
 
   // 更新表單欄位
   document.getElementById("labelName").innerText = t.name;
@@ -77,6 +82,11 @@ function renderPageByLang() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+  if (forcedLang) {
+    document.documentElement.lang = forcedLang;
+  }
+  document.getElementById("formContainer").style.display = "none";
+  document.getElementById("loadingMessage").style.display = "block";
   // 延遲確保 DOM 可用
   await new Promise(r => setTimeout(r, 200));
 
@@ -87,37 +97,65 @@ window.addEventListener("DOMContentLoaded", async () => {
   // 取得初始預設邀請文字
   const tInit = i18n[initLang] || i18n.en;
   const defaultInviteInit = tInit[`defaultInvite_${style}`] || tInit.defaultInvite_direct;
+  document.getElementById("loadingText").innerText = tInit.loadingMessage;
 
   // 初始邀請內容
   const inviteArea = document.getElementById("inviteContent");
-  if (urlMessage) {
-    inviteArea.value = decodeURIComponent(urlMessage);
-    isUsingDefaultInvite = true;
-  } else {
-    inviteArea.value = defaultInviteInit;
-    isUsingDefaultInvite = true;
-  }
-  inviteArea.addEventListener("input", () => { userEdited = true; });
+if (urlMessage) {
+  // URL 帶入的文字視為「自訂」，標記已編輯
+  inviteArea.value = decodeURIComponent(urlMessage);
+  userEdited = true;
+} else {
+  // 否則用預設
+  inviteArea.value = defaultInviteInit;
+}
+// 保留：使用者打字就視為「自訂」
+inviteArea.addEventListener("input", () => { userEdited = true; });
+
 
   // 監聽 header.js 發出的語系變更事件，立即重繪
   window.addEventListener("langChanged", () => {
     renderPageByLang();
+  
+    // —— 新增：初始化時也更新 Open Graph Meta ——  
+  const langNow2 = localStorage.getItem("lang") || "en";
+  const t2 = i18n[langNow2] || i18n.en;
+  document.getElementById("ogTitleMeta").setAttribute("content", t2.ogTitle);
+  document.getElementById("ogDescMeta").setAttribute("content", t2.ogDescription);
+  document.getElementById("ogUrlMeta").setAttribute("content", window.location.href);
+
   });
 
   // 初始化 Firebase, 讀取使用者 profile & 職缺
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const snap = await db.doc(`users/${userId}`).get();
-  if (!snap.exists) return document.getElementById("recommendForm").style.display = "none";
+  if (!snap.exists) {
+    document.getElementById("formContainer").style.display = "none";
+    document.getElementById("loadingMessage").style.display = "none";
+    const err = document.getElementById("errorMessage");
+    err.innerText = "User not found.";
+    err.style.display = "block";
+    return;
+  }
   profileData = snap.data();
   let exps = profileData.workExperiences;
   if (!Array.isArray(exps)) exps = Object.values(exps || {});
   exps.sort((a,b) => b.startDate.localeCompare(a.startDate));
   jobData = exps.find(j => j.id === jobId);
-  if (!jobData) return document.getElementById("recommendForm").style.display = "none";
-
+  if (!jobData) {
+    document.getElementById("formContainer").style.display = "none";
+    document.getElementById("loadingMessage").style.display = "none";
+    const err = document.getElementById("errorMessage");
+    err.innerText = "Job not found or link is invalid.";
+    err.style.display = "block";
+    return;
+  }  
   // 首次渲染
   renderPageByLang();
+  // 資料載入成功：關掉 Loading，開啟表單
+  document.getElementById("loadingMessage").style.display = "none";
+  document.getElementById("formContainer").style.display = "block";
 
   // 表單送出邏輯
   const form = document.getElementById("recommendForm");

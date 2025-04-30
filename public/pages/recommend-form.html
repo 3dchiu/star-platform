@@ -12,6 +12,13 @@
   <!-- 頁面標題由 JS 自動填入 -->
   <title data-i18n="pageTitle">推薦表單</title>
   <link rel="stylesheet" href="../styles/main.css" />
+  <!-- Open Graph Meta（务必写在 head，且静态） -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="⭐ 幫我為我的職涯檔案撰寫推薦！" />
+  <meta property="og:description" content="我正在 Star 平台建立職涯檔案，想邀請您對我的合作經驗寫幾句推薦。" />
+  <meta property="og:image"       content="/img/preview-banner.png" />
+  <meta property="og:url"         content="https://your-domain.netlify.app/pages/recommend-form.html?userId=XX&lang=zh" />
+  <meta name="twitter:card"       content="summary_large_image" />
 
   <!-- 多語 & 共用 Header -->
   <script type="module" src="../js/i18n.js"></script>
@@ -22,8 +29,16 @@
 <body>
   <!-- Header 容器 -->
   <div id="appHeader"></div>
+  <div id="loadingMessage">
+    <div style="display:flex; align-items:center;">
+      <div class="spinner"></div>
+      <!-- 這裡改用 data-i18n 占位 -->
+      <span id="loadingText" data-i18n="loadingMessage"></span>
+    </div>
+  </div>
+  <div id="errorMessage" style="display:none; color:red;"></div>
 
-  <main class="container">
+  <main id="formContainer" class="container">
     <!-- 表單標題 -->
     <h1 id="formTitle" data-i18n="formTitle"></h1>
 
@@ -34,9 +49,9 @@
     <div class="form-group">
       <strong id="inviteTitle" data-i18n="inviteTitle"></strong><br>
       <textarea id="inviteContent" rows="4" 
-                style="width:100%; border:none; background:transparent; font-style:italic;"></textarea>
-    </div>
-
+          readonly
+          style="width:100%; border:none; background:transparent; font-style:italic; cursor:text;"></textarea>
+    
     <!-- 推薦表單 -->
     <form id="recommendForm">
       <!-- 推薦人姓名 -->

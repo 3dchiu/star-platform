@@ -790,5 +790,66 @@ section {
   transform: translateY(-2px);
   transition: all 0.3s ease;
 }
+#loadingMessage {
+  position: fixed;               /* 固定於視窗 */
+  top: 50%;                      /* 垂直推到一半 */
+  left: 50%;                     /* 水平推到一半 */
+  transform: translate(-50%, -50%); /* 再往上、往左各移自己一半寬高 */
+  background: rgba(255,255,255,0.8);/* 半透明底，可見底下表單 */
+  padding: 16px 24px;            /* 四周留點空白 */
+  border-radius: 8px;            /* 角落圓潤 */
+  font-size: 1.25rem;            /* 稍微放大字體 */
+  z-index: 9999;                 /* 蓋過其他內容 */
+}
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255,255,255,0.8);
+  z-index: 9999;
+}
+
+.spinner {
+  border: 4px solid #ddd;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  margin-right: 12px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+/* Bio 編輯彈窗：寬度響應式 */
+#bioModal {
+  /* 最小 300px、最大 600px，中間視窗的一半 */
+  width: clamp(300px, 50vw, 600px);
+  /* 讓 dialog 本身置中 */
+  margin: auto;
+}
+/* 如果你希望更平滑的圓角和陰影，也可以加上： */
+#bioModal {
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  padding: 1rem;
+}
+/* 預覽連結樣式 */
+.preview-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--brand-blue);
+}
+.preview-link:hover {
+  text-decoration: underline;
+}
+
+
 
    
