@@ -49,6 +49,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
   const endY             = document.getElementById("endYear");
   const endM             = document.getElementById("endMonth");
   const stillChk         = document.getElementById("stillWorking");
+  const endDateContainer = document.getElementById("endDateContainer");
   const descInp          = document.getElementById("descInput");
 
   const inviteModal       = document.getElementById("inviteModal");
@@ -82,8 +83,13 @@ document.getElementById("dashboardLoading").style.display = "flex";
     startY.innerHTML = endY.innerHTML = yrs.join("");
     startM.innerHTML = endM.innerHTML = mos.join("");
     stillChk.addEventListener("change", () => {
-      endY.disabled = endM.disabled = stillChk.checked;
-      if (stillChk.checked) endY.value = endM.value = "";
+      const isWorking = stillChk.checked;
+      // 隱藏／顯示「結束日期」整組欄位
+      endDateContainer.classList.toggle("hidden", isWorking);
+      // 停用／啟用下拉
+      endY.disabled = endM.disabled = isWorking;
+      // 勾選時清空選項
+      if (isWorking) endY.value = endM.value = "";
     });
   }
 
@@ -366,11 +372,19 @@ document.getElementById("dashboardLoading").style.display = "flex";
       recommendations: profile.workExperiences[editIdx]?.recommendations || []
   };
 
-      if (editIdx==null) profile.workExperiences.push(payload);
-      else {
+      if (editIdx==null) {
+        // 新增模式：推入整個 payload
+        profile.workExperiences.push(payload);
+      } else {
         const job = profile.workExperiences[editIdx];
-        if (job.recommendations?.length) job.description = payload.description;
-        else Object.assign(job, payload);
+        if (job.recommendations?.length) {
+          // 有推薦：只更新描述和結束日期，其他欄位不動
+          job.description = payload.description;
+          job.endDate     = payload.endDate;
+        } else {
+          // 無推薦：整筆更新
+          Object.assign(job, payload);
+        }
       }
 
       await saveProfile();
@@ -474,6 +488,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
 
   // 年月下拉選單
   populateYearMonth();
+  stillChk.dispatchEvent(new Event("change"));
 
   // 開啟 Modal
   expModal.showModal();
@@ -501,15 +516,21 @@ document.getElementById("dashboardLoading").style.display = "flex";
         stillChk.checked = true;
         endY.disabled = endM.disabled = true;
       }
+      stillChk.dispatchEvent(new Event("change"));
       descInp.value = job.description||"";
       if (locked) lockCore(); else unlockCore();
       expModal.showModal();
     }
 
     function lockCore() {
-      [nameSection,chineseNameInput,englishNameInput,
-       companyInp,positionInp,startY,startM,endY,endM,stillChk]
-      .forEach(el=>el.disabled=true);
+      [nameSection, chineseNameInput, englishNameInput,
+      companyInp, positionInp, startY, startM]
+      .forEach(el => el.disabled = true);
+    
+      // 放行結束日期下拉
+      endY.disabled = endM.disabled = false;
+      // 如果之前被隱藏，也把它顯示出來
+      endDateContainer.classList.remove("hidden");
     }
     function unlockCore() {
       [nameSection,chineseNameInput,englishNameInput,

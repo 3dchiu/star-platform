@@ -99,14 +99,22 @@
 
       <!-- 期間 -->
       <div class="form-group date-fields">
-        <label data-i18n="period" style="width:100%">Period </label>
+        <label data-i18n="period">Period</label>
+      
+        <!-- 開始日期 -->
         <select id="startYear"></select>
         <select id="startMonth"></select>
         <span>–</span>
-        <select id="endYear"></select>
-        <select id="endMonth"></select>
+      
+        <!-- ↓ 加個容器 ↓ -->
+        <div id="endDateContainer">
+          <select id="endYear"></select>
+          <select id="endMonth"></select>
+        </div>
+      
+        <!-- 勾選「目前在職」 -->
         <label class="checkbox-group">
-          <input type="checkbox" id="stillWorking" />
+          <input type="checkbox" id="stillWorking"/>
           <span data-i18n="currentlyWorking">Currently working</span>
         </label>
       </div>
