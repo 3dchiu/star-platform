@@ -10,6 +10,7 @@ const urlMessage = params.get("message");
 const style = params.get("style") || "direct";
 // —— 新增：如果 URL 有带 lang，就强制套用此語系 ——
 const forcedLang = params.get("lang");
+const invitedBy = params.get("invitedBy");  // ✅ 新增：推薦來源 userId
 if (forcedLang) {
   // 1) 立即切換 i18n
   setLang(forcedLang);
@@ -130,7 +131,7 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const snap = await db.doc(`users/${userId}`).get();
-  if (!snap.exists) {
+  if (!snap.exists) { 
     document.getElementById("formContainer").style.display = "none";
     document.getElementById("loadingMessage").style.display = "none";
     const err = document.getElementById("errorMessage");
@@ -157,26 +158,59 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
   document.getElementById("loadingMessage").style.display = "none";
   document.getElementById("formContainer").style.display = "block";
 
-  // 表單送出邏輯
   const form = document.getElementById("recommendForm");
   form.addEventListener("submit", async e => {
-    e.preventDefault();
-    const btn = document.getElementById("submitBtn"); btn.disabled = true;
-    btn.innerText = (localStorage.getItem("lang") === "zh-Hant") ? "送出中..." : "Submitting...";
+  e.preventDefault();
 
-    const rec = {
-      name: document.getElementById("name").value.trim(),
-      email: document.getElementById("email").value.trim(),
-      relation: document.getElementById("relation").value,
-      highlights: Array.from(document.querySelectorAll('input[name="highlight"]:checked')).map(cb => cb.value)
-                   .concat(document.getElementById("customHighlight").value.trim() || []),
-      content: document.getElementById("content").value.trim(),
-      inviteMessage: document.getElementById("inviteContent").value.trim(),
-      jobId
-    };
-    await db.collection("users").doc(userId).collection("recommendations").add(rec);
-    window.location.href = `thank-you.html?userId=${profileData.userId}&style=${style}`
-      + `&recommenderName=${encodeURIComponent(rec.name)}`
-      + `&recommenderEmail=${encodeURIComponent(rec.email)}`;
+  const btn = document.getElementById("submitBtn"); // ✅ 定義按鈕
+  btn.disabled = true;
+  btn.innerText = (localStorage.getItem("lang") === "zh-Hant") ? "送出中..." : "Submitting...";
+
+  const customHighlight = document.getElementById("customHighlight").value.trim();
+  const highlights = Array.from(document.querySelectorAll('input[name="highlight"]:checked'))
+    .map(cb => cb.value);
+  if (customHighlight) highlights.push(customHighlight);
+
+  const rec = {
+    name: document.getElementById("name").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    relation: document.getElementById("relation").value,
+    highlights,
+    content: document.getElementById("content").value.trim(),
+    inviteMessage: document.getElementById("inviteContent").value.trim(),
+    jobId,
+    invitedBy: invitedBy || null,
+  };
+
+  const recCollection = db.collection("users").doc(userId).collection("recommendations");
+  const existing = await recCollection
+    .where("email", "==", rec.email)
+    .where("jobId", "==", rec.jobId)
+    .get();
+
+  if (!existing.empty) {
+    const lang = localStorage.getItem("lang") || "en";
+    const msg = (lang === "zh-Hant")
+      ? "您已經提交過這段推薦囉，無需重複填寫！"
+      : "You've already submitted a recommendation for this experience!";
+    alert(msg);
+    btn.disabled = false;
+    btn.innerText = (lang === "zh-Hant") ? "送出推薦" : "Submit Recommendation";
+    return;
+  }
+
+  await recCollection.add(rec);
+
+  const newUserId = `user_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  await db.collection("users").doc(newUserId).set({
+    name: rec.name,
+    email: rec.email,
+    fromRecommendation: true,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });  
+
+  window.location.href = `thank-you.html?userId=${profileData.userId}&style=${style}`
+    + `&recommenderName=${encodeURIComponent(rec.name)}`
+    + `&recommenderEmail=${encodeURIComponent(rec.email)}`;
   });
 });

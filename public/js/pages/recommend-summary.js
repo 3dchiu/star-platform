@@ -137,9 +137,10 @@ window.addEventListener("DOMContentLoaded", async () => {
       backBtn.innerText = t("backToProfile");
       backBtn.onclick    = () => (location.href = "profile-dashboard.html");
     } else {
-      userNameEl.innerText = "";      
-      backBtn.classList.add("hidden");
-    }
+  const dn = profile.chineseName || profile.name || "";
+  userNameEl.innerText = t("summaryFor", dn);
+  backBtn.classList.add("hidden");
+}
     // ✨ 保存 profile 到 window
     window._loadedProfile = profile;
     // ─────── 新增全域切語言後廣播的監聽 ───────
@@ -159,9 +160,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         else el.innerText = txt;
       }
     });
+    // 不需要再次廣播語言變更事件，已在其他地方處理
+    // window.dispatchEvent(new Event("langChanged"));
 
-    window.dispatchEvent(new Event("langChanged"));
-    
     // 更新 <title> 與返回按鈕
     document.title = tNow("pageTitle");
     const backBtn = document.getElementById("backBtn");
@@ -250,6 +251,14 @@ window.addEventListener("DOMContentLoaded", async () => {
             <div class="badge-container">
             ${renderBadges(r.highlights, tCurrent)}</div>
           `;
+          // 加上推薦文字內容
+          if (r.content?.trim()) {
+            const contentDiv = document.createElement("div");
+            contentDiv.className = "recommend-content";
+            contentDiv.innerText = r.content.trim();
+            recDiv.appendChild(contentDiv);
+          }
+
           card.appendChild(recDiv);
         });
 

@@ -492,10 +492,27 @@ input, select, textarea {
    margin-bottom: 12px;
  }
  .no-recommendation {
-   font-size: 0.875rem;
-   color: var(--gray-400);
- }
- 
+  font-size: 0.875rem;
+  color: var(--gray-400);
+  margin-top: 8px;
+}
+ .recommend-content {
+  margin-top: 6px;
+  padding-left: 1.2em;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.no-recommend-hint {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+  margin-top: 6px;
+  text-align: right;
+  line-height: 1.5;
+}
+
+
  /* ==========================================================================
     10. Thank-You Page (Stars & Animations)
     ========================================================================== */

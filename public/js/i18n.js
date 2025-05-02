@@ -32,6 +32,7 @@ export const i18n = {
     errEndAfterToday: "End date cannot be in the future",
     inviteCancel:       "Cancel",
     inviteSaveAndCopy:  "Save & Copy",
+    noRecommendationsHint: "📭 No recommendations received yet.\n🧡 Invite a colleague to share their kind words about you!",
 
     // invitation templates & UI
     defaultInvite_direct: "I'm building my professional career profile and would love to invite you to write a short recommendation about our time working together. If you're open to it, I'd be happy to return the favor!",
@@ -114,7 +115,7 @@ export const i18n = {
     recommendSummary: {
       pageTitle:        "Recommendation Summary",
       description:      "Overview of your recommendations",
-      summaryFor:       name => `Recommendations for ${name}`,
+      summaryFor:       name => `Recommendation Summary for ${name}`,
       noProfile:        "No profile found. Please create your profile first.",
       noExperience:     "No work experiences available.",
       noRecommendation: "No recommendations yet.",
@@ -134,7 +135,7 @@ export const i18n = {
       allRelations: "All Relations",
       label_relation: "Relation:",
       label_highlight: "Highlight:",
-
+      noFilteredMatch: "No recommendations match your current filters",
     },
     // index.html
     home: {
@@ -205,6 +206,15 @@ export const i18n = {
       login: "Login",
       logout: "Logout",
     },
+
+    //Recommend-Network
+    recommendNetwork: {
+      pageTitle: "Recommendation Network",
+      title: "Recommendation Network",
+      hint: "Visualizing how recommendations spread across users.",
+      empty: "No recommendation data yet to display the network."
+    }
+    
   },
 
   "zh-Hant": {
@@ -217,7 +227,7 @@ export const i18n = {
       title: "快速開始 ✨",
       steps: [
         "📄 建立一段經歷：填寫公司、職稱、起訖日期，只要 30 秒！",
-        "邀請合作夥伴推薦：點 🔗 複製連結，發給共事過的人，中英文範本可選！",
+        "邀請合作夥伴推薦：點 🔗 複製連結，發給共事過的人，有兩種範本可選！",
         "🧑‍🤝‍🧑 累積你的職涯推薦：完成後，推薦會自動出現在你的個人檔案，展現你的專業價值！"
       ]
     },
@@ -240,6 +250,7 @@ export const i18n = {
     errEndAfterToday: "結束日期不可晚於今天",
     inviteCancel:       "取消",
     inviteSaveAndCopy:  "儲存並複製",
+    noRecommendationsHint: "📭 尚未收到推薦內容\n🧡 邀請合作夥伴寫下對你的肯定吧！",
 
     // invitation templates & UI
     defaultInvite_direct: "我正在建立自己的職涯推薦檔案，想邀請您幫我寫一段我們合作時期的推薦文字。如果您願意，我也很樂意回饋推薦您！",
@@ -322,7 +333,7 @@ export const i18n = {
     recommendSummary: {
       pageTitle:     "推薦總覽",
       description:   "一覽無遺",
-      summaryFor:    name => `給 ${name} 的推薦`,
+      summaryFor:    name => `${name} 的推薦總表`,
       noProfile:     "尚未建立個人檔案。",
       noExperience:  "尚無任何工作經歷。",
       noRecommendation: "尚無任何推薦。",
@@ -342,7 +353,8 @@ export const i18n = {
       allRelations: "全部關係",
       label_relation: "推薦關係：",
       label_highlight: "亮點：",
-
+      noFilteredMatch: "目前沒有符合條件的推薦內容",
+    
     },
     // index.html
     home: {
@@ -415,6 +427,12 @@ export const i18n = {
     header: {
       login: "登入",
       logout: "登出",
+  },
+  recommendNetwork: {
+    pageTitle: "推薦人脈網絡圖",
+    title: "推薦人脈網絡圖",
+    hint: "視覺化顯示推薦如何從一位使用者擴散到另一位。",
+    empty: "目前尚無推薦資料可顯示網絡圖。"
   }
  }
 };

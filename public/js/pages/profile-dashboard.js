@@ -21,6 +21,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
     renderStaticText();    // 更新所有 data-i18n 文字
     renderBio();          // 再重新把 bio 內容塞回去
     updateOnboardingText(); // （如果有這個小卡多語也一起跑）
+    renderExperienceCards();   // ✅ 新增這行，讓卡片內容（含提示）也依語言切換
   });  
   const t    = i18n[lang] || i18n.en;
   document.getElementById("loadingDashboardText").innerText = t.loadingDashboardMessage;
@@ -129,40 +130,57 @@ document.getElementById("dashboardLoading").style.display = "flex";
   
   console.log("合併後的 experiences:", profile.workExperiences);
   function renderExperienceCards() {
+    const langNow = localStorage.getItem("lang") || "en";
+    const tNow = i18n[langNow] || i18n.en;
+  
     list.innerHTML = "";
     const grouped = {};
     profile.workExperiences.sort((a,b)=>b.startDate.localeCompare(a.startDate))
       .forEach(job=> (grouped[job.company] = grouped[job.company]||[]).push(job));
-    Object.entries(grouped).forEach(([comp,jobs])=>{
+  
+    Object.entries(grouped).forEach(([comp,jobs]) => {
       const wrap = document.createElement("div");
       wrap.className = "company-card";
       wrap.innerHTML = `<div class="company-title">${comp}</div>`;
-      jobs.forEach(job=>{
+      
+      jobs.forEach(job => {
         const idx = profile.workExperiences.indexOf(job);
         const hasRec = !!job.recommendations?.length;
-        const recHTML = hasRec 
-          ? job.recommendations.map(r=>`
+  
+        const roleCard = document.createElement("div");
+        roleCard.className = "role-card";
+  
+        roleCard.innerHTML = `
+          <strong>${job.position}</strong>
+          ${hasRec ? `<span class="lock-tip">🔒</span>` : ""}
+          <button class="link-btn" data-idx="${idx}">🔗</button>
+          <button class="edit-btn" data-idx="${idx}">📝</button>
+          <button class="del-btn" data-idx="${idx}">🗑️</button>
+          <div>${job.startDate} ～ ${job.endDate || tNow.currentlyWorking}</div>
+          ${job.description ? `<div>${job.description}</div>` : ""}
+        `;
+  
+        if (hasRec) {
+          const recHTML = job.recommendations.map(r => `
             <div class="rec-card">
               <span class="name">${r.name}</span>
               <span class="meta">（${r.relation}）</span><br>${r.content}
-            </div>`).join("")
-          : "";
-        wrap.insertAdjacentHTML("beforeend", `
-          <div class="role-card">
-            <strong>${job.position}</strong>
-            ${hasRec?`<span class="lock-tip">🔒</span>`:""}
-            <button class="link-btn" data-idx="${idx}">🔗</button>
-            <button class="edit-btn" data-idx="${idx}">📝</button>
-            <button class="del-btn" data-idx="${idx}">🗑️</button>
-            <div>${job.startDate} ～ ${job.endDate||t.currentlyWorking}</div>
-            ${job.description?`<div>${job.description}</div>`:""}
-            ${recHTML}
-          </div>`);
+            </div>`).join("");
+          roleCard.insertAdjacentHTML("beforeend", recHTML);
+        } else {
+          const hint = document.createElement("div");
+          hint.className = "no-recommend-hint";
+          hint.innerText = tNow.noRecommendationsHint;
+          roleCard.appendChild(hint);
+        }
+  
+        wrap.appendChild(roleCard);
       });
+  
       list.appendChild(wrap);
     });
   }
-
+  
   function showToast(msg) {
     const d = document.createElement("div");
     d.className = "toast";
