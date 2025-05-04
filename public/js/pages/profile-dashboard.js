@@ -28,7 +28,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
 
   // 元件對應
   const nameSection      = document.getElementById("nameSection");
-  const chineseNameInput = document.getElementById("chineseNameInput");
+  const nameInput = document.getElementById("nameInput");
   const englishNameInput = document.getElementById("englishNameInput");
   const basicInfo        = document.getElementById("basicInfo");
   const bioText          = document.getElementById("bioText");
@@ -60,7 +60,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
   const inviteSaveBtn     = document.getElementById("inviteSaveBtn");
 
   // 暫存
-  let profile = { userId:"", chineseName:"", englishName:"", bio:"", workExperiences:[] };
+  let profile = { userId:"", name:"", englishName:"", bio:"", workExperiences:[] };
   let editIdx, currentJobIndex, currentCompany, currentDefaultMsg, currentInviteStyle;
   // ===== 新增這段 =====
   // 1. 把更新小卡文字的邏輯包成函式
@@ -108,13 +108,32 @@ document.getElementById("dashboardLoading").style.display = "flex";
   // ===== 結束新增 =====
 
   async function saveProfile() {
-    if (!profile.userId) return;
-    await setDoc(doc(db, "users", profile.userId), profile);
+    console.group("🔍 saveProfile()");
+    console.log("→ profile.userId =", profile.userId);
+    console.log("→ profile payload =", profile);
+    if (!profile.userId) {
+      console.warn("❌ saveProfile() 中断：profile.userId 为空");
+      console.groupEnd();
+      return;
+    }
+    try {
+      await setDoc(
+        doc(db, "users", profile.userId),
+        profile,
+        { merge: true }
+      );
+      console.log("✅ saveProfile() 写入成功");
+    } catch (err) {
+      console.error("❌ saveProfile() 写入失败：", err);
+    }
+    console.groupEnd();
   }
+  
+  
 
   function renderBasic() {
     basicInfo.innerHTML = `
-      <h1>${profile.chineseName || ""}</h1>
+      <h1>${profile.name || ""}</h1>
       ${profile.englishName ? `<p>${profile.englishName}</p>` : ""}
       <p>${profile.workExperiences.length} ${t.workExperiences}</p>`;
   }
@@ -200,9 +219,10 @@ document.getElementById("dashboardLoading").style.display = "flex";
     const ref = doc(db, "users", user.uid);
     const snap = await getDoc(ref);
     if (snap.exists()) {
-    profile = snap.data();
-    // —— 不論 profile 是否存在，都先檢查 sessionStorage 裡的 prefillName ——
-
+      profile = {
+        userId: user.uid,
+        ...snap.data()
+      };
   
       // === 🔥 修正 workExperiences 不是陣列的情況 ===
       if (!Array.isArray(profile.workExperiences)) {
@@ -213,7 +233,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
     } else {
       localStorage.removeItem("profile");
       profile = {
-        userId: user.uid, chineseName:"", englishName:"", bio:"", workExperiences:[]
+        userId: user.uid, name:"", englishName:"", bio:"", workExperiences:[]
       };
       await setDoc(ref, profile);
     }
@@ -221,7 +241,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
     const prefillName = sessionStorage.getItem("prefillName");
     if (prefillName) {
       // 填入「中文姓名」輸入框
-      const nameInput = document.getElementById("chineseNameInput");
+      const nameInput = document.getElementById("nameInput");
       if (nameInput) {
         nameInput.value = prefillName;
         prefillUsed = true;
@@ -237,26 +257,70 @@ document.getElementById("dashboardLoading").style.display = "flex";
     profile.workExperiences = profile.workExperiences||[];
     profile.workExperiences.forEach(j=>{ if (!j.endDate) j.endDate=""; });
     // … 讀取 profile 並 normalize 之後，先把 recommendations 清空，避免重複 …
-    profile.workExperiences = profile.workExperiences||[];
+    profile.workExperiences = profile.workExperiences || [];
     profile.workExperiences.forEach(j => {
-      // 1. 統一 endDate
       if (!j.endDate) j.endDate = "";
-      // 2. 清空上一輪合併的 recommendations
-      j.recommendations = [];
     });
+    // ✅ 清空每筆經歷的 recommendations，避免重複 push
+    profile.workExperiences.forEach(j => j.recommendations = []);
 
-    // 🔥 讀取 recommendations 子集合，並用 jobId 合併到對應工作
-    const recColRef   = collection(db, "users", user.uid, "recommendations");
-    const recSnapshot = await getDocs(recColRef);
-    recSnapshot.forEach(docSnap => {
-      const rec = docSnap.data();
-      // 找到 id 符合的那筆工作
-      const job = (profile.workExperiences || []).find(j => j.id === rec.jobId);
-      if (job) {
-        job.recommendations = job.recommendations || [];
-        job.recommendations.push(rec);
+    // ✅ 自 Firestore 抓取推薦資料並套入對應 job
+    const recSnap = await getDocs(collection(db, "users", profile.userId, "recommendations"));
+for (const docSnap of recSnap.docs) {
+  const rec = docSnap.data();
+  const targetJob = profile.workExperiences.find(j => j.id === rec.jobId);
+  if (targetJob) {
+    // 👉 嘗試從 pendingUsers 中找到此推薦者是否已註冊成正式帳號
+    if (rec.invitedBy) {
+      const recommenderSnap = await getDoc(doc(db, "users", rec.invitedBy));
+      if (recommenderSnap.exists()) {
+        // ⚠️ 暫時移除這段寫入 recommenderId 的程式碼，改由 Cloud Function 處理
+        // if (!rec.recommenderId) {
+        //   await setDoc(
+        //     doc(db, "users", profile.userId, "recommendations", docSnap.id),
+        //     { recommenderId: rec.invitedBy },
+        //     { merge: true }
+        //   );
+        //   rec.recommenderId = rec.invitedBy;
+        // }
       }
-    });    
+    }
+
+    targetJob.recommendations.push(rec);
+  }
+}
+
+    let nodesMap = {};
+    let links    = [];
+    let userMap  = {};
+    const allUsers = await getDocs(collection(db, "users"));
+    for (const userDoc of allUsers.docs) {
+      const targetId = userDoc.id;
+
+      const recSnap = await getDocs(
+        collection(db, "users", targetId, "recommendations")
+      );
+
+      recSnap.forEach(recDoc => {
+        const rec = recDoc.data();
+        const fromId = rec.invitedBy;
+
+        if (!nodesMap[fromId]) {
+          nodesMap[fromId] = {
+            id: fromId,
+            label: userMap[fromId] || rec.name || fromId,
+          };
+        }
+        if (!nodesMap[targetId]) {
+          nodesMap[targetId] = {
+            id: targetId,
+            label: userMap[targetId] || targetId,
+          };
+        }
+        links.push({ from: fromId, to: targetId });
+      });
+    }
+    
     // 再呼叫 renderExperienceCards()
     populateYearMonth();
     renderStaticText();
@@ -343,8 +407,8 @@ document.getElementById("dashboardLoading").style.display = "flex";
       e.preventDefault();
     
       // ★ 初次填姓名
-      if (!profile.chineseName && chineseNameInput.value.trim()) {
-        profile.chineseName = chineseNameInput.value.trim();
+      if (!profile.name && nameInput.value.trim()) {
+        profile.name = nameInput.value.trim();
         profile.englishName = englishNameInput.value.trim();
         renderBasic();
       }
@@ -448,9 +512,10 @@ document.getElementById("dashboardLoading").style.display = "flex";
       const previewUrlRaw = `${location.origin}/pages/recommend-form.html`
         + `?userId=${profile.userId}`
         + `&jobId=${encodeURIComponent(profile.workExperiences[currentJobIndex].id)}`
-        + `&message=${currentDefaultMsg}`        // 直接插入原文
+        + `&message=${currentDefaultMsg}`       
         + `&style=${currentInviteStyle}`
-        + `&lang=${langNow}`;
+        + `&lang=${langNow}`
+        + `&invitedBy=${profile.userId}`;  
 
       const previewLinkEl = document.getElementById("invitePreviewLink");
       // 1) 用 setAttribute 保留原始中文字串
@@ -541,7 +606,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
     }
 
     function lockCore() {
-      [nameSection, chineseNameInput, englishNameInput,
+      [nameSection, nameInput, englishNameInput,
       companyInp, positionInp, startY, startM]
       .forEach(el => el.disabled = true);
     
@@ -551,7 +616,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
       endDateContainer.classList.remove("hidden");
     }
     function unlockCore() {
-      [nameSection,chineseNameInput,englishNameInput,
+      [nameSection,nameInput,englishNameInput,
        companyInp,positionInp,startY,startM,endY,endM,stillChk]
       .forEach(el=>el.disabled=false);
     }

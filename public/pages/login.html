@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../styles/main.css" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
   <script type="module" src="../js/i18n.js"></script>
 </head>
 <body>
@@ -64,6 +65,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
 
     const loginForm = document.getElementById("loginForm");
     const resetPasswordLink = document.getElementById("resetPassword");
@@ -143,10 +145,57 @@
     const password = document.getElementById("registerPassword").value;
 
     auth.createUserWithEmailAndPassword(email, password)
-      .then(() => {
+      .then(async (userCredential) => {
         console.log("註冊成功");
-        window.location.href = "profile-dashboard.html";
-      })
+        const uid = userCredential.user.uid;
+        // 先把 email + name 都寫進 users/{uid}
+    // 一、先抓 1 筆，做 name 合併
+    let pendingSnap = await db
+      .collection("pendingUsers")
+      .where("email", "==", email)
+      .limit(1)
+      .get();
+
+    if (!pendingSnap.empty) {
+      const recommenderData = pendingSnap.docs[0].data();
+      await db.collection("users").doc(uid).set({
+        email: email,
+        name:  recommenderData.name || ""
+      }, { merge: true });
+    } else {
+      await db.collection("users").doc(uid).set({ email }, { merge: true });
+    }
+
+    // 二、再抓所有同 email，再搬移
+    pendingSnap = await db
+      .collection("pendingUsers")
+      .where("email", "==", email)
+      .get();
+
+    for (const docSnap of pendingSnap.docs) {
+      const data = docSnap.data();
+      await db
+        .collection("users")
+        .doc(data.invitedBy)
+        .collection("recommendations")
+        .add({
+          name:          data.name          || "",
+          email:         data.email         || "",
+          relation:      data.relation      || "",
+          highlights:    data.highlights    || [],
+          content:       data.content       || "",
+          inviteMessage: data.inviteMessage || "",
+          jobId:         data.jobId         || "",
+          invitedBy:     uid,
+          createdAt:     firebase.firestore.FieldValue.serverTimestamp()
+        });
+      await db.collection("pendingUsers").doc(docSnap.id).delete();
+    }
+
+    // 4️⃣ 搬完以後，導向 Dashboard（或你要的頁面）
+    window.location.href = "profile-dashboard.html";
+  })
+
       .catch((error) => {
         errorMessage.style.display = "block";
         if (error.code === "auth/email-already-in-use") {
@@ -160,13 +209,6 @@
         }
       });
     });
-  // 这段放在 loginForm 监听器之外，script 最底部都行
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      // 如果已经登录，直接去 Dashboard
-      window.location.href = "profile-dashboard.html";
-    }
-  });
 </script>
 <script type="module" src="../js/components/app-header.js"></script>
 <script type="module">

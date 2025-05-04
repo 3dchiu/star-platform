@@ -40,7 +40,7 @@ function renderPageByLang() {
   // 更新推薦對象小標
   const titleEl = document.getElementById("formTitle");
   const raw = t.recommendingTo;
-  const name = profileData.chineseName || profileData.name || "";
+  const name = profileData.name || profileData.name || "";
   const greeting = typeof raw === "function" ? raw(name) : raw.replace("{name}", name);
   const oldSub = titleEl.querySelector(".sub-title");
   if (oldSub) oldSub.remove();
@@ -130,6 +130,7 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
   // 初始化 Firebase, 讀取使用者 profile & 職缺
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
+  const auth = firebase.auth();  // ✅ 加這行
   const snap = await db.doc(`users/${userId}`).get();
   if (!snap.exists) { 
     document.getElementById("formContainer").style.display = "none";
@@ -160,57 +161,76 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
 
   const form = document.getElementById("recommendForm");
   form.addEventListener("submit", async e => {
-  e.preventDefault();
+    e.preventDefault();
+  
+    const btn = document.getElementById("submitBtn");
+    btn.disabled = true;
+    btn.innerText = (localStorage.getItem("lang") === "zh-Hant") ? "送出中..." : "Submitting...";
+  
+    const customHighlight = document.getElementById("customHighlight").value.trim();
+    const highlights = Array.from(document.querySelectorAll('input[name="highlight"]:checked'))
+      .map(cb => cb.value);
+    if (customHighlight) highlights.push(customHighlight);
+  
+    const rec = {
+      name: document.getElementById("name").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      relation: document.getElementById("relation").value,
+      highlights,
+      content: document.getElementById("content").value.trim(),
+      inviteMessage: document.getElementById("inviteContent").value.trim(),
+      jobId,
+      invitedBy: invitedBy || null,
+      recommenderId: auth.currentUser?.uid || null,   // ✅ 新增這行
+      claimedBy: null,            // 🆕 預留：目前尚未歸戶
+      claimMethod: null           // 🆕 預留：未來可標示為 "manual" 或 "auto"
+    };
+  
+    const recCollection = db.collection("users").doc(userId).collection("recommendations");
+    const existing = await recCollection
+      .where("email", "==", rec.email)
+      .where("jobId", "==", rec.jobId)
+      .get();
+  
+    if (!existing.empty) {
+      const lang = localStorage.getItem("lang") || "en";
+      const msg = (lang === "zh-Hant")
+        ? "您已經提交過這段推薦囉，無需重複填寫！"
+        : "You've already submitted a recommendation for this experience!";
+      alert(msg);
+      btn.disabled = false;
+      btn.innerText = (lang === "zh-Hant") ? "送出推薦" : "Submit Recommendation";
+      return;
+    }
+  
+    // ✅ 儲存推薦內容
+    await recCollection.add(rec);
+  
+    // ✅ 嘗試以 email 找 pendingUsers（避免重複）
+    let pendingId = null;
+    const existingPending = await db.collection("pendingUsers")
+      .where("email", "==", rec.email)
+      .limit(1)
+      .get();
 
-  const btn = document.getElementById("submitBtn"); // ✅ 定義按鈕
-  btn.disabled = true;
-  btn.innerText = (localStorage.getItem("lang") === "zh-Hant") ? "送出中..." : "Submitting...";
-
-  const customHighlight = document.getElementById("customHighlight").value.trim();
-  const highlights = Array.from(document.querySelectorAll('input[name="highlight"]:checked'))
-    .map(cb => cb.value);
-  if (customHighlight) highlights.push(customHighlight);
-
-  const rec = {
-    name: document.getElementById("name").value.trim(),
-    email: document.getElementById("email").value.trim(),
-    relation: document.getElementById("relation").value,
-    highlights,
-    content: document.getElementById("content").value.trim(),
-    inviteMessage: document.getElementById("inviteContent").value.trim(),
-    jobId,
-    invitedBy: invitedBy || null,
-  };
-
-  const recCollection = db.collection("users").doc(userId).collection("recommendations");
-  const existing = await recCollection
-    .where("email", "==", rec.email)
-    .where("jobId", "==", rec.jobId)
-    .get();
-
-  if (!existing.empty) {
-    const lang = localStorage.getItem("lang") || "en";
-    const msg = (lang === "zh-Hant")
-      ? "您已經提交過這段推薦囉，無需重複填寫！"
-      : "You've already submitted a recommendation for this experience!";
-    alert(msg);
-    btn.disabled = false;
-    btn.innerText = (lang === "zh-Hant") ? "送出推薦" : "Submit Recommendation";
-    return;
-  }
-
-  await recCollection.add(rec);
-
-  const newUserId = `user_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-  await db.collection("users").doc(newUserId).set({
-    name: rec.name,
-    email: rec.email,
-    fromRecommendation: true,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    if (!existingPending.empty) {
+      // 如果之前已經填過，拿到那筆 ID
+      pendingId = existingPending.docs[0].id;
+    } else {
+      // 否則新增一筆
+      const pendingRef = await db.collection("pendingUsers").add({
+        name: rec.name,
+        email: rec.email,
+        invitedBy: rec.invitedBy,
+        fromRecommendation: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      pendingId = pendingRef.id;
+    }
+    // ✅ 導向 thank-you 頁
+    sessionStorage.setItem("prefillEmail", rec.email);
+    window.location.href = `thank-you.html?userId=${profileData.userId}&style=${style}`
+      + `&recommenderName=${encodeURIComponent(rec.name)}`
+      + `&recommenderEmail=${encodeURIComponent(rec.email)}`;
   });  
-
-  window.location.href = `thank-you.html?userId=${profileData.userId}&style=${style}`
-    + `&recommenderName=${encodeURIComponent(rec.name)}`
-    + `&recommenderEmail=${encodeURIComponent(rec.email)}`;
-  });
 });

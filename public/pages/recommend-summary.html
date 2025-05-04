@@ -47,38 +47,52 @@
     <!-- 自我介紹 (存在才顯示) -->
     <p id="description" class="text-base text-gray-600 mb-6"></p>
 
-    <!-- 🔍 篩選器區塊 -->
-  <div id="filters" class="filters mb-4">
-    <label for="relationFilter" class="mr-2" data-i18n="label_relation">🔗 推薦關係：</label>
-    <select id="relationFilter" class="px-2 py-1 border rounded mr-4">
-      <option value="" data-i18n="allRelations">全部關係</option>
-      <option value="我是他的直屬主管" data-i18n="relation_direct">我是他的直屬主管</option>
-      <option value="我是他的跨部門主管" data-i18n="relation_cross_direct">我是他的跨部門主管</option>
-      <option value="我是他的同部門同事" data-i18n="relation_same_dept">我是他的同部門同事</option>
-      <option value="我是他的跨部門同事" data-i18n="relation_cross_dept">我是他的跨部門同事</option>
-      <option value="我是他的部屬" data-i18n="relation_subordinate">我是他的部屬</option>
-      <option value="我是他的客戶" data-i18n="relation_client">我是他的客戶</option>
-      <option value="我是他的供應商" data-i18n="relation_vendor">我是他的供應商</option>
-    </select>    
-    
+   
+    <!-- 🔍 篩選器 + 匯出按鈕（排成一列） -->
+  <div class="filters-toolbar flex flex-wrap items-end gap-4 mb-4">
+    <!-- 篩選：推薦關係 -->
+    <div class="flex flex-col">
+      <label for="relationFilter" class="mb-1 text-sm" data-i18n="label_relation">🔗 推薦關係：</label>
+      <select id="relationFilter" class="px-2 py-1 border rounded w-52">
+        <option value="" data-i18n="allRelations">全部關係</option>
+        <option value="我是他的直屬主管" data-i18n="relation_direct">我是他的直屬主管</option>
+        <option value="我是他的跨部門主管" data-i18n="relation_cross_direct">我是他的跨部門主管</option>
+        <option value="我是他的同部門同事" data-i18n="relation_same_dept">我是他的同部門同事</option>
+        <option value="我是他的跨部門同事" data-i18n="relation_cross_dept">我是他的跨部門同事</option>
+        <option value="我是他的部屬" data-i18n="relation_subordinate">我是他的部屬</option>
+        <option value="我是他的客戶" data-i18n="relation_client">我是他的客戶</option>
+        <option value="我是他的供應商" data-i18n="relation_vendor">我是他的供應商</option>
+      </select>
+    </div>
 
-    <label for="highlightFilter" class="mr-2" data-i18n="label_highlight">🌟 亮點：</label>
-    <select id="highlightFilter" class="px-2 py-1 border rounded">
-      <option value="" data-i18n="allHighlights">全部亮點</option>
-      <option value="professional" data-i18n="highlight_professional">專業能力</option>
-      <option value="workEthic" data-i18n="highlight_workEthic">工作態度</option>
-      <option value="interpersonal" data-i18n="highlight_interpersonal">人際互動</option>
-      <option value="collaboration" data-i18n="highlight_collaboration">團隊協作</option>
-    </select>    
-    
-  </div>
-  <!-- 匯出 PDF 按鈕 -->
-  <div class="mb-4">
-    <button id="export-pdf"
-          class="btn btn-primary px-4 py-2"
-          data-i18n="exportPDF">
-      匯出 PDF
-    </button>
+    <!-- 篩選：亮點 -->
+    <div class="flex flex-col">
+      <label for="highlightFilter" class="mb-1 text-sm" data-i18n="label_highlight">🌟 亮點：</label>
+      <select id="highlightFilter" class="px-2 py-1 border rounded w-52">
+        <option value="" data-i18n="allHighlights">全部亮點</option>
+        <option value="professional" data-i18n="highlight_professional">專業能力</option>
+        <option value="workEthic" data-i18n="highlight_workEthic">工作態度</option>
+        <option value="interpersonal" data-i18n="highlight_interpersonal">人際互動</option>
+        <option value="collaboration" data-i18n="highlight_collaboration">團隊協作</option>
+      </select>
+    </div>
+      <!-- 匯出 PDF 按鈕 -->
+    <div class="flex flex-col justify-end">
+      <button id="export-pdf"
+        class="btn btn-primary px-4 py-2 h-fit"
+        data-i18n="exportPDF">
+        匯出 PDF
+      </button>
+    </div>
+
+      <!-- 🔁 切換模式按鈕 -->
+      <div class="flex flex-col justify-end">
+        <button id="toggleViewBtn"
+          class="btn btn-secondary px-4 py-2 h-fit"
+          data-i18n="onlyShowRecommendations"
+          data-i18n-alt="showWithCompany">
+        </button>
+      </div>
   </div>
 
     <!-- 推薦列表 -->

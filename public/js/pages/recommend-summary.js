@@ -29,20 +29,25 @@ function renderBadges(tags, tFn) {
 
 // 進入點
 window.addEventListener("DOMContentLoaded", async () => {
+let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 false）
+
   // ————— 支持 公共/私有 模式 —————
   const params      = new URLSearchParams(location.search);
   const isPublic    = params.get("public") === "true";
   const publicUserId= params.get("userId");
   // ————————————————————————————————
 
-  // 0) 多語 & 設定 i18n
-  const lang = localStorage.getItem("lang") || "en";
-  setLang(lang);
-  const pack = (i18n[lang] && i18n[lang].recommendSummary) || {};
-  const t = (key, ...args) => {
-    const v = pack[key];
-    return typeof v === "function" ? v(...args) : v || "";
-  };
+  setLang(localStorage.getItem("lang") || "en");
+  // 💡 用來取得目前語系與翻譯函式
+  function getCurrentT() {
+    const lang = localStorage.getItem("lang") || "en";
+    const pack = (i18n[lang] && i18n[lang].recommendSummary) || {};
+    const t = (key, ...args) => {
+      const v = pack[key];
+      return typeof v === "function" ? v(...args) : v || "";
+    };
+    return { t, lang };
+  }
 
   // 1) 初始化 Firebase + Firestore + Auth
   const app  = initializeApp(firebaseConfig);
@@ -50,6 +55,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   const auth = getAuth(app);
 
   // 2) 替換所有 data-i18n
+  const { t } = getCurrentT();  // ✅ 新增這行
   document
   .querySelectorAll("[data-i18n]")
   .forEach(el => {
@@ -98,7 +104,8 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
 
     // 渲染列表
-     renderRecommendations(profile, t, lang);
+    const { t, lang } = getCurrentT();
+    renderRecommendations(profile, t, lang);    
      exportBtn.addEventListener('click', () => {
       // 隱藏篩選和匯出按鈕
       filters.style.display   = 'none';
@@ -131,47 +138,68 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     // 顯示或隱藏使用者姓名 & 返回按鈕（私有模式才顯示）
     if (loggedIn) {
-      const dn = profile.chineseName || profile.name || "";
+      const dn = profile.name || "";
       userNameEl.innerText = t("summaryFor", dn);
       backBtn.classList.remove("hidden");
       backBtn.innerText = t("backToProfile");
       backBtn.onclick    = () => (location.href = "profile-dashboard.html");
     } else {
-  const dn = profile.chineseName || profile.name || "";
-  userNameEl.innerText = t("summaryFor", dn);
-  backBtn.classList.add("hidden");
-}
+      const dn = profile.name || "";
+      userNameEl.innerText = t("summaryFor", dn);
+      backBtn.classList.add("hidden");
+    }
     // ✨ 保存 profile 到 window
     window._loadedProfile = profile;
+    // ➕ 綁定切換按鈕
+  const toggleViewBtn = document.getElementById("toggleViewBtn");
+  toggleViewBtn.addEventListener("click", () => {
+    onlyShowRecommendations = !onlyShowRecommendations;
+    const { t, lang } = getCurrentT(); // ✅ 新增這行
+  
+    const key = onlyShowRecommendations ? "showWithCompany" : "onlyShowRecommendations";
+    toggleViewBtn.setAttribute("data-i18n", key);
+    toggleViewBtn.innerText = t(key);
+    renderRecommendations(window._loadedProfile, t, lang);
+  });
+  
     // ─────── 新增全域切語言後廣播的監聽 ───────
-  window.addEventListener("langChanged", () => {
-    const langNow = localStorage.getItem("lang") || "en";
-    const packNow = (i18n[langNow] && i18n[langNow].recommendSummary) || {};
-    const tNow = (key, ...args) => {
-      const v = packNow[key];
-      return typeof v === "function" ? v(...args) : v || "";
-    };
-    // 更新所有 [data-i18n] 的靜態文字（含 <option>）
-    document.querySelectorAll("[data-i18n]").forEach(el => { 
-      const key = el.getAttribute("data-i18n");
-      const txt = tNow(key);
-      if (txt) {
-        if (el.tagName === "OPTION") el.textContent = txt;
-        else el.innerText = txt;
+    window.addEventListener("langChanged", () => {
+      const { t: tNow, lang: langNow } = getCurrentT(); // ✅ 改這裡
+    
+    
+      // 🔁 更新所有 data-i18n 的文字（包含 <option> 與一般元素）
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        const txt = tNow(key);
+        if (txt) {
+          if (el.tagName === "OPTION") el.textContent = txt;
+          else el.innerText = txt;
+        }
+      });
+    
+      // 🔁 更新匯出按鈕
+      const exportBtnNow = document.getElementById("export-pdf");
+      if (exportBtnNow) exportBtnNow.innerText = tNow("exportPDF");
+    
+      // 🔁 更新切換推薦視圖按鈕
+      const toggleBtnNow = document.getElementById("toggleViewBtn");
+      if (toggleBtnNow) {
+        const keyNow = onlyShowRecommendations ? "showWithCompany" : "onlyShowRecommendations";
+        toggleBtnNow.setAttribute("data-i18n", keyNow);
+        toggleBtnNow.innerText = tNow(keyNow);
+      }
+    
+      // 🔁 更新標題與返回按鈕
+      document.title = tNow("pageTitle");
+      const backBtn = document.getElementById("backBtn");
+      if (backBtn) backBtn.innerText = tNow("backToProfile");
+    
+      // 🔁 重新渲染推薦內容（使用新的翻譯函式 tNow 和語言 langNow）
+      if (window._loadedProfile) {
+        renderRecommendations(window._loadedProfile, tNow, langNow);
       }
     });
-    // 不需要再次廣播語言變更事件，已在其他地方處理
-    // window.dispatchEvent(new Event("langChanged"));
-
-    // 更新 <title> 與返回按鈕
-    document.title = tNow("pageTitle");
-    const backBtn = document.getElementById("backBtn");
-    if (backBtn) backBtn.innerText = tNow("backToProfile");
-    // 重新渲染推薦列表
-    if (window._loadedProfile) {
-      renderRecommendations(window._loadedProfile, tNow, langNow);
-    }
-  });
+    
   // ────────────────────────────────────────
   }
 
@@ -215,59 +243,76 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     Object.entries(grouped).forEach(([company, jobs]) => {
       const section = document.createElement("div");
-      section.className = "company-section";
-      section.innerHTML = `<div class="company-name">${company}</div>`;
+      if (!onlyShowRecommendations) {
+        section.className = "company-section";
+        section.innerHTML = `<div class="company-name">${company}</div>`;
+      }
 
       let hasCard = false;
 
       jobs.forEach(job => {
-        const card = document.createElement("div");
-        card.className = "job-card";
-        card.innerHTML = `
-          <div class="job-title">${job.position}</div>
-          <div class="job-date">
-            ${job.startDate} ～ ${job.endDate || (langCurrent === "zh-Hant" ? "目前在職" : "Present")}
-          </div>
-
-        `;
-
+        let card;
+        if (!onlyShowRecommendations) {
+          card = document.createElement("div");
+          card.className = "job-card";
+          card.innerHTML = `
+            <div class="job-title">${job.position}</div>
+            <div class="job-date">
+              ${job.startDate} ～ ${job.endDate || (langCurrent === "zh-Hant" ? "目前在職" : "Present")}
+            </div>
+          `;
+        }
+      
         let anyMatch = false;
-
-        // 逐筆推薦過濾
+      
         (job.recommendations || []).forEach(r => {
           const matchRelation  = !selectedRelation  || r.relation === selectedRelation;
           const matchHighlight = !selectedHighlight || (r.highlights || []).includes(selectedHighlight);
           if (!matchRelation || !matchHighlight) return;
-
+      
           anyMatch = true;
           hasMatch = true;
-
+      
           const recDiv = document.createElement("div");
           recDiv.className = "recommendation";
+          let nameLine = `<span class="recommender-name">${r.name}</span>`;
+          // ✅ 如果有 recommenderId（代表推薦人已註冊），才加連結
+          if (!isPublic && r.recommenderId) {
+            nameLine = `<a class="recommender-name link" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`;
+          }
+
           recDiv.innerHTML = `
-            🧑‍🤝‍🧑 ${
-              isPublic ? "" : `<span class="recommender">${r.name}</span>`
-            } (${tRelation(r.relation, tCurrent)}):
+            <div class="recommender-line">
+              ${nameLine}
+              <span class="recommender-relation">（${tRelation(r.relation, tCurrent)}）</span>
+            </div>
             <div class="badge-container">
-            ${renderBadges(r.highlights, tCurrent)}</div>
+              ${renderBadges(r.highlights, tCurrent)}
+            </div>
           `;
-          // 加上推薦文字內容
+      
           if (r.content?.trim()) {
             const contentDiv = document.createElement("div");
             contentDiv.className = "recommend-content";
             contentDiv.innerText = r.content.trim();
             recDiv.appendChild(contentDiv);
           }
-
-          card.appendChild(recDiv);
+      
+          if (onlyShowRecommendations) {
+            section.appendChild(recDiv); // 👉 只看推薦時，直接 append
+          } else {
+            card.appendChild(recDiv); // 👉 否則 append 到卡片中
+          }
         });
-
-        // 無篩選時顯示所有；有篩選時僅顯示有 anyMatch 的
-        if (!isFiltering || anyMatch) {
+      
+        if (!onlyShowRecommendations && (!isFiltering || anyMatch)) {
           section.appendChild(card);
+          hasCard = true;
+        } else if (onlyShowRecommendations && anyMatch) {
           hasCard = true;
         }
       });
+      
 
       if (hasCard) {
         summaryArea.appendChild(section);

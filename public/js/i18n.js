@@ -136,6 +136,9 @@ export const i18n = {
       label_relation: "Relation:",
       label_highlight: "Highlight:",
       noFilteredMatch: "No recommendations match your current filters",
+      onlyShowRecommendations: "Only show recommendations",
+      showWithCompany: "Show with company & role",
+      exportPDF: "Export PDF",
     },
     // index.html
     home: {
@@ -212,9 +215,18 @@ export const i18n = {
       pageTitle: "Recommendation Network",
       title: "Recommendation Network",
       hint: "Visualizing how recommendations spread across users.",
-      empty: "No recommendation data yet to display the network."
+      empty: "No recommendation data yet to display the network.",
+    },
+    //Recommend-Network-User
+    recommendNetworkUser: {
+      loading: "Loading...",
+      pleaseLogin: "Please log in to view your network.",
+      networkTitle: "My Recommendation Network",
+      networkLoadError: "Failed to load network.",
+      networkLoginPrompt: "Please log in to view your network.",
+      meTag: "(me)",
+      unregisteredTag: "(unregistered)"
     }
-    
   },
 
   "zh-Hant": {
@@ -354,7 +366,10 @@ export const i18n = {
       label_relation: "推薦關係：",
       label_highlight: "亮點：",
       noFilteredMatch: "目前沒有符合條件的推薦內容",
-    
+      onlyShowRecommendations: "只看推薦內容",
+      showWithCompany: "顯示公司與職稱",
+      exportPDF: "匯出 PDF",
+
     },
     // index.html
     home: {
@@ -428,11 +443,22 @@ export const i18n = {
       login: "登入",
       logout: "登出",
   },
+  //Recommend-Network
   recommendNetwork: {
     pageTitle: "推薦人脈網絡圖",
     title: "推薦人脈網絡圖",
     hint: "視覺化顯示推薦如何從一位使用者擴散到另一位。",
-    empty: "目前尚無推薦資料可顯示網絡圖。"
+    empty: "目前尚無推薦資料可顯示網絡圖。",
+  },
+  //Recommend-Network-User
+  recommendNetworkUser: {
+    loading: "載入中...",
+    pleaseLogin: "請先登入才能查看您的人脈網絡。",
+    networkTitle: "我的推薦網絡",
+    networkLoadError: "載入網絡失敗。",
+    networkLoginPrompt: "請先登入以查看推薦網絡。",
+    meTag: "（我）",
+    unregisteredTag: "（未註冊）",
   }
  }
 };
