@@ -90,6 +90,16 @@
    transform: scale(1.05);
    text-shadow: 0 0 8px rgba(0, 112, 243, 0.5);
  }
+ .gala-white {
+  color: white;
+  font-weight: bold;
+}
+
+.xyz-orange {
+  color: #fca311; /* 或使用你原本的亮色 */
+  font-weight: bold;
+}
+
 
  .lang-selector {
    padding: var(--spacing-xs) var(--spacing-sm);
@@ -102,25 +112,6 @@
 
  .hidden {
    display: none !important;
- }
-  /* 🌐 地球語言選單 */
-  .lang-switcher {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    width: 40px;        /* 固定寬度，比如跟地球 icon 大小相當 */
-    height: 40px;       /* 固定高度 */
-    justify-content: center; /* 地球置中 */
-    overflow: visible;  /* 語言選單超出範圍時不裁切 */
-  }
-  
- #langButton {
-   background: none;
-   border: none;
-   cursor: pointer;
-   font-size: 24px;
-   color: white;
-   padding: 4px;
  }
 
  .lang-menu {
@@ -185,6 +176,13 @@
  .btn-secondary:hover {
    background-color: var(--color-secondary-alt);
  }
+ .btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
  .cta-btn {
    display: inline-block;
    margin-top: var(--spacing-lg);
@@ -959,4 +957,61 @@ text-decoration: underline;
   #filters label, #filters select {
     width: 100%;
   }
+}
+/* 星星徽章：公開推薦頁面用 */
+.level-badge {
+  display: inline-block;
+  position: relative;
+  font-size: 20px;
+  color: gold;
+  width: 1.8em;
+  height: 1.8em;
+  text-align: center;
+  line-height: 1.8em;
+  margin-left: 6px;
+}
+.level-badge .level-number {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  color: white;
+  font-weight: bold;
+}
+/* 在 main.css 加入 */
+.star-icon {
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  mask-image: url('/img/star-icon.svg');
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  mask-position: center;
+  -webkit-mask-image: url('/img/star-icon.svg');
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+}
+.inline-icon {
+  width: 24px;
+  height: 24px;
+  color: white; /* 控制星星顏色 */
+  display: inline-block;
+  margin-bottom: 12px;
+}
+.gala-blue {
+  color: #0056b3;
+  font-weight: bold;
+}
+
+.xyz-orange {
+  color: #fca311;
+  font-weight: bold;
+}
+.header__inner .btn-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: nowrap;
 }

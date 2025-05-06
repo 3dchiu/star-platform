@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Admin Panel</title>
+
+  <!-- ✅ 共用樣式 -->
+  <link rel="stylesheet" href="/styles/main.css">
+
+  <!-- ✅ 正確使用 Firebase 模組版（不要混用 compat 版） -->
+  <script type="module" src="/js/firebase-config.js"></script>
+  <script type="module" src="/js/pages/admin-users.js"></script>
+</head>
+<body>
+  <h1>User Admin Panel</h1>
+
+  <table border="1" cellpadding="6" cellspacing="0" id="userTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>User ID</th>
+            <th>註冊日期</th>  <!-- ✅ 新增這行 -->
+            <th>Action</th>
+          </tr>
+      </thead>      
+    <tbody>
+      <!-- Will be populated by JS -->
+    </tbody>
+  </table>
+</body>
+</html>

@@ -42,8 +42,15 @@
       <ul class="vision-list"></ul>
     
       <!-- 下一個子標題 & 內文依然用 data-i18n -->
-      <h2 class="subheading" data-i18n="aboutPage.whyStarTitle"></h2>
-      <div class="paragraph" data-i18n="aboutPage.whyStarContent"></div>
+      <section class="dual-column fade-in">
+        <div class="column text-col">
+          <h2 data-i18n="aboutPage.whyStarTitle"></h2>
+          <div class="paragraph" data-i18n="aboutPage.whyStarContent"></div>
+        </div>
+        <div class="column image-col">
+          <img class="fade-in" src="../img/galaxyz-network-star.png" alt="Galaxyz 星圖示意圖" />
+        </div>
+      </section>      
     </section>
     
 
@@ -64,7 +71,7 @@
   <!-- 載入語言與步驟卡片 -->
   <script type="module">
     import { setLang, i18n } from '../js/i18n.js';
-
+  
     function renderHowItWorksSteps() {
       const lang = localStorage.getItem('lang') || 'en';
       const steps = (i18n[lang] && i18n[lang].aboutPage.howItWorksSteps) || [];
@@ -78,6 +85,7 @@
         `).join('');
       }
     }
+  
     function renderVisionBullets() {
       const lang = localStorage.getItem('lang') || 'en';
       const bullets = (i18n[lang]?.aboutPage?.ourVisionBullets) || [];
@@ -85,17 +93,36 @@
       if (!ul) return;
       ul.innerHTML = bullets.map(item => `<li>${item}</li>`).join('');
     }
-
+  
+    // ✅ 宣告 observer（放在最上面）
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate");
+          observer.unobserve(entry.target);
+        }
+      });
+    });
+  
+    // ✅ 初始化邏輯
     document.addEventListener('DOMContentLoaded', () => {
+      const lang = localStorage.getItem('lang') || 'en';
       setLang(lang);
       renderHowItWorksSteps();
-      renderVisionBullets();   // ← 新增
+      renderVisionBullets();
+  
+      // ✅ 啟用動畫觀察器
+      document.querySelectorAll(".fade-in").forEach(el => {
+        observer.observe(el);
+      });
     });
-
+  
+    // ✅ 語言切換時重新渲染
     window.addEventListener('langChanged', () => {
       renderHowItWorksSteps();
-      renderVisionBullets();   // ← 新增
+      renderVisionBullets();
     });
   </script>
+  
 </body>
 </html>

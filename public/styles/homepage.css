@@ -91,17 +91,71 @@
      3. About 區塊
   ============================= */
   .about-section {
+    position: relative; /* ⭐ 加上定位，給 ::before 用 */
+    overflow: hidden;   /* ⭐ 防止星點溢出 */
+    z-index: 1;         /* ⭐ 讓內容蓋過星星背景 */
+  
+    background: radial-gradient(circle at center, #0d1b2a, #1b263b);
+    color: white;
+    border-radius: 16px;
+    padding: 60px 24px;
+    margin: 64px auto;
+    max-width: 960px;
     text-align: center;
-    margin-top: 64px;
   }
+  .about-section::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(1px 1px at 5% 10%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 20% 30%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 35% 80%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 50% 50%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 65% 20%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 80% 60%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 90% 90%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 15% 65%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 55% 75%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 75% 15%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 25% 45%, white 60%, transparent 100%),
+      radial-gradient(1px 1px at 40% 25%, white 60%, transparent 100%);
+    background-repeat: no-repeat;
+    opacity: 0.7;                /* ⭐ 提高亮度 */
+    z-index: 0;
+    pointer-events: none;
+    animation: twinkle 6s ease-in-out infinite;
+  }
+  .about-section::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 150%;
+    height: 150%;
+    background-image:
+      radial-gradient(0.5px 0.5px at 12% 12%, rgba(255,255,255,0.4) 60%, transparent 100%),
+      radial-gradient(1px 1px at 30% 30%, rgba(255,255,255,0.4) 50%, transparent 100%),
+      radial-gradient(1px 1px at 60% 60%, rgba(255,255,255,0.2) 40%, transparent 100%),
+      radial-gradient(1px 1px at 90% 90%, rgba(255,255,255,0.1) 30%, transparent 100%);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    animation: sparkle 2.5s infinite ease-in-out alternate;
+    z-index: 0;
+    pointer-events: none;
+  }  
+    
   .about-section h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
+    color: #ffffff;
   }
   .about-section p {
-    font-size: 1rem;
-    color: var(--color-text-secondary);
+    color: #ccd6f6;
   }
+  .about-section img {
+    color: white;
+  }  
   
   /* =============================
      4. Features 區塊
@@ -184,4 +238,96 @@
       align-items: center;
     }
   }
+  .features-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 48px;
+    padding: 80px 20px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
   
+  .feature-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .feature-image {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    margin-bottom: 24px;
+  }
+  
+  .feature-text h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--brand-blue);
+    margin-bottom: 0.5rem;
+  }
+  
+  .feature-text p {
+    font-size: 1rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+  }
+  .feature-image {
+    max-width: 180px;
+    margin-bottom: 20px;
+  }
+  .feature-image:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+  }
+  .brand-logo {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--brand-blue); /* 預設主色 */
+  }
+  
+  .xyz-highlight {
+    color: #f99b1d; /* 亮橘色，也可以換成 #6a5acd 藍紫色等 */
+  }
+  /* 品牌 Logo 樣式（手機預設） */
+.brand-logo {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--brand-blue);
+  margin-bottom: 1rem;
+}
+
+.brand-logo .xyz-highlight {
+  color: #f5a623; /* 橘黃色，代表 XYZ 世代 */
+}
+
+/* 桌機版放大樣式 */
+@media (min-width: 768px) {
+  .brand-logo {
+    font-size: 4rem;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: translate(0, 0);
+  }
+  50% {
+    opacity: 0.5;
+    transform: translate(0.5px, 0.5px); /* ✅ 更細緻 */
+  }
+}
+
+.demo-star {
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: twinkle 3s infinite ease-in-out alternate;
+  z-index: 0;
+}
+

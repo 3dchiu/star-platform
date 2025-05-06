@@ -235,7 +235,10 @@ document.getElementById("dashboardLoading").style.display = "flex";
       profile = {
         userId: user.uid, name:"", englishName:"", bio:"", workExperiences:[]
       };
-      await setDoc(ref, profile);
+      await setDoc(ref, {
+        ...profile,
+        createdAt: new Date()
+      });      
     }
     // —— 不論文件存不存在，都先檢查 sessionStorage 裡的 prefillName —— 
     const prefillName = sessionStorage.getItem("prefillName");
@@ -360,24 +363,50 @@ for (const docSnap of recSnap.docs) {
         openModalForAdd(true);  // 傳 true → 顯示姓名欄位
       });
     }
-    // 1. 用 <button> 取代 <a>，並保留原本 addBtn 的 class 以保持樣式一致
+   // 插入到新容器裡
+    const actionBtns = document.getElementById("actionBtns");
+
+   // ✅ 新增「新增工作經歷」按鈕
+    const addBtn = document.createElement("button");
+    addBtn.id = "addBtn";
+    addBtn.type = "button";
+    addBtn.className = "cta-btn";
+    addBtn.innerHTML = "➕ <span data-i18n='addExperience'>新增工作經歷</span>";
+    actionBtns.appendChild(addBtn);
+
+    // 新增「推薦總覽」按鈕
     const btn = document.createElement("button");
-    btn.type      = "button";
+    btn.type = "button";
     btn.className = addBtn.className;
     btn.setAttribute("data-i18n", "viewSummaryAll");
+    actionBtns.appendChild(btn);
 
-    // 2. 點擊時打開新分頁
+    // 新增「公開推薦頁」按鈕
+    const previewBtn = document.createElement("button");
+    previewBtn.type = "button";
+    previewBtn.className = addBtn.className;
+    previewBtn.setAttribute("data-i18n", "viewPublicSummary");
+    actionBtns.appendChild(previewBtn);
+
+    actionBtns.appendChild(btn);
+    actionBtns.appendChild(previewBtn);
+
+    // 點擊動作
     btn.addEventListener("click", () => {
       window.open(
         `/pages/recommend-summary.html?userId=${profile.userId}&jobIndex=0`,
         "_blank"
       );
     });
+    previewBtn.addEventListener("click", () => {
+      window.open(
+        `/pages/recommend-summary.html?public=true&userId=${profile.userId}`,
+        "_blank"
+      );
+    });
 
-    // 3. 插入並立即渲染文字
-    addBtn.insertAdjacentElement("afterend", btn);
+    // 最後記得渲染語系
     renderStaticText();
-    
 
     // 第一次 fill vs 無經歷都要開 Modal
     if (!snap.exists()) {

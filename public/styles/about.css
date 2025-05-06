@@ -92,22 +92,50 @@
   margin: 1.25rem 0;      /* 列表上下各 0.75rem */
   padding-left: 1.5rem;  /* 留点缩进 */
 }
-.about-story .paragraph ul li {
-  display: inline-block;        /* 項目變成 inline-block 可以置中 */
-  margin: 0 1rem 1rem;          /* 左右間隔1rem、下方多留1rem */
-  font-size: 1.25rem;           /* 跟主段落文字一樣大 */
-  line-height: 1.8;             /* 跟主段落行高一致 */
-  text-align: left;             /* 文字自己保持左對齊 */
+.about-story .vision-list {
+  list-style: none;
+  padding-left: 0;
+  text-align: left;
+  max-width: 640px;
+  margin: 1.5rem auto 2rem auto;
 }
-.about-story .paragraph > p {
-  font-size: 1.25rem;           /* 從原本 1.125rem → 1.25rem */
+
+.about-story .vision-list li {
+  position: relative;
+  padding-left: 1.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.125rem;
   line-height: 1.8;
-  margin: 1.5rem auto;          /* 上下留 1.5rem，避免太黏 */
-  max-width: 720px;
-  text-align: center;
+  color: var(--color-text-primary, #333);
+}
+
+.about-story .vision-list li::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  color: var(--brand-blue);
+  font-size: 1rem;
+  top: 0.2em;
+}
+.about-page .paragraph {
+  max-width: 600px;
+  text-align: left;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: var(--color-text-primary, #333);
+  margin: 0.5rem auto 2.5rem auto;
 }
 
 /* How It Works 區 */
+.section-intro {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 1rem auto 2rem auto;
+  color: var(--gray-600);
+  text-align: center;
+}
+
 .about-how h2 {
   font-size: 2rem;
   font-weight: 700;
@@ -132,7 +160,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 240px;
 
   background: var(--color-surface, #fff);
   border-radius: 16px;
@@ -213,5 +241,68 @@
   .about-page .paragraph,
   .step-card p {
     font-size: 1rem;
+  }
+}
+.dual-column {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 48px;
+  max-width: 960px;
+  margin: 80px auto;
+  padding: 0 20px;
+}
+
+.dual-column .column {
+  flex: 1;
+}
+
+.text-col {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+}
+
+.text-col .paragraph {
+  margin-top: 1rem;
+}
+
+.image-col img {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+}
+
+/* 手機版自動變直向排列 */
+@media (max-width: 768px) {
+  .dual-column {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .text-col {
+    text-align: left;
+  }
+
+  .image-col img {
+    max-width: 300px;
+    margin-top: 24px;
+  }
+}
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.fade-in.animate {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

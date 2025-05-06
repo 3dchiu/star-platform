@@ -29,6 +29,8 @@ function renderBadges(tags, tFn) {
 
 // 進入點
 window.addEventListener("DOMContentLoaded", async () => {
+document.getElementById("summaryLoading").style.display = "flex";
+
 let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 false）
 
   // ————— 支持 公共/私有 模式 —————
@@ -43,9 +45,11 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     const lang = localStorage.getItem("lang") || "en";
     const pack = (i18n[lang] && i18n[lang].recommendSummary) || {};
     const t = (key, ...args) => {
-      const v = pack[key];
-      return typeof v === "function" ? v(...args) : v || "";
-    };
+      const v = pack?.[key];
+      if (typeof v === "function") return v(...args);
+      if (typeof v === "string") return v;
+      return "";
+    };    
     return { t, lang };
   }
 
@@ -77,6 +81,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
   const backBtn     = document.getElementById("backBtn");
   const filters   = document.getElementById("filters");
   const exportBtn = document.getElementById("export-pdf");
+  if (isPublic && exportBtn) exportBtn.style.display = "none";
 
   // 4) 核心加载函数
   async function loadAndRender(userId, loggedIn) {
@@ -102,10 +107,14 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
         job.recommendations.push(rec);
       }
     });
+        // ➕ 加入推薦總數，供顯示星星用
+    profile._totalRecCount = recSn.size;
 
     // 渲染列表
     const { t, lang } = getCurrentT();
     renderRecommendations(profile, t, lang);    
+    document.getElementById("summaryLoading").style.display = "none";
+
      exportBtn.addEventListener('click', () => {
       // 隱藏篩選和匯出按鈕
       filters.style.display   = 'none';
@@ -275,10 +284,18 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       
           const recDiv = document.createElement("div");
           recDiv.className = "recommendation";
-          let nameLine = `<span class="recommender-name">${r.name}</span>`;
-          // ✅ 如果有 recommenderId（代表推薦人已註冊），才加連結
-          if (!isPublic && r.recommenderId) {
-            nameLine = `<a class="recommender-name link" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`;
+          let nameLine = "";
+          if (isPublic) {
+            const recCount = profile._totalRecCount || 0;
+            nameLine = `
+              <span class="recommender-name">
+                (${t("anonymousRecommender")})
+                <span class="level-badge">🌟<span class="level-number">${recCount}</span></span>
+              </span>`;
+          } else {
+            nameLine = r.recommenderId
+              ? `<a class="recommender-name link" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
+              : `<span class="recommender-name">${r.name}</span>`;
           }
 
           recDiv.innerHTML = `

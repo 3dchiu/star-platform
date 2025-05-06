@@ -33,6 +33,7 @@ export const i18n = {
     inviteCancel:       "Cancel",
     inviteSaveAndCopy:  "Save & Copy",
     noRecommendationsHint: "📭 No recommendations received yet.\n🧡 Invite a colleague to share their kind words about you!",
+    viewPublicSummary: "🌟 View Public Recommendation Page",
 
     // invitation templates & UI
     defaultInvite_direct: "I'm building my professional career profile and would love to invite you to write a short recommendation about our time working together. If you're open to it, I'd be happy to return the favor!",
@@ -139,66 +140,70 @@ export const i18n = {
       onlyShowRecommendations: "Only show recommendations",
       showWithCompany: "Show with company & role",
       exportPDF: "Export PDF",
+      anonymousRecommender: "Recommender hidden",
+      loadingSummaryMessage: "Loading recommendation summary…",
     },
     // index.html
     home: {
-      heroTitle: "Shine your career with real recommendations",
-      heroSubtitle: "Build your story with authentic collaborations and let your light shine.",
-      startButton: "Start Building",
-      aboutTitle: "About Star",
-      aboutText: "At Star, we believe every real collaboration deserves to be seen. Here, your everyday efforts — big or small — become shining credentials that carry your story forward.",
-      learnMore: "Learn More",
+      heroTitle: `Every star has a story. Together, we form a Galaxy.`,
+      heroSubtitle: `Galaxyz is a career constellation built from real recommendations. \nEach trusted collaboration tells more than a title ever could.`,
+      startButton: "Create My Career Star Map",
+    
+      aboutTitle: "What We Believe",
+      aboutText: `Your value isn’t just written on your resume — it’s reflected in the words of those you've truly worked with.\n<span class="highlight">Galaxyz</span> is not a social profile. It's a trust-based record of real collaboration.`,
+      learnMore: "Learn More About Galaxyz",
+    
       features: {
-        buildProfileTitle: "Craft Your Story",
-        buildProfileText: "Showcase your journey and milestones — just one experience to start your story.",
-        inviteRecoTitle: "Invite and Celebrate",
-        inviteRecoText: "Invite collaborators to share real moments and build lasting trust.",
-        buildTrustTitle: "Grow Your Trusted Network",
-        buildTrustText: "Turn real experiences into your career momentum and trusted connections."
+        buildProfileTitle: "Build Your Career Profile",
+        buildProfileText: "Share your background, strengths, and work highlights so collaborators can truly see who you are.",
+        inviteRecoTitle: "Invite Real Recommendations",
+        inviteRecoText: "Generate a unique link for each experience and ask coworkers to write honest impressions.",
+        buildTrustTitle: "Create a Trusted Career Constellation",
+        buildTrustText: "Each recommendation forms a star connection. Your reputation grows not just by saying it, but by showing it."
       },
-      finalCta: "Start Your Journey Today",
-      finalCtaHint: "Your story doesn't have to be complete to shine. Add one experience and let trust begin."
+    
+      finalCtaHint: "Let trust become your greatest asset — one recommendation at a time.",
+      finalCta: "Start Now"
     },
+    
     aboutPage: {
-      heroTitle: "Let every effort be authentically recorded, and every collaboration become a trusted recommendation.",
-      heroSubtitle: "At Star, every real experience builds trust and lights the way for your future.",
-      heroButton: "Start Building",
+      heroTitle: "We believe the strongest career asset is trust.",
+      heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> is a constellation built on real recommendations —\nwhere people you've worked with help you shine.",
+      heroButton: "Create My Career Star Map",
     
-      ourVisionTitle: "Our Vision",
-      ourVisionContent: `In an era where AI can generate anything, resumes can be polished, and images can be packaged,
-    the true value of a person becomes harder and harder to see.
+      ourVisionTitle: "What is <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
+      ourVisionContent: "Galaxyz was born from a simple insight: resumes often fail to show a person’s true value.\n\nWe believe a career should not be defined solely by titles or self-promotion,\nbut by the voices of those who have truly worked with you.",
     
-    The words on a resume cannot fully represent us.
-    The posts on social media cannot fully represent us.
-    Even a LinkedIn profile cannot fully represent us.
+      ourVisionBullets: [
+        "Build your career profile through real collaboration",
+        "Make recommendations natural, warm, and trustworthy",
+        "Let your reputation be earned through shared experience",
+        "Redefine your value beyond job titles"
+      ],
     
-    The real us is revealed through collaboration,
-    understood through challenges,
-    and remembered through companionship.
+      whyStarTitle: "Why the name <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
+      whyStarContent: "Each of us is a star in our own career journey.\nThe people we've worked with form the connections on our constellation.\n\n'Galaxyz' combines 'Galaxy' with 'Z' to represent the unity of Gen X, Y, and Z\n— a galaxy formed through mutual trust and shared stories.",
     
-    We believe every shining star deserves to have its own name.`,
-    
-      whyStarTitle: "Why Star Exists",
-      whyStarContent: `So we decided to create something different:
-    a place where true collaboration can be seen and remembered.
-    
-    Star shines a light on every authentic moment of your professional journey.`,
-    
-      howItWorksTitle: "How It Works",
+      howItWorksTitle: "How Does It Work?",
       howItWorksSteps: [
-        { title: "Craft Your Story", desc: "Showcase your journey and milestones — just one experience to start your story." },
-        { title: "Invite and Celebrate", desc: "Invite collaborators to share real moments and build lasting trust." },
-        { title: "Grow Your Trusted Network", desc: "Turn real experiences into your career momentum and trusted connections." }
+        {
+          title: "Add a Work Experience",
+          desc: "Just fill out one experience you want to be recommended for — no full resume or intro needed."
+        },
+        {
+          title: "Generate and Send the Link",
+          desc: "Choose a warm or neutral message, copy your link, and send it to someone you've worked with."
+        },
+        {
+          title: "Collect Recommendations",
+          desc: "Each entry is auto-organized with both private and public views, with anonymized protection."
+        }
       ],
     
       joinUsTitle: "Join Us",
       joinUsContent: `Build trust through real collaboration, and let every piece of professionalism shine.
     
-    With just one work experience, you can start inviting recommendations.
-    Start building your professional network in just one minute.
-    
-    Every effort deserves to be seen.
-    Create your Star career profile today and let your story shine.`,
+    "You don’t need a promotion to prove your value.\nStart building your Galaxyz constellation — one recommendation at a time."`,
     
       joinUsButton: "Start Building"
     },
@@ -245,7 +250,7 @@ export const i18n = {
     },
     loadingDashboardMessage: "正在載入您的個人資料…",
     workExperiences: "工作經歷",
-    addExperience: "＋ 新增工作經歷",
+    addExperience: "新增工作經歷",
     addExperienceTitle: "新增工作經歷",
     company: "公司",
     position: "職稱",
@@ -263,6 +268,7 @@ export const i18n = {
     inviteCancel:       "取消",
     inviteSaveAndCopy:  "儲存並複製",
     noRecommendationsHint: "📭 尚未收到推薦內容\n🧡 邀請合作夥伴寫下對你的肯定吧！",
+    viewPublicSummary: "🌟 查看公開推薦頁",
 
     // invitation templates & UI
     defaultInvite_direct: "我正在建立自己的職涯推薦檔案，想邀請您幫我寫一段我們合作時期的推薦文字。如果您願意，我也很樂意回饋推薦您！",
@@ -369,71 +375,71 @@ export const i18n = {
       onlyShowRecommendations: "只看推薦內容",
       showWithCompany: "顯示公司與職稱",
       exportPDF: "匯出 PDF",
-
+      anonymousRecommender: "推薦人已隱藏",
+      loadingSummaryMessage: "正在載入推薦總表…",
     },
     // index.html
     home: {
-      heroTitle: "讓真實推薦照亮你的職涯",
-      heroSubtitle: "以真實合作建立個人檔案，讓你的故事閃耀。",
-      startButton: "開始建立",
-      aboutTitle: "關於 Star",
-      aboutText: "在 Star，我們相信每一段真實的合作都值得被看見。無論大小，每一份努力，都將成為照亮你職涯故事的光芒。",
-      learnMore: "了解更多",
+      heroTitle: `每顆星的故事，成就一整片星空`,
+      heroSubtitle: `Galaxyz 是由真實合作推薦所構成的職涯星圖，\n每一段彼此信任的經驗，都比頭銜更能說明你是誰。`,
+      startButton: "建立我的職涯星圖",
+    
+      aboutTitle: "我們相信什麼？",
+      aboutText: `人的價值，不只是履歷上的職稱，而是那些曾經與你共事的人，\n願意為你寫下的那段真實合作印象。\n<span class="highlight">Galaxyz</span> 不是社交名片，而是一份被看見的信任證明。`,
+      learnMore: "了解我們的理念",
+    
       features: {
-        buildProfileTitle: "打造你的故事",
-        buildProfileText: "展現你的職涯旅程與成就，只需新增一段經歷，就能開啟你的故事。",
-        inviteRecoTitle: "邀請與見證",
-        inviteRecoText: "邀請共事夥伴，分享真實時刻，累積長遠信任。",
-        buildTrustTitle: "擴展信任網絡",
-        buildTrustText: "將真實經驗轉化為職涯動能，建立可信人脈網絡。"
+        buildProfileTitle: "建立個人職涯檔案",
+        buildProfileText: "記錄你的經歷、簡介與職場亮點，讓合作過的夥伴看見你的真實樣貌。",
+        inviteRecoTitle: "邀請真實推薦",
+        inviteRecoText: "針對每段工作經歷，產生推薦連結，邀請共事者留下合作印象。",
+        buildTrustTitle: "打造值得信賴的職涯星圖",
+        buildTrustText: "每則推薦都是一道連結，你的信譽不只靠說，更靠曾經合作過的人證明。"
       },
-      finalCta: "立即展開你的旅程",
-      finalCtaHint: "你的故事，不必等待完整。新增一段經歷，讓信任開始發光。"
+    
+      finalCtaHint: "用推薦打造你的職涯星圖，讓信任成為你最有力的資產。",
+      finalCta: "立即開始"
     },
     aboutPage: {
-      heroTitle: "讓每份努力被真實記錄，每一次合作成為可信推薦。",
-      heroSubtitle: "在 Star，每一段真實經歷，都在累積信任，照亮你的未來。",
-      heroButton: "開始建立",
+      heroTitle: "我們相信職涯中最有力的資產，是信任。",
+      heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> 是一個由真實推薦組成的職涯星圖，\n讓合作過的人為你發光。",
+      heroButton: "開始建立我的職涯星圖",
     
-      ourVisionTitle: "我們的願景",
-      ourVisionContent: `在 AI 普及的時代，履歷可以被美化，形象可以被包裝，
-    但一個人的真實價值，卻越來越難被看見。
+      ourVisionTitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> 是什麼？",
+      ourVisionContent: "Galaxyz 的誕生，來自一個簡單卻被忽略的觀察：\n很多人的專業價值，其實在履歷上無法被完整呈現。\n\n我們相信，一個人的職涯，不應只靠頭銜或自我介紹來定義，\n而是來自合作過的人，願意為他留下的印象與推薦。",
     
-    履歷上的文字，無法完整代表我們。
-    社群上的發文，無法完整代表我們。
-    LinkedIn 上的資料，更無法完整代表我們。
+      ourVisionBullets: [
+        "將職涯檔案建立在真實合作經驗上",
+        "讓推薦變得自然、溫暖而可信",
+        "不靠社交按讚，而靠彼此見證",
+        "重新定義你在職場上的價值"
+      ],
     
-    真正的我們，是在一次次共事裡被認識，
-    在一次次挑戰中被理解，
-    在一次次陪伴下被記錄。
+      whyStarTitle: "為什麼我們叫 <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>？",
+      whyStarContent: "每一個人在職涯中都是一顆星，\n那些曾與你同行、合作過的人，正是你星圖上的連結點。\n\nGalaxyz 來自 Galaxy（銀河）＋ Z，象徵 X、Y、Z 世代都能共築信任星圖，\n而每顆星的故事，正成就整個銀河。",
     
-    我們相信，每一顆努力發光的星星，都應該有自己的名字。`,
-    
-      whyStarTitle: "為何創立 Star",
-      whyStarContent: `於是，我們想做點不一樣的事：
-    建立一個能讓彼此真實被看見的地方。
-    
-    讓合作的每個瞬間，成為你專業旅程中的一部分證明。
-    
-    Star，為每一段真實經歷，點亮信任的光芒。`,
-    
-      howItWorksTitle: "我們如何做到",
+      howItWorksTitle: "如何運作？",
       howItWorksSteps: [
-        { title: "打造你的故事", desc: "從一段經歷開始，展現你的歷程與成就。" },
-        { title: "邀請與見證", desc: "邀請合作夥伴分享真實時刻，建立持久信任。" },
-        { title: "擴展信任網絡", desc: "將真實經歷轉化為職涯動能與可信連結。" }
+        {
+          title: "新增一段工作經歷",
+          desc: "只需填寫一段你想被推薦的經歷，不用一次寫完整份履歷，也不必輸入自我介紹。"
+        },
+        {
+          title: "產生推薦連結並發送",
+          desc: "系統幫你準備好邀請內容（中性版／溫暖版），直接複製連結，發給合作過的人。"
+        },
+        {
+          title: "收集推薦，建立信任星圖",
+          desc: "推薦會自動整理成總表，系統提供私人與公開版本，內容具匿名保護。"
+        }
       ],
     
       joinUsTitle: "邀請一起加入",
       joinUsContent: `在真實合作中累積信任，讓每一份專業，都有機會被看見。
     
-    只要一段經歷，就能發出邀請。
-    一分鐘開始建立你的專業人脈網絡。
+    “你不需要等待升遷、換工作，才能證明自己的價值。\n現在就邀請合作過的夥伴，開始打造你的 Galaxyz 星圖。"`,
     
-    每一份努力，都值得被看見。
-    現在就建立你的 Star 職涯檔案，讓你的故事發光。`,
-    
-      joinUsButton: "開始建立"
+      joinUsButton: "立即加入"
     },
     
     login: {

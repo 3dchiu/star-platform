@@ -23,6 +23,10 @@
   <main class="home-container fade-in">
     <!-- Hero Section -->
     <section class="hero-section">
+      <h1 class="brand-logo">
+        Gala<span class="xyz-highlight">xyz</span>
+      </h1>
+      
       <h1 class="hero-title" data-i18n="home.heroTitle"></h1>
       <p class="hero-subtitle" data-i18n="home.heroSubtitle"></p>
       <a href="/pages/login.html" class="hero-cta btn btn-primary" data-i18n="home.startButton"></a>
@@ -30,26 +34,49 @@
 
     <!-- About Star Section -->
     <section class="about-section">
+        <!-- ✨ 星空點點 -->
+        <div class="demo-star" style="top: 6%; left: 8%;  width: 3px; height: 3px;"></div>   <!-- 左上1 -->
+        <div class="demo-star" style="top: 12%; left: 16%; width: 2px; height: 2px;"></div>  <!-- 左上2 -->
+        <div class="demo-star" style="top: 18%; left: 10%; width: 4px; height: 4px;"></div>  <!-- 左上3 -->
+        <div class="demo-star" style="top: 10%; left: 85%; width: 3px; height: 3px;"></div>  <!-- 右上1 -->      
+        <div class="demo-star" style="top: 75%; left: 70%; width: 2.5px; height: 2.5px;"></div> <!-- 右下1 -->
+        <div class="demo-star" style="top: 88%; left: 90%; width: 3.5px; height: 3.5px;"></div> <!-- 右下2 -->
+      
+      <div class="icon-wrapper">
+        <svg class="inline-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+          <path d="M50,8 L61,38 L92,38 L66,58 L75,90 L50,70 L25,90 L34,58 L8,38 L39,38 Z"/>
+        </svg>
+      </div>      
       <h2 data-i18n="home.aboutTitle"></h2>
       <p data-i18n="home.aboutText"></p>
       <a href="/pages/about.html" class="btn btn-secondary mt-4" data-i18n="home.learnMore"></a>
     </section>    
 
-    <!-- Features Section -->
-    <section class="features-grid">
-      <div class="feature-card">
-        <h3 data-i18n="home.features.buildProfileTitle"></h3>
-        <p data-i18n="home.features.buildProfileText"></p>
-      </div>
-      <div class="feature-card">
-        <h3 data-i18n="home.features.inviteRecoTitle"></h3>
-        <p data-i18n="home.features.inviteRecoText"></p>
-      </div>
-      <div class="feature-card">
-        <h3 data-i18n="home.features.buildTrustTitle"></h3>
-        <p data-i18n="home.features.buildTrustText"></p>
-      </div>
-    </section>
+    <!-- Features Section (圖文版) -->
+<section class="features-section">
+  <div class="feature-block">
+    <img src="./img/feature-profile.png" alt="建立職涯檔案插圖" class="feature-image" />
+    <div class="feature-text">
+      <h3 data-i18n="home.features.buildProfileTitle"></h3>
+      <p data-i18n="home.features.buildProfileText"></p>
+    </div>
+  </div>
+  <div class="feature-block">
+    <img src="./img/feature-invite.png" alt="邀請真實推薦插圖" class="feature-image" />
+    <div class="feature-text">
+      <h3 data-i18n="home.features.inviteRecoTitle"></h3>
+      <p data-i18n="home.features.inviteRecoText"></p>
+    </div>
+  </div>
+  <div class="feature-block">
+    <img src="./img/feature-network.png" alt="建立信賴星圖插圖" class="feature-image" />
+    <div class="feature-text">
+      <h3 data-i18n="home.features.buildTrustTitle"></h3>
+      <p data-i18n="home.features.buildTrustText"></p>
+    </div>
+  </div>
+</section>
+
 
     <!-- Final Call to Action -->
   <section class="final-cta">

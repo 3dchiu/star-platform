@@ -8,8 +8,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   /* ❷ 初始化語言 */
   const currentLang = localStorage.getItem("lang") || "en";
   setLang(currentLang);
-  // ★ 通知全站語系已設定
+
+  // ❷-1: 定義語言按鈕相關 DOM（放在 setLang 後面、最上面）
+  const langButton = document.getElementById('langButton');
+  const langMenu = document.getElementById('langMenu');
+
+  // ❷-2: 加入更新語言按鈕文字的 function
+  function updateLangButtonText(lang) {
+    const map = { en: "EN", "zh-Hant": "繁中 ⌄" };
+    if (langButton) langButton.innerText = map[lang] || "EN";
+  }
+
+  // ❷-3: 初始顯示
+  updateLangButtonText(currentLang);
+
+  // ❷-4: 當語言切換時更新
+  window.addEventListener("langChanged", e => {
+    updateLangButtonText(e.detail);
+  });
+
+  // ❷-5: 通知語系已設定（這行保持不變）
   window.dispatchEvent(new CustomEvent("langChanged", { detail: currentLang }));
+
 
   /* ❸ 抓取 Login / Logout 按鈕 */
   const loginBtn = document.getElementById("loginBtn");
@@ -63,10 +83,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   auth.onAuthStateChanged(user => {
     updateLoginButtonState(user);
   });
-
-  /* ❼ 地球語言選單控制 */
-  const langButton = document.getElementById('langButton');
-  const langMenu = document.getElementById('langMenu');
 
   if (langButton && langMenu) {
     langButton.addEventListener('click', (e) => {

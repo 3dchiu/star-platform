@@ -16,16 +16,22 @@
   <!-- 共用 i18n 與頂欄 -->
   <script type="module" src="../js/i18n.js"></script>
   <script type="module">
-    import { setLang, renderStaticText } from "../js/i18n.js";
+    import { setLang } from "../js/i18n.js";
     const lang = localStorage.getItem("lang") || "en";
     setLang(lang);
-    renderStaticText();
-    window.addEventListener("langChanged", renderStaticText);
-  </script>
+  </script>  
   <script type="module" src="../js/components/app-header.js"></script>
 </head>
 
 <body class="bg-gray-100 text-gray-900">
+  <!-- Loading 畫面 -->
+<div id="summaryLoading" class="loading-overlay">
+  <div style="display:flex; align-items:center; justify-content:center;">
+    <div class="spinner"></div>
+    <span id="loadingSummaryText" data-i18n="loadingSummaryMessage">Loading summary…</span>
+  </div>
+</div>
+
   <!-- 共用頂欄由 app-header.js 動態插入 -->
   <div id="appHeader"></div>
 

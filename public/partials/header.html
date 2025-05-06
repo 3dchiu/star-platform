@@ -1,29 +1,27 @@
-<!-- public/partials/header.html -->
 <header class="header">
   <div class="header__inner flex justify-between items-center px-4 py-2">
-    
-    <!-- 左邊：Logo or Home Link -->
-    <a href="/" class="brand-link text-lg font-semibold text-brand-blue">
-      🌟 Star
-    </a>
+
+    <!-- 左邊：Logo -->
+    <a href="/" class="brand-link text-lg font-semibold flex items-center gap-1">
+      🌟 <span class="gala-white">Gala</span><span class="xyz-orange">xyz</span>
+    </a>    
 
     <!-- 右邊：語言選單 + 登入/登出按鈕 -->
-    <div class="flex items-center space-x-4">
-      <!-- 改成地球按鈕 + 語言選單 -->
+    <div class="btn-group-header">
+      <!-- 語言選單按鈕 -->
       <div class="lang-switcher relative">
-        <button id="langButton" class="text-white text-2xl">🌐</button>
+        <button id="langButton" class="btn btn-secondary min-w-[64px] text-center">
+          EN
+        </button>
         <div id="langMenu" class="lang-menu hidden absolute right-0 mt-2 bg-white border rounded shadow">
           <button class="lang-option block w-full text-left px-4 py-2 hover:bg-gray-100" data-lang="en">English</button>
           <button class="lang-option block w-full text-left px-4 py-2 hover:bg-gray-100" data-lang="zh-Hant">繁體中文</button>
         </div>
       </div>
 
-      <button id="loginBtn" class="btn btn-primary" style="display: none;">
-        登入
-      </button>
-      <button id="logoutBtn" class="btn btn-secondary" style="display: none;">
-        登出
-      </button>      
+      <!-- 登入／登出 -->
+      <button id="loginBtn" class="btn btn-primary" style="display: none;">登入</button>
+      <button id="logoutBtn" class="btn btn-secondary" style="display: none;">登出</button>
     </div>
 
   </div>
