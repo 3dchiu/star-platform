@@ -12,6 +12,69 @@
   <script type="module" src="/js/firebase-config.js"></script>
   <script type="module" src="/js/pages/admin-users.js"></script>
 </head>
+<style>
+  table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin-bottom: 2em;
+  }
+
+  th, td {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    word-break: break-word;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  td input[type="checkbox"] {
+  display: block;
+  margin: 0 auto;
+  }
+
+  input[type="text"] {
+    padding: 6px 10px;
+    width: 300px;
+    font-size: 1rem;
+  }
+
+  input[type="checkbox"] {
+    transform: scale(1.2);
+    cursor: pointer;
+  }
+
+  button.copy-link-btn {
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  /* 整體空間與排版 */
+  body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    background: #fafafa;
+    padding: 2em;
+    color: #333;
+  }
+
+  section {
+    margin-top: 2em;
+  }
+  td code {
+  display: block;
+  word-break: break-all;
+  max-width: 100%;
+  font-size: 0.85rem;
+  }
+
+</style>
 <body>
   <h1>User Admin Panel</h1>
 
@@ -29,5 +92,25 @@
       <!-- Will be populated by JS -->
     </tbody>
   </table>
+  <!-- 👇 尚未註冊推薦人區塊 -->
+<section style="margin-top: 3em;">
+  <div style="margin-bottom: 1em;">
+    <label for="searchInput">🔍 搜尋 Email：</label>
+    <input type="text" id="searchInput" placeholder="請輸入 email 關鍵字">
+  </div>  
+  <h2>尚未註冊的推薦人（pendingUsers）</h2>
+  <table id="pendingUserTable" border="1" cellspacing="0" cellpadding="6">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Name</th>
+        <th>註冊連結</th>
+        <th>複製</th>
+        <th style="width: 80px;">通知信</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
 </body>
 </html>

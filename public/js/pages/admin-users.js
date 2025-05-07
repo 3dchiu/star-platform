@@ -27,6 +27,8 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     console.log("✅ 使用者已登入：", user.email);
     await loadUsers();
+    await loadPendingUsers();
+
   } else {
     alert("請先登入管理員帳號才能使用此頁面。");
   }
@@ -113,10 +115,8 @@ userTableBody.addEventListener("click", async (e) => {
               patchBtnHtml = `<button class='patch-btn' data-docpath='${docSnap.ref.path}' data-userid='${idToPatch}'>補上 recommenderId（${nameToPatch}）</button>`;
             } else {
               patchBtnHtml = `<span style='color:red;'>🔸 尚未補上 recommenderId，Email: ${recommenderEmail}</span>`;
-              const regLink = `https://star-platform-bf3e7.web.app/pages/login.html?register=1&email=${encodeURIComponent(recommenderEmail)}`;
               patchBtnHtml = `
-                <span style='color:red;'>🔸 尚未補上 recommenderId，Email: ${recommenderEmail}</span><br>
-                🔗 <a href="${regLink}" target="_blank" style="text-decoration: underline; color:blue;">註冊連結</a>
+                <span style='color:red;'>🔸 尚未補上 recommenderId，Email: ${recommenderEmail}（請至下方區塊複製註冊連結）</span>
               `;
             }
           }
@@ -157,3 +157,85 @@ userTableBody.addEventListener("click", async (e) => {
     }
   }
 });
+const pendingTableBody = document.querySelector("#pendingUserTable tbody");
+
+let pendingUserList = []; // 👈 全域陣列，用於搜尋功能
+
+async function loadPendingUsers() {
+  const snapshot = await getDocs(collection(db, "pendingUsers"));
+  pendingUserList = [];
+
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    pendingUserList.push({
+      email: data.email || "-",
+      name: data.name || "(尚未填姓名)",
+      invitedBy: data.invitedBy || "-",
+      notified: data.notified || false
+    });
+  });
+
+  renderPendingTable(pendingUserList); // 👉 將資料交給下面的函式畫出表格
+}
+function renderPendingTable(data) {
+  pendingTableBody.innerHTML = "";
+
+  data.forEach(({ email, name, invitedBy, notified }) => {
+    const regLink = `https://star-platform-bf3e7.web.app/pages/login.html?register=1&email=${encodeURIComponent(email)}&invitedBy=${invitedBy}`;
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${email}</td>
+      <td>${name}</td>
+      <td><code>${regLink}</code></td>
+      <td>
+        <button class="copy-link-btn" data-link="${regLink}">📋 複製</button>
+      </td>
+      <td style="text-align: center;">
+        <input type="checkbox"
+               data-email="${email}"
+               class="notified-checkbox"
+               ${notified ? "checked" : ""}>
+      </td>
+    `;
+
+    pendingTableBody.appendChild(tr);
+  });
+}
+
+// 點擊複製註冊連結
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("copy-link-btn")) {
+    const link = e.target.dataset.link;
+    navigator.clipboard.writeText(link).then(() => {
+      alert("✅ 已複製註冊連結！");
+    });
+  }
+});
+document.addEventListener("change", async (e) => {
+  if (e.target.classList.contains("notified-checkbox")) {
+    const email = e.target.dataset.email;
+    const checked = e.target.checked;
+
+    const snapshot = await getDocs(collection(db, "pendingUsers"));
+    for (const docSnap of snapshot.docs) {
+      const data = docSnap.data();
+      if (data.email === email) {
+        const ref = doc(db, "pendingUsers", docSnap.id);
+        await updateDoc(ref, { notified: checked });
+        console.log(`✅ ${email} 已更新 notified = ${checked}`);
+        break;
+      }
+    }
+  }
+});
+document.getElementById("searchInput").addEventListener("input", (e) => {
+  const keyword = e.target.value.toLowerCase();
+  const filtered = pendingUserList.filter((u) =>
+    u.email.toLowerCase().includes(keyword)
+  );
+  renderPendingTable(filtered);
+});
+
+
+
