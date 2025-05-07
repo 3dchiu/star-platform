@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login – Star</title>
+  <title>Login – Galaxyz</title>
   <link rel="stylesheet" href="../styles/main.css" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
@@ -21,6 +21,8 @@
         <input type="password" id="loginPassword" class="login-input" placeholder="Password" required />
         <button type="submit" class="login-input btn btn-primary">Login</button>
       </form>
+      <p id="registerReminder" style="color:#cc0000; margin-top: 12px;"></p>
+
       <p><a href="#" id="resetPassword">忘記密碼？</a></p>
       <p id="showRegisterRow" style="display:none">
         <span id="noAccountText"></span><br />
@@ -164,9 +166,42 @@
   </script>
   <script type="module" src="../js/components/app-header.js"></script>
   <script type="module">
-    import { setLang } from "../js/i18n.js";
+    import { setLang, i18n } from "../js/i18n.js";
     const lang = localStorage.getItem("lang") || "en";
     setLang(lang);
-  </script>
+  
+    window.addEventListener("DOMContentLoaded", () => {
+      const t = i18n[lang]?.login || {};
+      const params = new URLSearchParams(location.search);
+      const email = params.get("email");
+  
+      // 🌐 初始語言顯示文字
+      document.getElementById("welcomeTitle").innerText = t.welcomeTitle || "";
+      document.getElementById("noAccountText").innerText = t.noAccountText || "";
+      document.getElementById("registerOnlyNote").innerText = t.registerOnlyNote || "";
+      document.getElementById("resetPassword").innerText = t.resetPassword || "";
+      document.getElementById("registerReminder").innerText = t.registerReminder || "";
+  
+      // 👀 根據網址參數顯示註冊表單
+      if (params.get("register") === "1" && email) {
+        document.getElementById("registerEmail").value = email;
+        document.getElementById("registerEmail").readOnly = true;
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("registerSection").style.display = "block";
+        document.getElementById("showRegisterRow").style.display = "block";
+      }
+    });
+  
+    // 🌐 多語切換時更新畫面
+    window.addEventListener("langChanged", (e) => {
+      const lang = e.detail || "en";
+      const t = i18n[lang]?.login || {};
+      document.getElementById("welcomeTitle").innerText = t.welcomeTitle || "";
+      document.getElementById("noAccountText").innerText = t.noAccountText || "";
+      document.getElementById("registerOnlyNote").innerText = t.registerOnlyNote || "";
+      document.getElementById("resetPassword").innerText = t.resetPassword || "";
+      document.getElementById("registerReminder").innerText = t.registerReminder || "";
+    });
+  </script>  
 </body>
 </html>

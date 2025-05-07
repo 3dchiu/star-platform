@@ -218,9 +218,11 @@ export const i18n = {
       joinUsButton: "Start Building"
     },
     login: {
-      welcomeTitle: "Welcome to Star ✨",
+      welcomeTitle: "Welcome to Galaxyz ✨",
       noAccountText_en: "Don't have an account? <a href='#' id='showRegister'>Register</a>",
       registerOnlyNote_en: "(Only users who have submitted a recommendation can register)",
+      registerReminder: "※ If you wrote a recommendation but didn’t use the provided link, you won’t be able to register. Please contact the Galaxyz team for help.",
+      resetPassword: "Forgot your password?",
     },
     header: {
       login: "Login",
@@ -466,9 +468,11 @@ export const i18n = {
     },
     
     login: {
-      welcomeTitle: "歡迎來到 Galayxyz✨ 本系統為邀請制，如還未受邀請等待。",
+      welcomeTitle: "歡迎來到 Galaxyz✨ ",
       noAccountText: "還沒有帳號？<a href='#' id='showRegister'>註冊</a>",
       registerOnlyNote: "（僅限曾填寫推薦表者可註冊）",
+      registerReminder: "※ 若您曾撰寫推薦，但未透過系統提供的註冊連結進入，將無法註冊。請洽 Galaxyz 管理團隊協助。",
+      resetPassword: "忘記密碼？",
     },
     header: {
       login: "登入",
