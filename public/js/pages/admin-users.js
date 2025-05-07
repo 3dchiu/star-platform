@@ -105,24 +105,19 @@ userTableBody.addEventListener("click", async (e) => {
           const recommenderEmail = r.email;
 
           if (!jobId || jobId === "-") continue;
-
           let patchBtnHtml = "";
-          let infoText = "";
-
-          if (hasRecommender) {
-            const found = Object.values(registeredUsers).find(u => u.userId === r.recommenderId);
-            if (found) {
-              infoText = `✅ 已補上 recommenderId（來自：${found.name}）`;
-            } else {
-              infoText = "✅ 已補上 recommenderId";
-            }
-          } else if (adminEmail === "sandyylchiu@gmail.com") {
+          if (!hasRecommender && adminEmail === "sandyylchiu@gmail.com") {
             if (recommenderEmail && registeredUsers[recommenderEmail]) {
               const idToPatch = registeredUsers[recommenderEmail].userId;
               const nameToPatch = registeredUsers[recommenderEmail].name;
               patchBtnHtml = `<button class='patch-btn' data-docpath='${docSnap.ref.path}' data-userid='${idToPatch}'>補上 recommenderId（${nameToPatch}）</button>`;
             } else {
               patchBtnHtml = `<span style='color:red;'>🔸 尚未補上 recommenderId，Email: ${recommenderEmail}</span>`;
+              const regLink = `https://star-platform-bf3e7.web.app/pages/login.html?register=1&email=${encodeURIComponent(recommenderEmail)}`;
+              patchBtnHtml = `
+                <span style='color:red;'>🔸 尚未補上 recommenderId，Email: ${recommenderEmail}</span><br>
+                🔗 <a href="${regLink}" target="_blank" style="text-decoration: underline; color:blue;">註冊連結</a>
+              `;
             }
           }
 
@@ -130,7 +125,7 @@ userTableBody.addEventListener("click", async (e) => {
             <b>${name}</b> 推薦了此使用者（Job ID: ${jobId}）<br>
             ⭐ 標記亮點：${highlights}<br>
             📝 內容：${content}<br>
-            ${infoText || patchBtnHtml}
+            ${hasRecommender ? "✅ 已補上 recommenderId" : patchBtnHtml}
             <hr>
           </li>`;
         }

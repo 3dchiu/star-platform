@@ -84,7 +84,7 @@ export const i18n = {
     ],
     highlightLabel: "Recommendation Highlights",
     hintName: "Please enter your name. Only the person you are recommending can see it.",
-    hintEmail: "Used only as reference if you use this system in the future. No one else can see it.",
+    hintEmail: "Use your main email so we can find you when you’re ready to join Galaxyz",
 
     // ◆ 三個固定亮點 key (dashboard)
     highlightOptions: ["hardSkill", "softSkill", "character"],
@@ -219,6 +219,8 @@ export const i18n = {
     },
     login: {
       welcomeTitle: "Welcome to Star ✨",
+      noAccountText_en: "Don't have an account? <a href='#' id='showRegister'>Register</a>",
+      registerOnlyNote_en: "(Only users who have submitted a recommendation can register)",
     },
     header: {
       login: "Login",
@@ -328,8 +330,7 @@ export const i18n = {
     ],
     highlightLabel: "推薦項目",
     hintName: "請填寫您的姓名，僅被推薦人可看到。",
-    hintEmail: "僅用於您未來使用本系統的依據，任何人都看不到。",
-
+    hintEmail: "請放心填寫常用Email，僅未來系統核實身份使用，任何人都看不到",
 
     // ◆ 三個固定亮點 key (dashboard)
     highlightOptions: ["hardSkill", "softSkill", "character"],
@@ -465,7 +466,9 @@ export const i18n = {
     },
     
     login: {
-      welcomeTitle: "歡迎來到 Star ✨"
+      welcomeTitle: "歡迎來到 Galayxyz✨ 本系統為邀請制，如還未受邀請等待。",
+      noAccountText: "還沒有帳號？<a href='#' id='showRegister'>註冊</a>",
+      registerOnlyNote: "（僅限曾填寫推薦表者可註冊）",
     },
     header: {
       login: "登入",

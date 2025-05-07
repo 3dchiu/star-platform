@@ -86,7 +86,19 @@
     </div>    
   </main>
 
-  <!-- 邏輯與行為 -->
+  <!-- 
+  📌 顯示「還沒有帳號？目前僅開放⋯」區塊的條件說明：
+
+  1. 頁面網址需帶有參數 ?register=1&email=xxx
+  2. 且 Firestore 的 pendingUsers 中，存在此 email 對應的資料
+
+  滿足上述條件時：
+  - 顯示 #showRegisterRow（說明文字）
+  - 顯示 #registerSection（註冊表單）
+  - 隱藏 #loginSection（登入區塊）
+
+  若 email 不存在於 pendingUsers 中，則不開放註冊。
+-->
   <script type="module">
     import { i18n, setLang } from "../js/i18n.js";
 
@@ -98,13 +110,15 @@
 
     const lang = localStorage.getItem("lang") || "en";
     setLang(lang);
+    
     const t = i18n[lang]?.thankYou || {};
 
     document.title = t.pageTitle || "Galaxyz – Thank You";
     document.getElementById("pageTitle").innerText = t.pageTitle || "";
     document.getElementById("title").innerText = t.title || "";
     document.getElementById("thanksText").innerText = t.message || "";
-
+    document.getElementById("noAccountText").innerText = t.noAccountText || "";
+    document.getElementById("registerOnlyNote").innerText = t.registerOnlyNote || "";
     // 推薦總表連結
     const summaryLink = document.getElementById("summaryLink");
     summaryLink.href = `recommend-summary.html?public=true&userId=${userId}`;
@@ -128,7 +142,7 @@
       e.preventDefault();
       if (recommenderName) sessionStorage.setItem("prefillName", recommenderName);
       if (recommenderEmail) sessionStorage.setItem("prefillEmail", recommenderEmail);
-      location.href = `/pages/login.html?next=profile-dashboard.html`;
+      location.href = `/pages/login.html?register=1&email=${encodeURIComponent(recommenderEmail)}&next=profile-dashboard.html`;
     });
 
     // 多語切換即時更新
