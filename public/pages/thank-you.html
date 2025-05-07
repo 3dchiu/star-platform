@@ -3,118 +3,152 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="pageTitle">Galaxyz – Thank You</title>
 
-  <!-- title 由下方 JS 動態設定 -->
-  <title id="pageTitle">Star - Thank You</title>
- 
-  <!-- 站內共用樣式 -->
+  <!-- 主樣式 -->
   <link rel="stylesheet" href="../styles/main.css" />
 
-  <!-- 1. Firebase Compat: 必須最先載入 -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
 
-  <!-- 2. Header（裡面會用到 firebase） -->
+  <!-- 共用 Header -->
   <script type="module" src="../js/components/app-header.js"></script>
+
+  <style>
+    .call-to-action-board {
+      background: #fff;
+      padding: 32px 24px;
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+      max-width: 560px;
+      margin: 32px auto;
+      text-align: center;
+    }
+    .call-to-action-board p {
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    .call-to-action-board small {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: rgba(0, 0, 0, 0.5);
+    }
+    .call-to-action-board .emotional-touch {
+      margin-top: 24px;
+      font-style: italic;
+      color: #666;
+    }
+    .cta-btn.brand-orange {
+      background-color: #FBAA29;
+      color: #fff;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-weight: bold;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      display: inline-block;
+      margin-top: 16px;
+    }
+    .cta-btn.brand-orange:hover {
+      background: linear-gradient(45deg, #FBAA29, #fcd77a);
+      box-shadow: 0 0 8px rgba(251,170,41,0.6);
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 
 <body class="star-bg">
   <div id="appHeader"></div>
 
   <main class="page-container fade-in">
-    <img src="../img/network.png"
-         alt="Network Illustration: 人際連結"
-         class="network"
-         loading="lazy"
-         decoding="async" />
+    <!-- 星系圖插圖 -->
+    <img src="../img/network.png" alt="Network Illustration" class="network" loading="lazy" decoding="async" />
 
+    <!-- 感謝主標語 -->
     <h1 id="title" class="thanks-title"></h1>
     <p id="thanksText" class="thanks-message"></p>
 
-    <div id="summaryArea" class="summary-link">
-      <a id="summaryLink" href="recommend-summary.html" target="_blank"></a>
-    </div>
+    <!-- 查看推薦總表 -->
+    <div id="summaryArea" class="summary-link" style="text-align:center; margin: 24px 0;">
+      <p id="summaryIntro" class="summary-intro"></p>
+      <a id="summaryLink" href="#" target="_blank" style="text-decoration: underline;"></a>
+    </div>    
 
-    <div class="next-action-card fadeUp">
-      <p id="inviteText"></p>
-      <a href="#" id="startFresh" class="cta-btn"></a>
-      <p id="footerText"
-         style="font-size:0.875rem;
-                color:var(--color-text-secondary);
-                margin-top:12px;"></p>
-    </div>
+    <!-- CTA 區塊 -->
+    <div class="call-to-action-board fadeUp">
+      <p id="inviteText" class="invite-text"></p>
+      <a href="#" id="startFresh" class="cta-btn brand-orange"></a>
+      <small id="footerText"></small>
+      <p id="emotionalTouch" class="emotional-touch"></p>
+    </div>    
   </main>
 
-  <!-- ========= 行為腳本 ========= -->
+  <!-- 邏輯與行為 -->
   <script type="module">
     import { i18n, setLang } from "../js/i18n.js";
 
-    // 1. URL 參數
-    const urlParams       = new URLSearchParams(location.search);
-    const userId          = urlParams.get("userId");
-    const style           = urlParams.get("style") || "direct";
+    const urlParams = new URLSearchParams(location.search);
+    const userId = urlParams.get("userId");
+    const style = urlParams.get("style") || "direct";
     const recommenderName = urlParams.get("recommenderName") || "";
     const recommenderEmail = urlParams.get("recommenderEmail") || "";
 
-
-    // 2. 讀語系與文案
     const lang = localStorage.getItem("lang") || "en";
     setLang(lang);
-    const t    = i18n[lang].thankYou;
+    const t = i18n[lang]?.thankYou || {};
 
-    // 3. 套用文案
-    document.title                                = t.pageTitle;
-    document.getElementById("pageTitle").innerText = t.pageTitle;
-    document.getElementById("title").innerText     = t.title;
-    document.getElementById("thanksText").innerText= t.message;
-    document.getElementById("summaryLink").innerText = t.viewSummary;
-    // 取得 summaryLink 元素
+    document.title = t.pageTitle || "Galaxyz – Thank You";
+    document.getElementById("pageTitle").innerText = t.pageTitle || "";
+    document.getElementById("title").innerText = t.title || "";
+    document.getElementById("thanksText").innerText = t.message || "";
+
+    // 推薦總表連結
     const summaryLink = document.getElementById("summaryLink");
-    // 將 href 改成公開模式的網址
     summaryLink.href = `recommend-summary.html?public=true&userId=${userId}`;
-    // 如果想要從第一份工作開始，也可加上 &jobIndex=0
-    // summaryLink.href += "&jobIndex=0";
+    document.getElementById("summaryIntro").innerText = t.summaryIntro || "";
+    summaryLink.innerText = t.summaryLink || "";
 
-    document.getElementById("footerText").innerText  = t.footer;
+    // CTA 區塊文字
+    document.getElementById("footerText").innerText = t.footer || "";
+    document.getElementById("emotionalTouch").innerText = t.emotionalTouch || "";
 
-    // 4. 根據 style 切換 CTA 文案
     if (style === "warmth") {
-      document.getElementById("inviteText").innerText = t.warmthThanks;
-      document.getElementById("startFresh").innerText = t.warmthStart;
+      document.getElementById("inviteText").innerText = t.warmthThanks || "";
+      document.getElementById("startFresh").innerText = t.warmthStart || "";
     } else {
-      document.getElementById("inviteText").innerText = t.invite;
-      document.getElementById("startFresh").innerText = t.start;
+      document.getElementById("inviteText").innerText = t.invite || "";
+      document.getElementById("startFresh").innerText = t.start || "";
     }
 
-    // 5. userId 比對，顯示「查看總表」
-    const profile = JSON.parse(localStorage.getItem("profile") || "{}");
-    if (profile.userId === userId) {
-      document.getElementById("summaryArea").style.display = "block";
-    }
+    // 推薦人點擊 CTA 註冊
+    document.getElementById("startFresh").addEventListener("click", e => {
+      e.preventDefault();
+      if (recommenderName) sessionStorage.setItem("prefillName", recommenderName);
+      if (recommenderEmail) sessionStorage.setItem("prefillEmail", recommenderEmail);
+      location.href = `/pages/login.html?next=profile-dashboard.html`;
+    });
 
-    // 6. CTA 按鈕：先存推薦人資訊，再導向登入頁（帶 next 參數）
-document.getElementById("startFresh")
-  .addEventListener("click", e => {
-    e.preventDefault();
-    // 儲存推薦人的姓名和 Email
-    if (recommenderName) {
-      sessionStorage.setItem("prefillName", recommenderName);
-    }
-    if (recommenderEmail) {
-      sessionStorage.setItem("prefillEmail", recommenderEmail);
-    }
-
-    // 取得網址上原本帶的 next 參數（如果有）
-    const urlParams = new URLSearchParams(location.search);
-    const next = urlParams.get("next") || "profile-dashboard.html";
-
-    // 正確導向：登入頁並帶上 next 參數
-    location.href = `/pages/login.html?next=${encodeURIComponent(next)}`;
-  });
-
+    // 多語切換即時更新
+    window.addEventListener("langChanged", e => {
+      const lang = e.detail || "en";
+      const t = i18n[lang]?.thankYou || {};
+      document.getElementById("title").innerText = t.title || "";
+      document.getElementById("thanksText").innerText = t.message || "";
+      document.getElementById("pageTitle").innerText = t.pageTitle || "";
+      document.title = t.pageTitle || "";
+      document.getElementById("summaryIntro").innerText = t.summaryIntro || "";
+      summaryLink.innerText = t.summaryLink || "";
+      document.getElementById("footerText").innerText = t.footer || "";
+      document.getElementById("emotionalTouch").innerText = t.emotionalTouch || "";
+      document.getElementById("inviteText").innerText = (style === "warmth") ? t.warmthThanks : t.invite;
+      document.getElementById("startFresh").innerText = (style === "warmth") ? t.warmthStart : t.start;
+    });
   </script>
 
-  <!-- confetti -->
+  <!-- confetti 效果 -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     window.addEventListener("load", () => {

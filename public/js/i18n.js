@@ -55,6 +55,12 @@ export const i18n = {
 
     // recommend-form.html
     loadingMessage: "Loading recommendation form...",
+    identityReminder: `
+    <strong>🌟 Galaxyz is a career network built on authenticity and trust.</strong><br/>
+    Only those who submit a recommendation can create their own profile and join the Galaxyz constellation.<br/><br/>
+    👉 Please enter your real name and personal email so we can invite you afterward.
+    `,
+
     ogTitle:       "⭐ Please write a recommendation for my career profile!",
     ogDescription: "I'm building my career profile on Star and would love your recommendation on our collaboration.",
     recommendingTo: "You are writing a recommendation for <strong>{name}</strong>",
@@ -68,31 +74,30 @@ export const i18n = {
     hintContent: "Up to 500 characters; please focus on highlights.",
     submitRecommendation: "Submit Recommendation",
     relationOptions: [
-      "Their direct supervisor",
-      "I'm their cross-team supervisor",
-      "Same team colleague",
-      "Colleague from another team",
-      "Their direct report",
-      "Client",
-      "Vendor",
+      "I was their direct supervisor",
+      "I was their cross-team supervisor",
+      "I was their teammate (same team)",
+      "I was their teammate (different team)",
+      "They reported directly to me",
+      "I was their client",
+      "I was a vendor or external partner",
     ],
     highlightLabel: "Recommendation Highlights",
+    hintName: "Please enter your name. Only the person you are recommending can see it.",
+    hintEmail: "Used only as reference if you use this system in the future. No one else can see it.",
 
-    // ◆ 四個固定亮點 key (dashboard)
-    highlightOptions: ["professional", "workEthic", "interpersonal", "collaboration"],
+    // ◆ 三個固定亮點 key (dashboard)
+    highlightOptions: ["hardSkill", "softSkill", "character"],
     highlightOptionLabels: {
-      professional:  "Professional Skills",
-      workEthic:     "Work Ethic",
-      interpersonal: "Interpersonal Skills",
-      collaboration: "Collaboration"
+      hardSkill:   "Hard Skills",
+      softSkill:   "Soft Skills",
+      character:   "Character & Integrity"
     },
+    hintHighlights: "Please select one highlight that best represents this person.",
     highlightOptionCustomLabel:       "Other Highlight (optional)",
     highlightOptionCustomPlaceholder: "Enter a custom highlight",
     hintCustomHighlight:              "Up to 30 characters; optional",
     highlightLimitMsg:                "You can select up to 3 highlights only",
-
-    // legacy recommend-form highlight keys
-    legacyHighlightOptions: ["Professional Skills","Work Ethic","Interpersonal Skills","Collaboration"],
 
     // fallback for form invite
     defaultInviteForm: `I'm currently building my professional network profile and thought of you as a great collaborator. I'd truly appreciate a few words of recommendation from you. If you're also building your career network, I'd be happy to write one for you in return!`,
@@ -101,15 +106,17 @@ export const i18n = {
 
     // thank-you.html
     thankYou: {
-      pageTitle:   "Thank You for Your Recommendation",
-      title:       "✅ Thank You for Your Recommendation!",
-      message:     "Your words may become a guiding light in someone’s career.",
-      viewSummary: "🔗 View This Person's Public Recommendation Summary",
-      invite:      "💡 Want to build your own professional network?",
-      start:       "👉 Click here to get started",
-      footer:      "(Once completed, you can also invite friends to recommend you and co-create your career network.)",
-      warmthThanks:"💫 Thank you for your warm support. If you'd like to be seen too, we sincerely invite you to join us!",
-      warmthStart: "❤️ Click here to create your profile"
+      pageTitle: "Galaxyz – Thank You",
+      title: "Thank you for your recommendation!",
+      message: "Your words may be the light in someone’s career journey.",
+      summaryIntro: "Want to see what others have written for them?",
+      summaryLink: "View their full recommendation summary →",
+      invite: "You can also build your own career page and receive recommendations.",
+      start: "Start building your profile",
+      footer: "Galaxyz is a network built on authenticity and trust.",
+      emotionalTouch: "Every recommendation shines a light on someone’s path.",
+      warmthThanks: "✨ You’re now part of the constellation.",
+      warmthStart: "Create your profile now"
     },
 
     // recommend-summary.html legacy
@@ -128,11 +135,11 @@ export const i18n = {
       allHighlights: "All Highlights",
       relation_direct: "Direct supervisor",
       relation_cross_direct: "Cross-team supervisor",
-      relation_same_dept: "Teammate",
-      relation_cross_dept: "Cross-team collaborator",
-      relation_subordinate: "Subordinate",
+      relation_same_dept: "Teammate (same team)",
+      relation_cross_dept: "Teammate (different team)",
+      relation_subordinate: "Direct report",
       relation_client: "Client",
-      relation_vendor: "Vendor",
+      relation_vendor: "Vendor/external partner",
       allRelations: "All Relations",
       label_relation: "Relation:",
       label_highlight: "Highlight:",
@@ -289,6 +296,11 @@ export const i18n = {
     linkCopyFailed: "複製失敗，請手動複製",
 
     // recommend-form.html
+    identityReminder: `
+    <strong>🌟 Galaxyz 是一個建立於真實與信任的人脈推薦網絡。</strong><br/>
+    目前僅開放「曾經完成推薦的使用者」建立個人檔案，成為 Galaxyz 星系的一份子。<br/><br/>
+    👉 請確實填寫您的真實姓名與常用 Email，以便後續邀請您加入我們！
+    `,
     loadingMessage: "正在載入推薦表單…",
     ogTitle:       "⭐ 邀請你為我的職涯檔案撰寫推薦！",
     ogDescription: "我正在 Star 平台建立職涯檔案，想邀請您對我的合作經驗寫幾句推薦。",
@@ -309,26 +321,27 @@ export const i18n = {
       "我是他的跨部門同事",
       "我是他的部屬",
       "我是他的客戶",
-      "我是他的供應商",
+      "我是供應商或外部合作夥伴",
     ],
     highlightLabel: "推薦項目",
+    hintName: "請填寫您的姓名，僅被推薦人可看到。",
+    hintEmail: "僅用於您未來使用本系統的依據，任何人都看不到。",
 
-    // ◆ 四個固定亮點 key (dashboard)
-    highlightOptions: ["professional","workEthic","interpersonal","collaboration"],
+
+    // ◆ 三個固定亮點 key (dashboard)
+    highlightOptions: ["hardSkill", "softSkill", "character"],
     highlightOptionLabels: {
-      professional:  "專業能力",
-      workEthic:     "工作態度",
-      interpersonal: "人際互動",
-      collaboration: "團隊協作"
+      hardSkill:   "硬實力",
+      softSkill:   "軟實力",
+      character:   "人品"
     },
+    hintHighlights: "請選擇一個你印象最深刻的亮點。",
     highlightOptionCustomLabel:       "其他亮點（選填）",
     highlightOptionCustomPlaceholder: "請填寫其他亮點",
     hintCustomHighlight:              "最多 30 字，可留空",
     highlightLimitMsg:                "最多只能選 3 個亮點",
 
-    // legacy recommend-form highlight keys
-    legacyHighlightOptions: ["專業能力","工作態度","人際互動","團隊協作"],
-
+  
     // fallback for form invite
     defaultInviteForm: `我正在建立自己的專業人脈檔案，想到您是我工作中合作愉快的夥伴，很希望能請您幫我寫幾句推薦。如果您也想建立自己的職涯人脈，我也很樂意回饋推薦您！`,
     notFound: "⚠️ 找不到使用者資料。",
@@ -336,15 +349,17 @@ export const i18n = {
 
     // thank-you.html
     thankYou: {
-      pageTitle:   "感謝您的推薦",
-      title:       "✅ 感謝您的推薦！",
-      message:     "您的一句話，可能就是他人職涯中的一束光。",
-      viewSummary: "🔗 查看此人的公開推薦總表",
-      invite:      "💡 想建立自己的職涯人脈網絡嗎？",
-      start:       "👉 點我開始建立檔案",
-      footer:      "（完成後也能請朋友推薦您，共同創造職涯網絡）",
-      warmthThanks:"💫 謝謝您溫暖的支持，如果您也想被看見，我們誠摯邀請您加入！",
-      warmthStart: "❤️ 點我開始建立個人檔案"
+      pageTitle: "Galaxyz – 感謝您的推薦",
+      title: "感謝您填寫推薦內容！",
+      message: "您的話語，可能是他人職涯旅程中的一道光芒。",
+      summaryIntro: "想看看其他人如何推薦他嗎？",
+      summaryLink: "查看他的公開推薦總表 →",
+      invite: "您也可以建立自己的職涯推薦頁，讓別人推薦您。",
+      start: "建立我的推薦檔案",
+      footer: "Galaxyz 是建立在真實與信任之上的人脈網絡。",
+      emotionalTouch: "每一則推薦，都是照亮他人旅程的一束光。",
+      warmthThanks: "✨ 感謝您成為 Galaxyz 的星光。",
+      warmthStart: "立即建立個人檔案",
     },
 
     // recommend-summary.html legacy
@@ -367,7 +382,7 @@ export const i18n = {
       relation_cross_dept: "跨部門同事",
       relation_subordinate: "部屬",
       relation_client: "客戶",
-      relation_vendor: "供應商",
+      relation_vendor: "供應商/外部夥伴",
       allRelations: "全部關係",
       label_relation: "推薦關係：",
       label_highlight: "亮點：",

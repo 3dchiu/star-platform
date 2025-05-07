@@ -95,11 +95,10 @@
   font-weight: bold;
 }
 
-.xyz-orange {
+ .xyz-orange {
   color: #fca311; /* 或使用你原本的亮色 */
   font-weight: bold;
 }
-
 
  .lang-selector {
    padding: var(--spacing-xs) var(--spacing-sm);
@@ -181,7 +180,7 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
-  justify-content: center;
+  justify-content: flex-start;
 }
  .cta-btn {
    display: inline-block;
@@ -391,6 +390,17 @@ input, select, textarea {
 }
 .rec-card .name{ font-weight:600; }
 .rec-card .meta{ color: var(--gray-600); }
+
+.job-info p {
+  margin: 4px 0;
+  font-size: 15px;
+}
+
+#inviteContent {
+  margin-bottom: 12px;
+  font-style: italic;
+  line-height: 1.6;
+}
 
  /* ----- Role card 功能 icon ----- */
   .link-btn, .edit-btn, .del-btn {
@@ -650,9 +660,6 @@ input, select, textarea {
    .job-card {
      padding: 16px;
    }
-   .checkbox-group label {
-    flex: 0 1 45%;
-  }
 
  }
  @media (max-width: 400px) {
@@ -701,6 +708,7 @@ margin-bottom: 4px;
 
 /* 2. 每格佔 25% 減掉間距，最小寬度 100px，最大寬度 140px */
 .checkbox-group label {
+flex: 0 1 45%;
 position: relative;
 display: flex;
 align-items: center;
@@ -1015,3 +1023,46 @@ text-decoration: underline;
   gap: 12px;
   flex-wrap: nowrap;
 }
+/* 外層 label：一個按鈕容器 */
+.option-label {
+  display: inline-block;
+  vertical-align: middle;
+  min-width: 140px;      /* ✅ 最小寬度 */
+  width: auto;           /* ✅ 自動依文字撐寬 */
+  height: 60px;           /* ✅ 固定高度 */
+  margin: 6px;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* 隱藏原生 radio */
+.option-label input[type="radio"] {
+  display: none;
+}
+
+/* 內部 span：實際的按鈕外觀 */
+.option-label .option-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: white;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* 被選中時的樣式 */
+.option-label input[type="radio"]:checked + .option-text {
+  background-color: #2f52eb;
+  color: white;
+  border-color: #2f52eb;
+}
+
+
+
+

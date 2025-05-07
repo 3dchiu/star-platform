@@ -40,32 +40,36 @@
 
   <main id="formContainer" class="container">
     <!-- 表單標題 -->
-    <h1 id="formTitle" data-i18n="formTitle"></h1>
+  <h1 id="formTitle" data-i18n="formTitle"></h1>
 
-    <!-- 被推薦職缺資訊 -->
-    <div id="jobInfo" class="form-group job-info"></div>
+  <!-- ✅ 新增這段：推薦說明 -->
+  <div id="recommendNote" class="sub-title text-lg text-gray-600 mt-2"></div>
 
-    <!-- 邀請訊息區塊 -->
-    <div class="form-group">
-      <strong id="inviteTitle" data-i18n="inviteTitle"></strong><br>
-      <textarea id="inviteContent" rows="4" 
-          readonly
-          style="width:100%; border:none; background:transparent; font-style:italic; cursor:text;"></textarea>
-    
+  <!-- ✅ 移上來：邀請訊息區塊 -->
+  <div class="form-group">
+    <strong id="inviteTitle" data-i18n="inviteTitle"></strong><br>
+    <textarea id="inviteContent" rows="4" 
+        readonly
+        style="width:100%; border:none; background:transparent; font-style:italic; cursor:text;"></textarea>
+  </div>
+
+  <!-- 原本的職缺卡片放到邀請內容下方 -->
+  <div id="jobInfo" class="form-group job-info"></div>
+
     <!-- 推薦表單 -->
     <form id="recommendForm">
       <!-- 推薦人姓名 -->
       <div class="form-group">
         <label for="name" id="labelName" data-i18n="name"></label>
         <input type="text" id="name" required minlength="2" maxlength="50" />
-        <small class="hint" data-i18n="hintName">請填寫您的姓名。</small>
+        <small class="hint" data-i18n="hintName">請填寫您的姓名，僅被推薦人可看到。</small>
       </div>
 
       <!-- 推薦人 Email -->
       <div class="form-group">
         <label for="email" id="labelEmail" data-i18n="email"></label>
         <input type="email" id="email" required />
-        <small class="hint" data-i18n="hintEmail">我們僅用於確認聯絡。</small>
+        <small class="hint" data-i18n="hintEmail">僅用於您未來使用本系統的依據，任何人都看不到。</small>
       </div>
 
       <!-- 與被推薦者的關係 -->
@@ -74,11 +78,11 @@
         <select id="relation" required></select>
       </div>
 
-      <!-- 推薦亮點（四選一或多選） -->
+      <!-- 推薦亮點 -->
       <div class="form-group">
         <label id="labelHighlights" data-i18n="highlightLabel"></label>
-        <div id="highlightsContainer" class="checkbox-group">
-          <!-- JS 會在此動態產生四個 <label>…</label> -->
+        <small class="hint" id="hintHighlights" data-i18n="hintHighlights">請選擇一個最能代表此人的亮點。</small>
+        <div id="highlightsContainer" class="btn-group"></div>
         </div>
       </div>
 
@@ -97,6 +101,11 @@
         <small class="hint" id="hintContent" data-i18n="hintContent">最多 500 字，請聚焦亮點。</small>
       </div>
 
+      <!-- 最後提醒：Galaxyz 是真實網絡 -->
+      <div id="finalReminder"
+        style="font-size: 0.95rem; background: #f8f9fc; padding: 16px; border-left: 4px solid #0056b3; border-radius: 8px; margin-bottom: 24px;">
+      <!-- JS 會自動填入 identityReminder 內容 -->
+      </div>
       <!-- 送出按鈕 -->
       <button type="submit" id="submitBtn" class="btn btn-primary"></button>
     </form>

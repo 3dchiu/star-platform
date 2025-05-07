@@ -36,15 +36,18 @@ function renderPageByLang() {
   // 更新頁面標題
   document.title = t.pageTitle;
   document.getElementById("formTitle").innerText = t.formTitle;
+  // 👉 插入表單最末提醒：Galaxyz 建立於真實與信任
+  const finalEl = document.getElementById("finalReminder");
+  if (finalEl) {
+    finalEl.innerHTML = t.recommendForm?.identityReminder || t.identityReminder || "";
+  }
 
-  // 更新推薦對象小標
-  const titleEl = document.getElementById("formTitle");
+  // 推薦說明：「您正在為 XXX 撰寫推薦」
+  const noteEl = document.getElementById("recommendNote");
   const raw = t.recommendingTo;
   const name = profileData.name || profileData.name || "";
   const greeting = typeof raw === "function" ? raw(name) : raw.replace("{name}", name);
-  const oldSub = titleEl.querySelector(".sub-title");
-  if (oldSub) oldSub.remove();
-  titleEl.insertAdjacentHTML("beforeend", `<div class=\"sub-title text-lg text-gray-600 mt-1\">${greeting}</div>`);
+  if (noteEl) noteEl.innerHTML = greeting;
 
   // 更新職缺區塊
   const jobInfoDiv = document.getElementById("jobInfo");
@@ -63,6 +66,7 @@ function renderPageByLang() {
   document.getElementById("labelEmail").innerText = t.email;
   document.getElementById("labelRelation").innerText = t.relation;
   document.getElementById("labelHighlights").innerText = t.highlightLabel;
+  document.getElementById("hintHighlights").innerText = t.hintHighlights;
   document.getElementById("labelContent").innerText = t.contentLabel;
   document.getElementById("hintContent").innerText = t.hintContent;
   document.getElementById("submitBtn").innerText = t.submitRecommendation;
@@ -73,11 +77,17 @@ function renderPageByLang() {
     const o = document.createElement("option"); o.textContent = opt; relSel.appendChild(o);
   });
 
-  // 更新四個推薦亮點
+  // 更新三個推薦亮點
   const hlContainer = document.getElementById("highlightsContainer"); hlContainer.innerHTML = "";
+  // 把 className 改成 option-label 並使用 input + span 結構
   t.highlightOptions.forEach(key => {
-    const lab = document.createElement("label"); lab.className = "checkbox-label";
-    lab.innerHTML = `<input type=\"checkbox\" name=\"highlight\" value=\"${key}\"> <span>${t.highlightOptionLabels[key] || key}</span>`;
+    const lab = document.createElement("label");
+    lab.className = "option-label";
+    // 🔁 修改為 radio，name="highlight"
+    lab.innerHTML = `
+      <input type="radio" name="highlight" value="${key}">
+      <span class="option-text">${t.highlightOptionLabels[key] || key}</span>
+      `;
     hlContainer.appendChild(lab);
   });
 }
