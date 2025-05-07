@@ -52,7 +52,7 @@
     ========================================================================== */
   .container {
     max-width: 960px;      /* 同一個上限，或視設計改成 1024px、800px 都可 */
-    margin: 40px auto;     /* 上下間距 + 水平置中 */
+    margin: 16px auto;     /* 上下間距 + 水平置中 */
     padding: 0 16px;       /* 內縮，手機會收合留白 */
   }
  
@@ -669,12 +669,30 @@ input, select, textarea {
    }
  }
  
-.summary-container > header {
-  display: flex;
-  align-items: center;       /* 垂直置中 */
-  justify-content: space-between; /* 左右兩端對齊 */
-  margin-bottom: 1.5rem;     /* 和下方內容的間距 */
- }
+  .summary-container > header {
+    display: flex;
+    align-items: center;       /* 垂直置中 */
+    justify-content: space-between; /* 左右兩端對齊 */
+    margin-bottom: 1.5rem;     /* 和下方內容的間距 */
+  }
+  /* ✅ 自適應的 Summary Header（使用者名稱 + 星星） */
+  .summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .summary-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  }
+
 
 /* 小尺寸的「返回按鈕」 */
 #backBtn {
@@ -1062,7 +1080,52 @@ text-decoration: underline;
   color: white;
   border-color: #2f52eb;
 }
+/* ===== 公開推薦總表的星星樣式 ===== */
+.summary-badge-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 4px 0 8px 0;
+}
 
+
+.star-badge {
+  position: relative;
+  font-size: 4rem; /* 控制整體大小 */
+  color: #1D4ED8;    /* 品牌藍色 */
+  width: 3em;
+  height: 3em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.star-badge .count {
+  position: absolute;
+  color: #FFB347; /* 亮橙色 */
+  font-size: 0.6em;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -48%);
+  line-height: 1;
+  pointer-events: none;
+  width: 1.5em;          /* ✅ 加入寬度讓字體置中穩定 */
+  text-align: center;    /* ✅ 置中數字 */
+}
+
+.label {
+  color: #333;
+}
+
+#description {
+  margin-top: 2rem;
+  line-height: 1.8;
+  font-size: 1.125rem; /* 原本是 1rem，這是加大一級 */
+}
 
 
 

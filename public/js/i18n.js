@@ -121,6 +121,7 @@ export const i18n = {
 
     // recommend-summary.html legacy
     recommendSummary: {
+      upgradeHint: (need, next) => `${need} more to reach Lv.${next}`,
       pageTitle:        "Recommendation Summary",
       description:      "Overview of your recommendations",
       summaryFor:       name => `Recommendation Summary for ${name}`,
@@ -149,6 +150,8 @@ export const i18n = {
       exportPDF: "Export PDF",
       anonymousRecommender: "Recommender hidden",
       loadingSummaryMessage: "Loading recommendation summary…",
+      received: "Received",
+      recommendations: "Recommendations",
     },
     // index.html
     home: {
@@ -364,6 +367,7 @@ export const i18n = {
 
     // recommend-summary.html legacy
     recommendSummary: {
+      upgradeHint: (need, next) => `再收到 ${need} 筆推薦可升 Lv.${next}`,
       pageTitle:     "推薦總覽",
       description:   "一覽無遺",
       summaryFor:    name => `${name} 的推薦總表`,
@@ -392,6 +396,9 @@ export const i18n = {
       exportPDF: "匯出 PDF",
       anonymousRecommender: "推薦人已隱藏",
       loadingSummaryMessage: "正在載入推薦總表…",
+      received: "收到",
+      recommendations: "則推薦",
+
     },
     // index.html
     home: {

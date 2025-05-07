@@ -2,6 +2,9 @@
 import { i18n, setLang } from "../i18n.js";
 import { firebaseConfig } from "../firebase-config.js";
 
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();  // ✅ 加這行
 // 解析 URL 參數
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");
@@ -138,9 +141,6 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
   });
 
   // 初始化 Firebase, 讀取使用者 profile & 職缺
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();  // ✅ 加這行
   const snap = await db.doc(`users/${userId}`).get();
   if (!snap.exists) { 
     document.getElementById("formContainer").style.display = "none";

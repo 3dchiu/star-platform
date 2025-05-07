@@ -13,6 +13,18 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { firebaseConfig } from "../firebase-config.js";
+function getLevelInfo(count) {
+  if (count >= 100) return { level: 10, name: "星光領袖", color: "legendary" };
+  if (count >= 80)  return { level: 9,  name: "職涯任性代言人", color: "diamond" };
+  if (count >= 50)  return { level: 8,  name: "業界口碑典範", color: "trophy" };
+  if (count >= 30)  return { level: 7,  name: "影響力連結者", color: "globe" };
+  if (count >= 20)  return { level: 6,  name: "真誠推薦磁場", color: "sun" };
+  if (count >= 15)  return { level: 5,  name: "人脈之星", color: "gold" };
+  if (count >= 10)  return { level: 4,  name: "團隊領航者", color: "rocket" };
+  if (count >= 7)   return { level: 3,  name: "值得信賴的夥伴", color: "handshake" };
+  if (count >= 4)   return { level: 2,  name: "穩健合作者", color: "briefcase" };
+  return                { level: 1,  name: "初心之光", color: "gray" };
+}
 // html2canvas、jsPDF 現在都已經從 CDN 掛到全域 window 上
   const html2canvas = window.html2canvas;
   const { jsPDF }  = window.jspdf;
@@ -20,11 +32,13 @@ import { firebaseConfig } from "../firebase-config.js";
 // 把 highlights 陣列轉成 <span class="badge">...</span>
 function renderBadges(tags, tFn) {
   return (tags||[])
-  .map(tag => {
-     const label = tFn(`highlight_${tag}`) || tag;
-     return `<span class="badge">${label}</span>`;
-  })
-  .join("");
+    .map(tag => {
+       // 用反引号包住 key
+       const label = tFn(`highlight_${tag}`) || tag;
+       // 用反引号把整段 HTML 当字符串
+       return `<span class="badge">${label}</span>`;
+    })
+    .join("");
 }
 
 // 進入點
@@ -78,6 +92,9 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
   const summaryArea = document.getElementById("summaryArea");
   const userNameEl  = document.getElementById("userName");
   const descEl      = document.getElementById("description");
+  const userLevelBox = document.getElementById("userLevelInfo"); // ✅ 新增
+  if (isPublic && userLevelBox) userLevelBox.style.display = "none";
+    
   const backBtn     = document.getElementById("backBtn");
   const filters   = document.getElementById("filters");
   const exportBtn = document.getElementById("export-pdf");
@@ -89,12 +106,12 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     const userRef = doc(db, "users", userId);
     const snap    = await getDoc(userRef);
     if (!snap.exists()) {
-      summaryArea.innerHTML = `<p>${t("noProfile")}</p>`;
+      summaryArea.innerHTML = `<p>${t("noExperience")}</p>`;
       return;
     }
 
     const profile = snap.data();
-    // ▶️ 【清空舊資料】先把每個 job.recommendations 歸零  
+     
     (profile.workExperiences || [])
      .forEach(j => j.recommendations = []);
     // 讀並以 jobId 合併 recommendations
@@ -108,7 +125,68 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       }
     });
         // ➕ 加入推薦總數，供顯示星星用
-    profile._totalRecCount = recSn.size;
+    profile._totalRecCount = (profile.workExperiences || []).reduce((sum, job) => {
+      return sum + (job.recommendations?.length || 0);
+    }, 0);
+    if (isPublic) {
+      const count = profile._totalRecCount || 0;
+      const publicStars = document.getElementById("publicStars");
+      if (publicStars) {
+        publicStars.innerHTML = `
+          <div class="summary-badge-group">
+          <span class="prefix-text">收到</span>
+            <span class="star-badge">
+              <span class="star">★</span>
+              <span class="count">${count}</span>
+            </span>
+            <span>則推薦</span>
+          </div>
+        `;
+      }
+    }    
+
+    // ⭐ 插入星星等級區塊
+    if (userLevelBox && !isPublic) {
+      const info = getLevelInfo(profile._totalRecCount);
+      const nextLevel = getLevelInfo(profile._totalRecCount + 1);
+      const nextLevelThreshold = getNextLevelThreshold(info.level + 1);
+      const neededForNext = Math.max(0, nextLevelThreshold - profile._totalRecCount);
+      const neededHint = neededForNext > 0
+        ? `再收到 ${neededForNext} 筆推薦可升 Lv.${info.level + 1}`
+        : `已達最高等級門檻`;
+      
+      // 重新計算「本級門檻」與「下一級門檻」
+      const lowerThreshold = info.level > 1
+        ? getNextLevelThreshold(info.level)
+        : 0;
+      const upperThreshold = getNextLevelThreshold(info.level + 1);
+      const percent = upperThreshold > lowerThreshold
+        ? Math.round(
+            (profile._totalRecCount - lowerThreshold) 
+            / (upperThreshold - lowerThreshold) * 100
+          )
+        : 100;
+         
+      userLevelBox.innerHTML = `
+      <div class="level-container" title="${neededHint}">
+        <div class="level-badge">${profile._totalRecCount}</div>
+        <span class="level-text">Lv.${info.level}｜${info.name}</span>
+        <div class="level-progress">
+          <div class="level-bar" style="width:${percent}%; min-width: ${percent > 0 ? 4 : 0}px"></div>
+        </div>
+        <div class="level-hint">${neededHint}</div>
+      </div>
+    `;
+    }
+
+    function getNextLevelThreshold(level) {
+      const map = {
+        1: 1,  2: 4,  3: 7,  4: 10,  5: 15,
+        6: 20, 7: 30, 8: 50, 9: 80, 10: 100, 11: 200
+      };
+      if (level <= 1) return map[1];
+      return map[level] ?? Infinity;
+    }   
 
     // 渲染列表
     const { t, lang } = getCurrentT();
@@ -152,7 +230,8 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       backBtn.classList.remove("hidden");
       backBtn.innerText = t("backToProfile");
       backBtn.onclick    = () => (location.href = "profile-dashboard.html");
-    } else {
+    } 
+    else {
       const dn = profile.name || "";
       userNameEl.innerText = t("summaryFor", dn);
       backBtn.classList.add("hidden");
@@ -285,20 +364,13 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
           const recDiv = document.createElement("div");
           recDiv.className = "recommendation";
           let nameLine = "";
-          if (isPublic) {
-            const recCount = profile._totalRecCount || 0;
-            nameLine = `
-              <span class="recommender-name">
-                (${t("anonymousRecommender")})
-                <span class="level-badge">🌟<span class="level-number">${recCount}</span></span>
-              </span>`;
+          if (r.recommenderId) {
+            nameLine = `<a class="recommender-name link" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`;
           } else {
-            nameLine = r.recommenderId
-              ? `<a class="recommender-name link" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
-              : `<span class="recommender-name">${r.name}</span>`;
+            nameLine = `<span class="recommender-name">${r.name}</span>`;
           }
 
-          recDiv.innerHTML = `
+          recDiv.innerHTML =` 
             <div class="recommender-line">
               ${nameLine}
               <span class="recommender-relation">（${tRelation(r.relation, tCurrent)}）</span>
@@ -341,5 +413,3 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     }    
   }
 });
-  
-

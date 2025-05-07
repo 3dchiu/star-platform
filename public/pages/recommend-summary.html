@@ -12,6 +12,7 @@
 
   <!-- 全域樣式（含 token 與 thank-you / summary 共用規則） -->
   <link rel="stylesheet" href="../styles/main.css" />
+  <link rel="stylesheet" href="../styles/level.css" />
 
   <!-- 共用 i18n 與頂欄 -->
   <script type="module" src="../js/i18n.js"></script>
@@ -39,20 +40,25 @@
   <main class="container summary-container fade-in">
 
     <!-- Header：姓名 + 返回按鈕 同行 -->
-    <header class="flex items-center justify-between mb-6">
-      <!-- 使用者名稱 -->
-      <h1 id="userName" class="text-2xl font-semibold brand-blue-text"></h1>
-      <!-- 返回按鈕：小尺寸、secondary 樣式 -->
+    <header class="flex items-center justify-between mb-2">
+      <!-- 使用者名稱 + 星星區塊（可自適應排版） -->
+      <div class="summary-header">
+        <h1 id="userName" class="text-2xl font-semibold brand-blue-text"></h1>
+        <div id="publicStars" class="public-stars-row"></div>
+      </div>
+    
+      <!-- 返回按鈕 -->
       <button id="backBtn"
               class="btn btn-secondary px-3 py-1 text-sm hidden"
               data-i18n="backToProfile">
         回到個人檔案
       </button>
     </header>
-  
+    <!-- 等級顯示區塊（在 userName 下方獨立呈現） -->
+    <div id="userLevelInfo" class="level-container"></div>    
+    
     <!-- 自我介紹 (存在才顯示) -->
-    <p id="description" class="text-base text-gray-600 mb-6"></p>
-
+    <p id="description" class="text-base text-gray-600"></p>
    
     <!-- 🔍 篩選器 + 匯出按鈕（排成一列） -->
   <div class="filters-toolbar flex flex-wrap items-end gap-4 mb-4">
