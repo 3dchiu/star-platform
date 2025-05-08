@@ -74,13 +74,13 @@ export const i18n = {
     hintContent: "Up to 500 characters; please focus on highlights.",
     submitRecommendation: "Submit Recommendation",
     relationOptions: [
-      "I was their direct supervisor",
-      "I was their cross-team supervisor",
-      "I was their teammate (same team)",
-      "I was their teammate (different team)",
-      "They reported directly to me",
-      "I was their client",
-      "I was a vendor or external partner",
+      { value: "directManager",       label: "I was their direct manager" },
+      { value: "crossDeptManager",    label: "I was their cross-team manager" },
+      { value: "sameDeptColleague",   label: "I was their teammate (same team)" },
+      { value: "crossDeptColleague",  label: "I was their teammate (different team)" },
+      { value: "subordinate",         label: "They were my subordinate" },
+      { value: "client",              label: "I was their client" },
+      { value: "vendor",              label: "I was their vendor / partner" },
     ],
     highlightLabel: "Recommendation Highlights",
     hintName: "Please enter your name. Only the person you are recommending can see it.",
@@ -160,7 +160,7 @@ export const i18n = {
       startButton: "Create My Career Star Map",
     
       aboutTitle: "What We Believe",
-      aboutText: `Your value isn’t just written on your resume — it’s reflected in the words of those you've truly worked with.\n<span class="highlight">Galaxyz</span> is not a social profile. It's a trust-based record of real collaboration.`,
+      aboutText: `A person’s worth isn’t just defined by job titles on a résumé, but by the people they’ve worked with — and the real impressions left behind.\n\nIn the age of AI, data moves fast, but trust remains rare. Galaxyz stands at this intersection, using authentic recommendations to rebuild proof of value worth being seen.\n\nThat’s why we chose <span class="highlight">galaxyz.ai</span> — a place where trust can be recorded in the age of AI.`,
       learnMore: "Learn More About Galaxyz",
     
       features: {
@@ -193,7 +193,13 @@ export const i18n = {
     
       whyStarTitle: "Why the name <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
       whyStarContent: "Each of us is a star in our own career journey.\nThe people we've worked with form the connections on our constellation.\n\n'Galaxyz' combines 'Galaxy' with 'Z' to represent the unity of Gen X, Y, and Z\n— a galaxy formed through mutual trust and shared stories.",
-    
+      founderNoteTitle: "A Note from the Founder",
+      founderNoteContent: `The birth of Galaxyz.ai began as a journey of genuine collaboration between human and AI.
+This platform is the result of my ongoing exploration, trial, and learning—together with ChatGPT.
+I believe AI isn’t here to replace us, but to support us in discovering and affirming our value.
+My deepest hope is that, on days when you’re feeling lost or low, this space of real, human trust will hold you up—so you can keep going.
+That’s the true reason why I created Galaxyz.`,
+
       howItWorksTitle: "How Does It Work?",
       howItWorksSteps: [
         {
@@ -215,7 +221,7 @@ export const i18n = {
     
     "You don’t need a promotion to prove your value.\nStart building your Galaxyz constellation — one recommendation at a time."`,
     
-      joinUsButton: "Start Building"
+      joinUsButton: "Start Building",
     },
     login: {
       welcomeTitle: "Welcome to Galaxyz ✨",
@@ -322,13 +328,13 @@ export const i18n = {
     hintContent: "最多 500 字，請聚焦亮點。",
     submitRecommendation: "送出推薦",
     relationOptions: [
-      "我是他的直屬主管",
-      "我是他的跨部門主管",
-      "我是他的同部門同事",
-      "我是他的跨部門同事",
-      "我是他的部屬",
-      "我是他的客戶",
-      "我是供應商或外部合作夥伴",
+      { value: "directManager",       label: "我是他的直屬主管" },
+      { value: "crossDeptManager",    label: "我是他的跨部門主管" },
+      { value: "sameDeptColleague",   label: "我是他的同部門同事" },
+      { value: "crossDeptColleague",  label: "我是他的跨部門同事" },
+      { value: "subordinate",         label: "我是他的部屬" },
+      { value: "client",              label: "我是他的客戶" },
+      { value: "vendor",              label: "我是供應商或外部合作夥伴" },
     ],
     highlightLabel: "推薦項目",
     hintName: "請填寫您的姓名，僅被推薦人可看到。",
@@ -410,7 +416,7 @@ export const i18n = {
       startButton: "建立我的職涯星圖",
     
       aboutTitle: "我們相信什麼？",
-      aboutText: `人的價值，不只是履歷上的職稱，而是那些曾經與你共事的人，\n願意為你寫下的那段真實合作印象。\n<span class="highlight">Galaxyz</span> 不是社交名片，而是一份被看見的信任證明。`,
+      aboutText: `人的價值，不只是履歷上的職稱，而是那些曾與你共事的人，願意為你留下的那段真實合作印象。\n\n在 AI 時代，資訊越來越多，信任越來越稀薄。Galaxyz 選擇站在這個十字路口，用推薦的方式，重建值得被看見的價值證明。\n\n這也是為什麼，我們選擇 <span class="highlight">galaxyz.ai</span> —— 在 AI 時代，讓信任留下記錄。`,
       learnMore: "了解我們的理念",
     
       features: {
@@ -442,7 +448,8 @@ export const i18n = {
     
       whyStarTitle: "為什麼我們叫 <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>？",
       whyStarContent: "每一個人在職涯中都是一顆星，\n那些曾與你同行、合作過的人，正是你星圖上的連結點。\n\nGalaxyz 來自 Galaxy（銀河）＋ Z，象徵 X、Y、Z 世代都能共築信任星圖，\n而每顆星的故事，正成就整個銀河。",
-    
+      founderNoteTitle: "創辦者手記",
+      founderNoteContent: `Galaxyz.ai 的誕生，來自一段人與 AI 真誠合作的旅程。這個平台，是我與 ChatGPT 共同摸索、嘗試與學習的成果。我相信，AI 並非取代人，而是成為支持人探索價值的助力。希望有一天，當你們情緒低落時，都能被這真實溫暖的信任接住。然後繼續前進，這就是我做Galaxyz最大的初衷。`,
       howItWorksTitle: "如何運作？",
       howItWorksSteps: [
         {
@@ -464,7 +471,7 @@ export const i18n = {
     
     “你不需要等待升遷、換工作，才能證明自己的價值。\n現在就邀請合作過的夥伴，開始打造你的 Galaxyz 星圖。"`,
     
-      joinUsButton: "立即加入"
+      joinUsButton: "立即加入",
     },
     
     login: {

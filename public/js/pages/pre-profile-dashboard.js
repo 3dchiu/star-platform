@@ -363,45 +363,51 @@ for (const docSnap of recSnap.docs) {
         openModalForAdd(true);  // 傳 true → 顯示姓名欄位
       });
     }
-    // 插入到新容器裡
-  const actionBtns = document.getElementById("actionBtns");
-  actionBtns.classList.add("btn-group");
+   // 插入到新容器裡
+    const actionBtns = document.getElementById("actionBtns");
+    actionBtns.classList.add("btn-group"); 
 
-  // ➕ 新增「新增工作經歷」按鈕
-  const addBtn = document.createElement("button");
-  addBtn.id = "addBtn";
-  addBtn.type = "button";
-  addBtn.classList.add("btn", "cta-btn");
-  addBtn.setAttribute("data-i18n", "addExperience");
-  addBtn.innerText = t.addExperience;
-  actionBtns.appendChild(addBtn);
+   // ✅ 新增「新增工作經歷」按鈕
+    const addBtn = document.createElement("button");
+    addBtn.id = "addBtn";
+    addBtn.type = "button";
+    addBtn.classList.add("btn", "cta-btn");
+    addBtn.innerHTML = "➕ <span data-i18n='addExperience'>新增工作經歷</span>";
+    actionBtns.appendChild(addBtn);
 
-  // 📄 推薦總覽按鈕
-  const summaryBtn = document.createElement("button");
-  summaryBtn.type = "button";
-  summaryBtn.classList.add("btn", "cta-btn");
-  summaryBtn.setAttribute("data-i18n", "viewSummaryAll");
-  summaryBtn.innerText = t.viewSummaryAll;
-  actionBtns.appendChild(summaryBtn);
+    // 新增「推薦總覽」按鈕
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn cta-btn";
+    btn.setAttribute("data-i18n", "viewSummaryAll");
+    actionBtns.appendChild(btn);
 
-  // 🌐 公開推薦頁按鈕
-  const previewBtn = document.createElement("button");
-  previewBtn.type = "button";
-  previewBtn.classList.add("btn", "cta-btn");
-  previewBtn.setAttribute("data-i18n", "viewPublicSummary");
-  previewBtn.innerText = t.viewPublicSummary;
-  actionBtns.appendChild(previewBtn);
+    // 新增「公開推薦頁」按鈕
+    const previewBtn = document.createElement("button");
+    previewBtn.type = "button";
+    previewBtn.className = "btn cta-btn";
+    previewBtn.setAttribute("data-i18n", "viewPublicSummary");
+    actionBtns.appendChild(previewBtn);
 
-  // 綁定點擊事件
-  summaryBtn.addEventListener("click", () => {
-    window.open(`/pages/recommend-summary.html?userId=${profile.userId}&jobIndex=0`, "_blank");
-  });
-  previewBtn.addEventListener("click", () => {
-    window.open(`/pages/recommend-summary.html?public=true&userId=${profile.userId}`, "_blank");
-  });
+    actionBtns.appendChild(btn);
+    actionBtns.appendChild(previewBtn);
 
-  // 將 addBtn 的 onclick 保留原本：
-  addBtn.onclick = () => openModalForAdd(false);
+    // 點擊動作
+    btn.addEventListener("click", () => {
+      window.open(
+        `/pages/recommend-summary.html?userId=${profile.userId}&jobIndex=0`,
+        "_blank"
+      );
+    });
+    previewBtn.addEventListener("click", () => {
+      window.open(
+        `/pages/recommend-summary.html?public=true&userId=${profile.userId}`,
+        "_blank"
+      );
+    });
+
+    // 最後記得渲染語系
+    renderStaticText();
 
     // 第一次 fill vs 無經歷都要開 Modal
     if (!snap.exists()) {

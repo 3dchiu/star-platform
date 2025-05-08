@@ -77,8 +77,12 @@ function renderPageByLang() {
   // 更新 relation 下拉
   const relSel = document.getElementById("relation"); relSel.innerHTML = "";
   t.relationOptions.forEach(opt => {
-    const o = document.createElement("option"); o.textContent = opt; relSel.appendChild(o);
+    const o = document.createElement("option");
+    o.value = opt.value;        // 傳送資料用 value（如 "directManager"）
+    o.textContent = opt.label;  // 顯示文字用 label（如 "我是他的主管"）
+    relSel.appendChild(o);
   });
+  
 
   // 更新三個推薦亮點
   const hlContainer = document.getElementById("highlightsContainer"); hlContainer.innerHTML = "";

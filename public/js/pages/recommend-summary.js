@@ -62,10 +62,18 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       const v = pack?.[key];
       if (typeof v === "function") return v(...args);
       if (typeof v === "string") return v;
+  
+      // ✅ 加入這段 fallback：如果是 highlight_xxx，就用 highlightOptionLabels 裡的對照文字
+      if (key.startsWith("highlight_")) {
+        const actualKey = key.replace("highlight_", "");
+        return i18n[lang]?.highlightOptionLabels?.[actualKey] || actualKey;
+      }
+  
       return "";
-    };    
+    };
     return { t, lang };
   }
+  
 
   // 1) 初始化 Firebase + Firestore + Auth
   const app  = initializeApp(firebaseConfig);
@@ -313,8 +321,14 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
         return;
       }      
       function tRelation(relation) {
-        return tCurrent(`relation_${relation}`) || relation;
+        const label = tCurrent(`relation_${relation}`);
+        if (label) return label;
+      
+        // fallback: 如果找不到，回傳原始字串
+        const fallback = i18n[langCurrent]?.relationOptions?.find(opt => opt.value === relation);
+        return fallback?.label || relation;
       }
+      
 
     // 取得篩選值
     const selectedRelation  = document.getElementById("relationFilter").value;
