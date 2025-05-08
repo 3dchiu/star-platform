@@ -62,7 +62,7 @@ export const i18n = {
     `,
 
     ogTitle:       "⭐ Please write a recommendation for my career profile!",
-    ogDescription: "I'm building my career profile on Star and would love your recommendation on our collaboration.",
+    ogDescription: "I'm building my career profile on Galaxyz and would love your recommendation on our collaboration.",
     recommendingTo: "You are writing a recommendation for <strong>{name}</strong>",
     recPageTitle: "Recommendation Form",
     formTitle: "Recommendation Form",
@@ -310,7 +310,7 @@ export const i18n = {
     `,
     loadingMessage: "正在載入推薦表單…",
     ogTitle:       "⭐ 邀請你為我的職涯檔案撰寫推薦！",
-    ogDescription: "我正在 Star 平台建立職涯檔案，想邀請您對我的合作經驗寫幾句推薦。",
+    ogDescription: "我正在 Galaxyz 建立職涯檔案，想邀請您對我的合作經驗寫幾句推薦。",
     recommendingTo: "您正在為 <strong>{name}</strong> 撰寫推薦",
     recPageTitle: "推薦表單",
     formTitle: "推薦表單",

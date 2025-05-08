@@ -534,42 +534,72 @@ for (const docSnap of recSnap.docs) {
         updateDefaultMessage();
 
        // —— 新增：計算並顯示預覽用的 URL —— 
-      const langNow = localStorage.getItem("lang") || "en";
-      const previewText = (i18n[langNow] || i18n.en).previewLinkText || "🔍 Preview";
+        const langNow = localStorage.getItem("lang") || "en";
+        const previewText = (i18n[langNow] || i18n.en).previewLinkText || "🔍 Preview";
+        const previewLinkEl = document.getElementById("invitePreviewLink");
 
-      // 用「原始中文」組 URL 字串，不做 encodeURIComponent
-      const previewUrlRaw = `${location.origin}/pages/recommend-form.html`
-        + `?userId=${profile.userId}`
-        + `&jobId=${encodeURIComponent(profile.workExperiences[currentJobIndex].id)}`
-        + `&message=${currentDefaultMsg}`       
-        + `&style=${currentInviteStyle}`
-        + `&lang=${langNow}`
-        + `&invitedBy=${profile.userId}`;  
+      // ➊ 把產生 URL 的邏輯包成一個函式
+        function generatePreviewUrl() {
+          const message = inviteTextarea.value.trim();
+          const jobId   = encodeURIComponent(profile.workExperiences[currentJobIndex].id);
+          const style   = inviteStyleSelect.value;
+          const encMsg  = encodeURIComponent(message);
+          return `${location.origin}/pages/recommend-form.html`
+            + `?userId=${profile.userId}`
+            + `&jobId=${jobId}`
+            + `&message=${encMsg}`
+            + `&style=${style}`
+            + `&lang=${langNow}`
+            + `&invitedBy=${profile.userId}`;
+        }
 
-      const previewLinkEl = document.getElementById("invitePreviewLink");
-      // 1) 用 setAttribute 保留原始中文字串
-      previewLinkEl.setAttribute("href", previewUrlRaw);
-      // 2) 定义显示给用户看的短标签
-      previewLinkEl.textContent = previewText;
-      // 3) 把鼠标悬停的 title 也设成完整 URL（可选）
-      previewLinkEl.title       = previewUrlRaw;
-      previewLinkEl.classList.add("preview-link");
+      // ➋ 初次打開 Modal 時，先填入預設 inviteTextarea（已在你現有 updateDefaultMessage 中）
+      // 再把第一次的預覽連結放入
+        inviteTextarea.value = currentDefaultMsg;
+        previewLinkEl.setAttribute("href", generatePreviewUrl());
+        previewLinkEl.textContent = previewText;
+        previewLinkEl.title       = generatePreviewUrl();
+        previewLinkEl.classList.add("preview-link");
 
-        // ➍ 监听用户切换样式
-        inviteStyleSelect.addEventListener("change", updateDefaultMessage);
+      // ➌ 監聽「textarea 輸入」事件，動態更新 previewLink
+        inviteTextarea.addEventListener("input", () => {
+          const url = generatePreviewUrl();
+          previewLinkEl.setAttribute("href", url);
+          previewLinkEl.title = url;
+        });
+
+      // ➍ 監聽「風格切換」時，也要更新 inviteTextarea 及 previewLink
+        inviteStyleSelect.addEventListener("change", () => {
+          updateDefaultMessage();           // 會更新 inviteTextarea.value
+          const url = generatePreviewUrl();
+          previewLinkEl.setAttribute("href", url);
+          previewLinkEl.title = url;
+        });
         inviteModal.showModal();
-      } 
+        } 
     });
 
     // 邀請 Modal 按鈕
     inviteCancelBtn.onclick = () => inviteModal.close();
+
     inviteSaveBtn.onclick = () => {
-      const previewLinkEl = document.getElementById("invitePreviewLink");
-      // 「預覽按鈕」的 href 已經是那條帶中文的完整鏈結
-      // 直接複製它
-      navigator.clipboard.writeText(previewLinkEl.getAttribute("href"))
+      const langNow = localStorage.getItem("lang") || "en";
+      const message = inviteTextarea.value.trim(); // 動態讀取使用者輸入
+      const jobId   = encodeURIComponent(profile.workExperiences[currentJobIndex].id);
+      const style   = inviteStyleSelect.value;
+
+      const finalLink = `${location.origin}/pages/recommend-form.html`
+        + `?userId=${profile.userId}`
+        + `&jobId=${jobId}`
+        + `&message=${encodeURIComponent(message)}`
+        + `&style=${style}`
+        + `&lang=${langNow}`
+        + `&invitedBy=${profile.userId}`;
+
+      navigator.clipboard.writeText(finalLink)
         .then(() => showToast(t.linkCopied))
         .catch(() => showToast(t.linkCopyFailed));
+
       inviteModal.close();
     };
 

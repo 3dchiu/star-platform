@@ -364,10 +364,14 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
           const recDiv = document.createElement("div");
           recDiv.className = "recommendation";
           let nameLine = "";
-          if (r.recommenderId) {
-            nameLine = `<a class="recommender-name link" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`;
+          if (isPublic) {
+            nameLine = `<span class="recommender-name">★</span>`; // ⭐️ 隱藏推薦人名，用星星取代
           } else {
-            nameLine = `<span class="recommender-name">${r.name}</span>`;
+            if (r.recommenderId) {
+              nameLine = `<a class="recommender-name link" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`;
+            } else {
+              nameLine = `<span class="recommender-name">${r.name}</span>`;
+            }
           }
 
           recDiv.innerHTML =` 
