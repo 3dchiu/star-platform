@@ -116,7 +116,8 @@ export const i18n = {
       footer: "Galaxyz is a network built on authenticity and trust.",
       emotionalTouch: "Every recommendation shines a light on someone’s path.",
       warmthThanks: "✨ You’re now part of the constellation.",
-      warmthStart: "Create your profile now"
+      warmthStart: "Create your profile now",
+      networkAlt: "Network Illustration", // 英文
     },
 
     // recommend-summary.html legacy
@@ -372,6 +373,7 @@ That’s the true reason why I created Galaxyz.`,
       emotionalTouch: "每一則推薦，都是照亮他人旅程的一束光。",
       warmthThanks: "✨ 感謝您成為 Galaxyz 的星光。",
       warmthStart: "立即建立個人檔案",
+      networkAlt: "人際連結插圖", 
     },
 
     // recommend-summary.html legacy

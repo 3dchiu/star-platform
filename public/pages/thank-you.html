@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title id="pageTitle">Galaxyz – Thank You</title>
+  <title>Galaxyz – Thank You</title>
 
   <!-- 主樣式 -->
   <link rel="stylesheet" href="../styles/main.css" />
@@ -65,7 +65,7 @@
 
   <main class="page-container fade-in">
     <!-- 星系圖插圖 -->
-    <img src="../img/network.png" alt="Network Illustration" class="network" loading="lazy" decoding="async" />
+    <img id="networkImg" src="../img/network.png" class="network" loading="lazy" decoding="async" />
 
     <!-- 感謝主標語 -->
     <h1 id="title" class="thanks-title"></h1>
@@ -112,13 +112,11 @@
     setLang(lang);
     
     const t = i18n[lang]?.thankYou || {};
-
+    document.getElementById("networkImg").alt = t.networkAlt || "Network Illustration";
     document.title = t.pageTitle || "Galaxyz – Thank You";
-    document.getElementById("pageTitle").innerText = t.pageTitle || "";
     document.getElementById("title").innerText = t.title || "";
     document.getElementById("thanksText").innerText = t.message || "";
-    document.getElementById("noAccountText").innerText = t.noAccountText || "";
-    document.getElementById("registerOnlyNote").innerText = t.registerOnlyNote || "";
+    
     // 推薦總表連結
     const summaryLink = document.getElementById("summaryLink");
     summaryLink.href = `recommend-summary.html?public=true&userId=${userId}`;
@@ -151,7 +149,6 @@
       const t = i18n[lang]?.thankYou || {};
       document.getElementById("title").innerText = t.title || "";
       document.getElementById("thanksText").innerText = t.message || "";
-      document.getElementById("pageTitle").innerText = t.pageTitle || "";
       document.title = t.pageTitle || "";
       document.getElementById("summaryIntro").innerText = t.summaryIntro || "";
       summaryLink.innerText = t.summaryLink || "";
@@ -159,6 +156,7 @@
       document.getElementById("emotionalTouch").innerText = t.emotionalTouch || "";
       document.getElementById("inviteText").innerText = (style === "warmth") ? t.warmthThanks : t.invite;
       document.getElementById("startFresh").innerText = (style === "warmth") ? t.warmthStart : t.start;
+      document.getElementById("networkImg").alt = t.networkAlt || "Network Illustration";
     });
   </script>
 

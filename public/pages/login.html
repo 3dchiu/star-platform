@@ -126,13 +126,6 @@
     errorMessage.style.display = "none";
   });
 
-  document.getElementById("showLogin").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("registerSection").style.display = "none";
-    document.getElementById("loginSection").style.display = "block";
-    errorMessage.style.display = "none";
-  });
-
   const registerForm = document.getElementById("registerForm");
   registerForm.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -177,7 +170,7 @@
   
       // 🌐 初始語言顯示文字
       document.getElementById("welcomeTitle").innerText = t.welcomeTitle || "";
-      document.getElementById("noAccountText").innerText = t.noAccountText || "";
+      document.getElementById("noAccountText").innerHTML = t.noAccountText || "";
       document.getElementById("registerOnlyNote").innerText = t.registerOnlyNote || "";
       document.getElementById("resetPassword").innerText = t.resetPassword || "";
       document.getElementById("registerReminder").innerText = t.registerReminder || "";
@@ -190,6 +183,12 @@
         document.getElementById("registerSection").style.display = "block";
         document.getElementById("showRegisterRow").style.display = "block";
       }
+      document.getElementById("showLogin").addEventListener("click", (e) => {
+        e.preventDefault();
+        document.getElementById("registerSection").style.display = "none";
+        document.getElementById("loginSection").style.display = "block";
+        errorMessage.style.display = "none";
+      });
     });
   
     // 🌐 多語切換時更新畫面
@@ -197,7 +196,7 @@
       const lang = e.detail || "en";
       const t = i18n[lang]?.login || {};
       document.getElementById("welcomeTitle").innerText = t.welcomeTitle || "";
-      document.getElementById("noAccountText").innerText = t.noAccountText || "";
+      document.getElementById("noAccountText").innerHTML = t.noAccountText || "";
       document.getElementById("registerOnlyNote").innerText = t.registerOnlyNote || "";
       document.getElementById("resetPassword").innerText = t.resetPassword || "";
       document.getElementById("registerReminder").innerText = t.registerReminder || "";

@@ -181,7 +181,7 @@ function renderPendingTable(data) {
   pendingTableBody.innerHTML = "";
 
   data.forEach(({ email, name, invitedBy, notified }) => {
-    const regLink = `https://star-platform-bf3e7.web.app/pages/login.html?register=1&email=${encodeURIComponent(email)}&invitedBy=${invitedBy}`;
+    const regLink = `https://galaxyz.ai/pages/login.html?register=1&email=${encodeURIComponent(email)}&invitedBy=${invitedBy}`;
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
