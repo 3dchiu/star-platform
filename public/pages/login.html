@@ -35,7 +35,7 @@
       <form id="registerForm">
         <input type="email" id="registerEmail" placeholder="Email" required />
         <input type="password" id="registerPassword" placeholder="Password" required />
-        <button type="submit">Register</button>
+        <button id="registerBtn" type="submit">Register</button>
       </form>
       <p>已經有帳號了？<a href="#" id="showLogin">返回登入</a></p>
     </div>
@@ -57,11 +57,7 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
-
   const params = new URLSearchParams(location.search);
-  const loginForm = document.getElementById("loginForm");
-  const resetPasswordLink = document.getElementById("resetPassword");
-  const errorMessage = document.getElementById("error-message");
 
   // ✅ 根據 email 判斷是否顯示註冊選項
   const prefillEmail = sessionStorage.getItem("prefillEmail");
@@ -99,7 +95,7 @@
         errorMessage.textContent = error.message;
       });
   });
-
+  const resetPasswordLink = document.getElementById("resetPassword");
   resetPasswordLink.addEventListener("click", (e) => {
     e.preventDefault();
     const email = document.getElementById("loginEmail").value;
@@ -119,42 +115,59 @@
       });
   });
 
-  document.getElementById("showRegister").addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("loginSection").style.display = "none";
-    document.getElementById("registerSection").style.display = "block";
-    errorMessage.style.display = "none";
-  });
-
   const registerForm = document.getElementById("registerForm");
   registerForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const email = document.getElementById("registerEmail").value;
+    const errorMessage = document.getElementById("error-message");
+    const email = document.getElementById("registerEmail").value.trim();
     const password = document.getElementById("registerPassword").value;
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(async (userCredential) => {
+    const name = "";
+    const registerBtn = document.getElementById("registerBtn");
+    console.log("🧪 即將註冊的 email 是：", email); // ✅ 最前面加這行
+    if (!email) {
+      errorMessage.style.display = "block";
+      errorMessage.textContent = "Email 欄位為必填，請重新填寫。";
+      registerBtn.disabled = false;
+      registerBtn.innerText = "Register";
+      return;
+    }
+    registerBtn.disabled = true;
+    registerBtn.innerText = "Registering..."; 
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(async (userCredential) => {
+      console.log("✅ 註冊成功", userCredential);  // ✅ 加這行
+      try {
+        await auth.currentUser.getIdToken(true);  // ✅ 等待 auth 狀態同步
         const uid = userCredential.user.uid;
         const snapshot = await db.collection("pendingUsers").where("email", "==", email).get();
         for (const doc of snapshot.docs) {
           const data = doc.data();
+
+          console.log("🧪 寫入 users 時使用的 email：", email);
           await db.collection("users").doc(uid).set({
             email: email,
-            name: data.name || ""
+            name: "",
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
 
-          await db.collection("users").doc(data.invitedBy).collection("recommendations").add({
-            ...data,
-            invitedBy: uid,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
           await doc.ref.delete();
         }
         window.location.href = "profile-dashboard.html";
-      })
-      .catch((error) => {
+      } catch (err) {
+        console.error("🔥 註冊成功但 Firestore 寫入錯誤：", err);
         errorMessage.style.display = "block";
-        errorMessage.textContent = error.message;
-      });
+        errorMessage.textContent = "帳號已建立，但資料儲存發生錯誤，請聯絡管理員。";
+      }
+    })
+    .catch((error) => {
+      console.error("❌ 註冊失敗", error);  // ✅ 加這行
+      registerBtn.disabled = false;
+      registerBtn.innerText = "Register";
+
+      errorMessage.style.display = "block";
+      errorMessage.textContent = error.message;
+    });
   });
   </script>
   <script type="module" src="../js/components/app-header.js"></script>
@@ -167,6 +180,9 @@
       const t = i18n[lang]?.login || {};
       const params = new URLSearchParams(location.search);
       const email = params.get("email");
+      const loginForm = document.getElementById("loginForm");
+      const resetPasswordLink = document.getElementById("resetPassword");
+      const errorMessage = document.getElementById("error-message");
   
       // 🌐 初始語言顯示文字
       document.getElementById("welcomeTitle").innerText = t.welcomeTitle || "";
@@ -183,12 +199,15 @@
         document.getElementById("registerSection").style.display = "block";
         document.getElementById("showRegisterRow").style.display = "block";
       }
-      document.getElementById("showLogin").addEventListener("click", (e) => {
-        e.preventDefault();
-        document.getElementById("registerSection").style.display = "none";
-        document.getElementById("loginSection").style.display = "block";
-        errorMessage.style.display = "none";
-      });
+      const showLoginBtn = document.getElementById("showLogin");
+      if (showLoginBtn) {
+        showLoginBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          document.getElementById("registerSection").style.display = "none";
+          document.getElementById("loginSection").style.display = "block";
+          errorMessage.style.display = "none";
+        });
+      }
     });
   
     // 🌐 多語切換時更新畫面

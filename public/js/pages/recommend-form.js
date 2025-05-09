@@ -185,7 +185,13 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
     const highlights = Array.from(document.querySelectorAll('input[name="highlight"]:checked'))
       .map(cb => cb.value);
     if (customHighlight) highlights.push(customHighlight);
-  
+
+    // 🔍 用 email 查 Firestore 是否已經註冊為正式使用者
+    const checkIfRegistered = async (email) => {
+      const snapshot = await db.collection("users").where("email", "==", email).limit(1).get();
+      return !snapshot.empty;
+    };
+
     const rec = {
       name: document.getElementById("name").value.trim(),
       email: document.getElementById("email").value.trim(),
@@ -220,29 +226,28 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
     // ✅ 儲存推薦內容
     await recCollection.add(rec);
   
-    // ✅ 嘗試以 email 找 pendingUsers（避免重複）
-    let pendingId = null;
-    const existingPending = await db.collection("pendingUsers")
-      .where("email", "==", rec.email)
-      .limit(1)
-      .get();
+    // ✅ 檢查 email 是否已經註冊
+    const alreadyRegistered = await checkIfRegistered(rec.email);
 
-    if (!existingPending.empty) {
-      // 如果之前已經填過，拿到那筆 ID
-      pendingId = existingPending.docs[0].id;
-    } else {
-      // 否則新增一筆
-      const pendingRef = await db.collection("pendingUsers").add({
-        name: rec.name,
-        email: rec.email,
-        invitedBy: rec.invitedBy,
-        fromRecommendation: true,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      pendingId = pendingRef.id;
+    if (!alreadyRegistered) {
+      const existingPending = await db.collection("pendingUsers")
+        .where("email", "==", rec.email)
+        .limit(1)
+        .get();
+
+      if (existingPending.empty) {
+        await db.collection("pendingUsers").add({
+          name: rec.name,
+          email: rec.email,
+          invitedBy: rec.invitedBy,
+          fromRecommendation: true,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
     }
     // ✅ 導向 thank-you 頁
     sessionStorage.setItem("prefillEmail", rec.email);
+    sessionStorage.setItem("prefillName", rec.name);
     window.location.href = `thank-you.html?userId=${profileData.userId}&style=${style}`
       + `&recommenderName=${encodeURIComponent(rec.name)}`
       + `&recommenderEmail=${encodeURIComponent(rec.email)}`;

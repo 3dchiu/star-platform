@@ -114,7 +114,6 @@ userTableBody.addEventListener("click", async (e) => {
               const nameToPatch = registeredUsers[recommenderEmail].name;
               patchBtnHtml = `<button class='patch-btn' data-docpath='${docSnap.ref.path}' data-userid='${idToPatch}'>補上 recommenderId（${nameToPatch}）</button>`;
             } else {
-              patchBtnHtml = `<span style='color:red;'>🔸 尚未補上 recommenderId，Email: ${recommenderEmail}</span>`;
               patchBtnHtml = `
                 <span style='color:red;'>🔸 尚未補上 recommenderId，Email: ${recommenderEmail}（請至下方區塊複製註冊連結）</span>
               `;

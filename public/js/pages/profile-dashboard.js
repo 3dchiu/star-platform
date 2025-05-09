@@ -431,11 +431,10 @@ for (const docSnap of recSnap.docs) {
       e.preventDefault();
     
       // ★ 初次填姓名
-      if (!profile.name && nameInput.value.trim()) {
-        profile.name = nameInput.value.trim();
-        profile.englishName = englishNameInput.value.trim();
-        renderBasic();
-      }
+      profile.name = nameInput.value.trim();
+      profile.englishName = englishNameInput.value.trim();
+      renderBasic();
+      
     
       const pad = v => v.padStart(2, "0");
       const startDate = `${startY.value}-${pad(startM.value)}`;
@@ -628,6 +627,7 @@ for (const docSnap of recSnap.docs) {
   stillChk.dispatchEvent(new Event("change"));
 
   // 開啟 Modal
+  unlockCore();
   expModal.showModal();
 }
 
