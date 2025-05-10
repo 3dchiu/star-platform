@@ -215,31 +215,49 @@ document.getElementById("dashboardLoading").style.display = "flex";
     // 🏷️ 是否用過 sessionStorage 的預填功能
     let prefillUsed = false;
 
+  const ref = doc(db, "users", user.uid);
+  let snap;
+  try {
+    snap = await getDoc(ref);
+  } catch (err) {
+    console.error("❌ 無法連接 Firestore，可能是離線狀態：", err);
+    alert("目前無法連接資料庫，請確認網路後再試一次。");
+    return; // 中斷流程
+  }
 
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      profile = {
-        userId: user.uid,
-        ...snap.data()
-      };
-  
-      // === 🔥 修正 workExperiences 不是陣列的情況 ===
-      if (!Array.isArray(profile.workExperiences)) {
-        const values = Object.values(profile.workExperiences || {});
-        console.warn(`⚠️ [${profile.userId}] workExperiences 非陣列，自動轉換為陣列：`, values);
-        profile.workExperiences = values;
-      }
-    } else {
-      localStorage.removeItem("profile");
-      profile = {
-        userId: user.uid, name:"", englishName:"", bio:"", workExperiences:[]
-      };
+  if (snap.exists()) {
+    profile = {
+      userId: user.uid,
+      ...snap.data()
+    };
+
+  // === 🔥 修正 workExperiences 不是陣列的情況 ===
+    if (!Array.isArray(profile.workExperiences)) {
+      const values = Object.values(profile.workExperiences || {});
+      console.warn(`⚠️ [${profile.userId}] workExperiences 非陣列，自動轉換為陣列：`, values);
+      profile.workExperiences = values;
+    }
+  } else {
+    localStorage.removeItem("profile");
+    profile = {
+      userId: user.uid,
+      name: "",
+      englishName: "",
+      bio: "",
+      workExperiences: []
+    };
+    try {
       await setDoc(ref, {
         ...profile,
         createdAt: new Date()
-      });      
+      });
+    } catch (err) {
+      console.error("❌ 建立預設 user 資料失敗：", err);
+      alert("初始化使用者資料時出現錯誤。請稍後再試。");
+      return;
     }
+  }
+
     // —— 不論文件存不存在，都先檢查 sessionStorage 裡的 prefillName —— 
     const prefillName = sessionStorage.getItem("prefillName");
     if (prefillName) {
@@ -273,57 +291,10 @@ for (const docSnap of recSnap.docs) {
   const rec = docSnap.data();
   const targetJob = profile.workExperiences.find(j => j.id === rec.jobId);
   if (targetJob) {
-    // 👉 嘗試從 pendingUsers 中找到此推薦者是否已註冊成正式帳號
-    if (rec.invitedBy) {
-      const recommenderSnap = await getDoc(doc(db, "users", rec.invitedBy));
-      if (recommenderSnap.exists()) {
-        // ⚠️ 暫時移除這段寫入 recommenderId 的程式碼，改由 Cloud Function 處理
-        // if (!rec.recommenderId) {
-        //   await setDoc(
-        //     doc(db, "users", profile.userId, "recommendations", docSnap.id),
-        //     { recommenderId: rec.invitedBy },
-        //     { merge: true }
-        //   );
-        //   rec.recommenderId = rec.invitedBy;
-        // }
-      }
-    }
 
     targetJob.recommendations.push(rec);
   }
 }
-
-    let nodesMap = {};
-    let links    = [];
-    let userMap  = {};
-    const allUsers = await getDocs(collection(db, "users"));
-    for (const userDoc of allUsers.docs) {
-      const targetId = userDoc.id;
-
-      const recSnap = await getDocs(
-        collection(db, "users", targetId, "recommendations")
-      );
-
-      recSnap.forEach(recDoc => {
-        const rec = recDoc.data();
-        const fromId = rec.invitedBy;
-
-        if (!nodesMap[fromId]) {
-          nodesMap[fromId] = {
-            id: fromId,
-            label: userMap[fromId] || rec.name || fromId,
-          };
-        }
-        if (!nodesMap[targetId]) {
-          nodesMap[targetId] = {
-            id: targetId,
-            label: userMap[targetId] || targetId,
-          };
-        }
-        links.push({ from: fromId, to: targetId });
-      });
-    }
-    
     // 再呼叫 renderExperienceCards()
     populateYearMonth();
     renderStaticText();

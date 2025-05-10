@@ -25,9 +25,6 @@ function getLevelInfo(count) {
   if (count >= 4)   return { level: 2,  name: "穩健合作者", color: "briefcase" };
   return                { level: 1,  name: "初心之光", color: "gray" };
 }
-// html2canvas、jsPDF 現在都已經從 CDN 掛到全域 window 上
-  const html2canvas = window.html2canvas;
-  const { jsPDF }  = window.jspdf;
 
 // 把 highlights 陣列轉成 <span class="badge">...</span>
 function renderBadges(tags, tFn) {
@@ -132,6 +129,11 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
         job.recommendations.push(rec);
       }
     });
+    // 🔧 提前排序一次，避免 renderRecommendations 裡重複排序
+    profile.workExperiences.sort((a, b) =>
+      (b.startDate || "").localeCompare(a.startDate || "")
+    );
+
         // ➕ 加入推薦總數，供顯示星星用
     profile._totalRecCount = (profile.workExperiences || []).reduce((sum, job) => {
       return sum + (job.recommendations?.length || 0);
@@ -198,30 +200,68 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
 
     // 渲染列表
     const { t, lang } = getCurrentT();
-    renderRecommendations(profile, t, lang);    
-    document.getElementById("summaryLoading").style.display = "none";
-
-     exportBtn.addEventListener('click', () => {
-      // 隱藏篩選和匯出按鈕
-      filters.style.display   = 'none';
-      exportBtn.style.display = 'none';
-    
-      // 叫出瀏覽器列印視窗（選「存成 PDF」即可）
-      window.print();
-    
-      // 印完或取消後，還原
-      window.onafterprint = () => {
-        filters.style.display   = '';
-        exportBtn.style.display = 'inline-block';
-      };
-    });
-    
-      
-    // ⚙️ 綁定篩選器：改變時重新渲染
+    renderRecommendations(profile, t, lang);
     document.getElementById("relationFilter")
       .addEventListener("change", () => renderRecommendations(profile, t, lang));
     document.getElementById("highlightFilter")
       .addEventListener("change", () => renderRecommendations(profile, t, lang));
+    document.getElementById("summaryLoading").style.display = "none";
+
+    exportBtn.addEventListener('click', async () => {
+      // Lazy load html2canvas & jsPDF
+      if (!window.html2canvas || !window.jspdf) {
+        await Promise.all([
+          loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"),
+          loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
+        ]);
+      }
+    
+      const html2canvas = window.html2canvas;
+      const { jsPDF } = window.jspdf;
+    
+      // 隱藏篩選和匯出按鈕
+      filters.style.display = 'none';
+      exportBtn.style.display = 'none';
+    
+      const target = document.querySelector("#summaryArea");
+    
+      const canvas = await html2canvas(target, {
+        scale: 2,
+        useCORS: true
+      });
+    
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+    
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+    
+      const imgWidth = pageWidth;
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+    
+      let heightLeft = imgHeight;
+      let position = 0;
+    
+      // 第一頁
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+    
+      pdf.save("recommendation-summary.pdf");
+    
+      // 還原畫面
+      filters.style.display = '';
+      exportBtn.style.display = 'inline-block';
+    });
+    
+    
     // 標題 & Bio
     document.title = t("pageTitle");
     document.getElementById("pageTitle").innerText = t("pageTitle");
@@ -295,8 +335,6 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
         renderRecommendations(window._loadedProfile, tNow, langNow);
       }
     });
-    
-  // ────────────────────────────────────────
   }
 
   // 5) 根據模式呼叫 loadAndRender
@@ -335,11 +373,8 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     const selectedHighlight = document.getElementById("highlightFilter").value;
     const isFiltering       = !!selectedRelation || !!selectedHighlight;
 
-    const sorted = [...exps].sort((a, b) =>
-      (b.startDate || "").localeCompare(a.startDate || "")
-    );
     const grouped = {};
-    sorted.forEach(job => (grouped[job.company] ||= []).push(job));
+    exps.forEach(job => (grouped[job.company] ||= []).push(job));
 
     let hasMatch = false;
 
@@ -431,3 +466,13 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     }    
   }
 });
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve();
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.body.appendChild(script);
+  });
+}
