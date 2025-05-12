@@ -156,16 +156,26 @@
   <dialog id="inviteModal" class="white-card p-6">
     <h3 data-i18n="editInviteTitle">編輯邀請語</h3>
   
-    <!-- 1. 先選風格 -->
-    <label for="inviteStyleSelect"  data-i18n="inviteStyleLabel">邀請語風格：</label>
-    <select id="inviteStyleSelect" >
-      <option value="direct" data-i18n="styleDirect">中性版</option>
-      <option value="warmth" data-i18n="styleWarmth">溫暖版</option>
-    </select>
+    <!-- 再編輯文字 -->
+    <textarea id="inviteTextarea" 
+          rows="4"
+          data-i18n="invitePlaceholder"
+          placeholder="請輸入您想對對方說的邀請話語…">
+    </textarea>
   
-    <!-- 2. 再編輯文字 -->
-    <textarea id="inviteTextarea" rows="4"></textarea>
-
+    <p id="templateHint" style="font-size: 0.9rem; margin-top: 6px; color: #555;">
+      <span data-i18n="templateHintPrefix">不知道怎麼寫嗎？</span>
+      <span id="insertDirect" role="button" tabindex="0" 
+        style="color:#005bbb; text-decoration:underline; cursor:pointer;" data-i18n="insertDirect">插入中性版</span>
+      <span data-i18n="or">或</span>
+      <span id="insertWarmth" style="color:#bb4400; text-decoration:underline; cursor:pointer;" data-i18n="insertWarmth">插入溫暖版</span>
+    </p>
+    
+    <!-- 🔔 新增提醒：請使用者不要直接複製，要按儲存 -->
+    <p id="previewReminder" data-i18n="previewReminder"
+      style="font-size: 0.9rem; color: #cc3300; margin-bottom: 0.5rem;">
+      ⚠️ 請記得按「儲存並複製」，否則推薦人會看不到你的邀請內容
+    </p>
     <!-- 新增：邀請連結預覽 -->
     <div class="form-group mt-4">
       <label data-i18n="previewLinkLabel">預覽連結：</label>
@@ -173,15 +183,14 @@
          href="#"
          target="_blank"
          style="display:block; word-break:break-all; margin-top:4px;">
-    <!-- JS 會填入連結文字 -->
       </a>
     </div>
     
     <!-- 3. 按鈕 -->
-    <div>
-      <button id="inviteCancelBtn" data-i18n="inviteCancel"></button>
-      <button id="inviteSaveBtn"   data-i18n="inviteSaveAndCopy"></button>
-    </div>
+    <div class="flex justify-end gap-4 mt-4">
+      <button id="inviteCancelBtn" class="btn btn-secondary" data-i18n="inviteCancel"></button>
+      <button id="inviteSaveBtn" class="btn btn-primary" data-i18n="inviteSaveAndCopy"></button>
+    </div>    
   </dialog>  
 </body>
 </html>

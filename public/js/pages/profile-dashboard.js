@@ -22,6 +22,10 @@ document.getElementById("dashboardLoading").style.display = "flex";
     renderBio();          // 再重新把 bio 內容塞回去
     updateOnboardingText(); // （如果有這個小卡多語也一起跑）
     renderExperienceCards();   // ✅ 新增這行，讓卡片內容（含提示）也依語言切換
+    const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
+    if (inviteTextarea) {
+      inviteTextarea.setAttribute("placeholder", tNow.invitePlaceholder || "");
+    }  
   });  
   const t    = i18n[lang] || i18n.en;
   document.getElementById("loadingDashboardText").innerText = t.loadingDashboardMessage;
@@ -55,7 +59,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
 
   const inviteModal       = document.getElementById("inviteModal");
   const inviteTextarea    = document.getElementById("inviteTextarea");
-  const inviteStyleSelect = document.getElementById("inviteStyleSelect");
+  //const inviteStyleSelect = document.getElementById("inviteStyleSelect");
   const inviteCancelBtn   = document.getElementById("inviteCancelBtn");
   const inviteSaveBtn     = document.getElementById("inviteSaveBtn");
 
@@ -486,15 +490,13 @@ for (const docSnap of recSnap.docs) {
         currentCompany  = profile.workExperiences[idx].company;
       // ➊ 先定义更新预设文案的函数
         function updateDefaultMessage() {
-          const style = inviteStyleSelect.value;  // direct or warmth
+          const style = currentInviteStyle || "warmth";
           currentInviteStyle = style;
           const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
           currentDefaultMsg = (tNow[`defaultInvite_${style}`] || "")
             .replace("{{company}}", currentCompany);
           inviteTextarea.value = currentDefaultMsg;
         }
-        // ➋ 设定下拉选单默认值（如有需要可改成用户上次选择的样式）
-        inviteStyleSelect.value = "warmth";
         // ➌ 第一次打开时填入文案
         updateDefaultMessage();
 
@@ -507,7 +509,7 @@ for (const docSnap of recSnap.docs) {
         function generatePreviewUrl() {
           const message = inviteTextarea.value.trim();
           const jobId   = encodeURIComponent(profile.workExperiences[currentJobIndex].id);
-          const style   = inviteStyleSelect.value;
+          const style = currentInviteStyle || "warmth";
           const encMsg  = encodeURIComponent(message);
           return `${location.origin}/pages/recommend-form.html`
             + `?userId=${profile.userId}`
@@ -520,11 +522,28 @@ for (const docSnap of recSnap.docs) {
 
       // ➋ 初次打開 Modal 時，先填入預設 inviteTextarea（已在你現有 updateDefaultMessage 中）
       // 再把第一次的預覽連結放入
-        inviteTextarea.value = currentDefaultMsg;
+        inviteTextarea.value = "";
         previewLinkEl.setAttribute("href", generatePreviewUrl());
         previewLinkEl.textContent = previewText;
         previewLinkEl.title       = generatePreviewUrl();
         previewLinkEl.classList.add("preview-link");
+
+      // 🆕 新增點擊文字插入範本的功能
+      document.getElementById("insertDirect")?.addEventListener("click", () => {
+        const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
+        const text = (tNow["defaultInvite_direct"] || "").replace("{{company}}", currentCompany);
+        inviteTextarea.value = text;
+        previewLinkEl.setAttribute("href", generatePreviewUrl());
+        previewLinkEl.title = generatePreviewUrl();
+      });
+
+      document.getElementById("insertWarmth")?.addEventListener("click", () => {
+        const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
+        const text = (tNow["defaultInvite_warmth"] || "").replace("{{company}}", currentCompany);
+        inviteTextarea.value = text;
+        previewLinkEl.setAttribute("href", generatePreviewUrl());
+        previewLinkEl.title = generatePreviewUrl();
+      });
 
       // ➌ 監聽「textarea 輸入」事件，動態更新 previewLink
         inviteTextarea.addEventListener("input", () => {
@@ -533,13 +552,6 @@ for (const docSnap of recSnap.docs) {
           previewLinkEl.title = url;
         });
 
-      // ➍ 監聽「風格切換」時，也要更新 inviteTextarea 及 previewLink
-        inviteStyleSelect.addEventListener("change", () => {
-          updateDefaultMessage();           // 會更新 inviteTextarea.value
-          const url = generatePreviewUrl();
-          previewLinkEl.setAttribute("href", url);
-          previewLinkEl.title = url;
-        });
         inviteModal.showModal();
         } 
     });
@@ -550,12 +562,18 @@ for (const docSnap of recSnap.docs) {
     inviteSaveBtn.onclick = async () => {
       const langNow = localStorage.getItem("lang") || "en";
       const message = inviteTextarea.value.trim();
-      const style   = inviteStyleSelect.value;
+      if (!message) {
+        showToast(t.inviteEmpty || "請先輸入邀請內容");
+        return; // ❌ 中止流程
+      }
+      const style   = currentInviteStyle || "warmth";
       const job     = profile.workExperiences[currentJobIndex];
-    
+      
+      let inviteRef; // ✅ 這行是關鍵！提前宣告
+
       try {
-        // 👉 新增邀請記錄到 Firestore
-        const inviteRef = await addDoc(collection(db, "invites"), {
+        // 1️⃣ 儲存到 Firestore 並取得 inviteId
+        inviteRef = await addDoc(collection(db, "invites"), {
           userId: profile.userId,
           jobId: job.id,
           message,
@@ -564,23 +582,29 @@ for (const docSnap of recSnap.docs) {
           invitedBy: profile.userId,
           createdAt: new Date()
         });
-    
-        // 👉 用 inviteId 生成連結
         const inviteId = inviteRef.id;
+    
+        // 2️⃣ 產出最終分享連結
         const finalLink = `${location.origin}/pages/recommend-form.html?inviteId=${inviteId}`;
     
-        // 👉 複製連結到剪貼簿
+        // 3️⃣ 複製連結到剪貼簿（必須在 user gesture context）
         await navigator.clipboard.writeText(finalLink);
-        showToast(t.linkCopied);
-      } catch (err) {
-        console.error("❌ 邀請寫入失敗：", err);
-        showToast(t.linkCopyFailed);
+        showToast(t.linkCopied); // ✅ 成功提示
+      } 
+      catch (err) {
+        console.error("❌ 複製失敗：", err);
+      
+        // 👉 後備備案：顯示 prompt 讓使用者手動複製
+        const fallbackLink = `${location.origin}/pages/recommend-form.html?inviteId=${inviteRef?.id || "unknown"}`;
+        prompt(t.linkCopyFailed + "\n\n👇請手動複製這個連結：", fallbackLink);
+      
+        showToast(t.linkCopyFailed); // 也可以保留原本的 toast 提示
       }
-    
+          
+      // 4️⃣ 關閉 Modal
       inviteModal.close();
-    };
+    };    
     
-
     // 打開 Add/Edit Modal
   function openModalForAdd(isFirst = false) {
   editIdx = null;

@@ -114,6 +114,12 @@ window.addEventListener("DOMContentLoaded", async () => {
         userId = inviteData.userId;
         jobId  = inviteData.jobId;
         urlMessage = inviteData.message;
+
+        const inviteArea = document.getElementById("inviteContent");
+        if (inviteArea && urlMessage) {
+          inviteArea.value = decodeURIComponent(urlMessage);
+          userEdited = true;
+        }
       } else {
         throw new Error("Invite not found");
       }
