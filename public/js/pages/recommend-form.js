@@ -60,7 +60,8 @@ function renderPageByLang() {
     <p><strong>${t.company}:</strong> ${jobData.company || t.undefinedCompany}</p>
     <p><strong>${t.position}:</strong> ${jobData.position || t.undefinedPosition}</p>
     <p><strong>${t.period}:</strong> ${jobData.startDate || "--"} ～ ${jobData.endDate || t.currentlyWorking}</p>
-  `;
+    ${jobData.description ? `<p style="margin-top: 1em;"><strong>${t.jobDescriptionLabel}:</strong> ${jobData.description}</p>` : ""}
+    `;  
 
   // 更新邀請區
   const inviteTitleEl = document.getElementById("inviteTitle");

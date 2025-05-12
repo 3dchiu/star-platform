@@ -120,20 +120,30 @@ document.getElementById("dashboardLoading").style.display = "flex";
       console.groupEnd();
       return;
     }
+  
     try {
-      await setDoc(
-        doc(db, "users", profile.userId),
-        profile,
-        { merge: true }
-      );
+      const ref = doc(db, "users", profile.userId);
+  
+      // 🔒 補強：如果 name 是空的，就保留資料庫原值
+      const existingSnap = await getDoc(ref);
+      if (existingSnap.exists()) {
+        const existingData = existingSnap.data();
+        if (!profile.name && existingData.name) {
+          profile.name = existingData.name;
+        }
+        if (!profile.englishName && existingData.englishName) {
+          profile.englishName = existingData.englishName;
+        }
+      }
+  
+      await setDoc(ref, profile, { merge: true });
       console.log("✅ saveProfile() 写入成功");
     } catch (err) {
       console.error("❌ saveProfile() 写入失败：", err);
     }
+  
     console.groupEnd();
-  }
-  
-  
+  }  
 
   function renderBasic() {
     basicInfo.innerHTML = `
@@ -281,6 +291,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
     // … 讀取 profile 並 normalize 之後 …
     profile.workExperiences = profile.workExperiences||[];
     profile.workExperiences.forEach(j=>{ if (!j.endDate) j.endDate=""; });
+
     // … 讀取 profile 並 normalize 之後，先把 recommendations 清空，避免重複 …
     profile.workExperiences = profile.workExperiences || [];
     profile.workExperiences.forEach(j => {
@@ -404,7 +415,16 @@ for (const docSnap of recSnap.docs) {
     addBtn.onclick = () => openModalForAdd(false);
     expForm.onsubmit = async e => {
       e.preventDefault();
-    
+      
+      if (!nameSection.hidden) {
+        const nameVal = nameInput.value.trim();
+        if (!nameVal) {
+          showToast(t.enterName || "請填寫姓名");
+          nameInput.focus();
+          return;
+        }
+      }
+      
       // ★ 初次填姓名
       profile.name = nameInput.value.trim();
       profile.englishName = englishNameInput.value.trim();
