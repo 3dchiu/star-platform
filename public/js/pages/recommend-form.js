@@ -14,6 +14,8 @@ const style = params.get("style") || "direct";
 // —— 新增：如果 URL 有带 lang，就强制套用此語系 ——
 const forcedLang = params.get("lang");
 const invitedBy = params.get("invitedBy");  // ✅ 新增：推薦來源 userId
+const inviteId = params.get("inviteId");  // 新增
+
 if (forcedLang) {
   // 1) 立即切換 i18n
   setLang(forcedLang);
@@ -100,6 +102,29 @@ function renderPageByLang() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+  let userId = params.get("userId");
+  let jobId  = params.get("jobId");
+  let urlMessage = params.get("message");
+
+  if (inviteId) {
+    try {
+      const inviteSnap = await db.collection("invites").doc(inviteId).get();
+      if (inviteSnap.exists) {
+        const inviteData = inviteSnap.data();
+        userId = inviteData.userId;
+        jobId  = inviteData.jobId;
+        urlMessage = inviteData.message;
+      } else {
+        throw new Error("Invite not found");
+      }
+    } catch (err) {
+      document.getElementById("loadingMessage").style.display = "none";
+      document.getElementById("errorMessage").innerText = "Invalid or expired invite link.";
+      document.getElementById("errorMessage").style.display = "block";
+      return;
+    }
+  }
+
   if (forcedLang) {
     document.documentElement.lang = forcedLang;
   }
@@ -203,7 +228,8 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
       invitedBy: invitedBy || null,
       recommenderId: auth.currentUser?.uid || null,   // ✅ 新增這行
       claimedBy: null,            // 🆕 預留：目前尚未歸戶
-      claimMethod: null           // 🆕 預留：未來可標示為 "manual" 或 "auto"
+      claimMethod: null,           // 🆕 預留：未來可標示為 "manual" 或 "auto"
+      inviteId: inviteId || null,   // ✅ 新增這一行
     };
   
     const recCollection = db.collection("users").doc(userId).collection("recommendations");
@@ -250,6 +276,7 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
     sessionStorage.setItem("prefillName", rec.name);
     window.location.href = `thank-you.html?userId=${profileData.userId}&style=${style}`
       + `&recommenderName=${encodeURIComponent(rec.name)}`
-      + `&recommenderEmail=${encodeURIComponent(rec.email)}`;
+      + `&recommenderEmail=${encodeURIComponent(rec.email)}`
+      + (inviteId ? `&inviteId=${inviteId}` : "");
   });  
 });

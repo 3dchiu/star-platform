@@ -2,7 +2,7 @@
 import { i18n, setLang } from "../i18n.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 import { firebaseConfig } from "../firebase-config.js";
 
 // 初始化 Firebase
@@ -547,26 +547,39 @@ for (const docSnap of recSnap.docs) {
     // 邀請 Modal 按鈕
     inviteCancelBtn.onclick = () => inviteModal.close();
 
-    inviteSaveBtn.onclick = () => {
+    inviteSaveBtn.onclick = async () => {
       const langNow = localStorage.getItem("lang") || "en";
-      const message = inviteTextarea.value.trim(); // 動態讀取使用者輸入
-      const jobId   = encodeURIComponent(profile.workExperiences[currentJobIndex].id);
+      const message = inviteTextarea.value.trim();
       const style   = inviteStyleSelect.value;
-
-      const finalLink = `${location.origin}/pages/recommend-form.html`
-        + `?userId=${profile.userId}`
-        + `&jobId=${jobId}`
-        + `&message=${encodeURIComponent(message)}`
-        + `&style=${style}`
-        + `&lang=${langNow}`
-        + `&invitedBy=${profile.userId}`;
-
-      navigator.clipboard.writeText(finalLink)
-        .then(() => showToast(t.linkCopied))
-        .catch(() => showToast(t.linkCopyFailed));
-
+      const job     = profile.workExperiences[currentJobIndex];
+    
+      try {
+        // 👉 新增邀請記錄到 Firestore
+        const inviteRef = await addDoc(collection(db, "invites"), {
+          userId: profile.userId,
+          jobId: job.id,
+          message,
+          style,
+          lang: langNow,
+          invitedBy: profile.userId,
+          createdAt: new Date()
+        });
+    
+        // 👉 用 inviteId 生成連結
+        const inviteId = inviteRef.id;
+        const finalLink = `${location.origin}/pages/recommend-form.html?inviteId=${inviteId}`;
+    
+        // 👉 複製連結到剪貼簿
+        await navigator.clipboard.writeText(finalLink);
+        showToast(t.linkCopied);
+      } catch (err) {
+        console.error("❌ 邀請寫入失敗：", err);
+        showToast(t.linkCopyFailed);
+      }
+    
       inviteModal.close();
     };
+    
 
     // 打開 Add/Edit Modal
   function openModalForAdd(isFirst = false) {

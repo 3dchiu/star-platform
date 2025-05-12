@@ -66,19 +66,32 @@
     document.getElementById("registerEmail").value = prefillEmail;
     sessionStorage.removeItem("prefillEmail");
   }
+  // ✅ 加入 email 驗證，決定要顯示登入還是註冊
+  const urlEmail = params.get("email");
+  if (params.get("register") === "1" && urlEmail) {
+    const userRef = db.collection("users");
+    const pendingRef = db.collection("pendingUsers");
 
-  if (params.get("register") === "1") {
-    const email = params.get("email");
-    if (email) {
-      db.collection("pendingUsers").where("email", "==", email).limit(1).get().then(snapshot => {
-        if (!snapshot.empty) {
-          document.getElementById("showRegisterRow").style.display = "block";
-          document.getElementById("registerSection").style.display = "block";
-          document.getElementById("loginSection").style.display = "none";
-          document.getElementById("registerEmail").value = email;
-        }
-      });
-    }
+    userRef.where("email", "==", urlEmail).limit(1).get().then(snapshot => {
+      if (!snapshot.empty) {
+        // ✅ 已註冊者 ➜ 自動跳轉登入頁，帶入 email 預填
+        location.href = `/pages/login.html?email=${encodeURIComponent(urlEmail)}`;
+      } else {
+        // 👀 未註冊但在 pendingUsers ➜ 顯示註冊表單
+        pendingRef.where("email", "==", urlEmail).limit(1).get().then(pendingSnap => {
+          if (!pendingSnap.empty) {
+            document.getElementById("registerEmail").value = urlEmail;
+            document.getElementById("registerEmail").readOnly = true;
+            document.getElementById("registerSection").style.display = "block";
+            document.getElementById("loginSection").style.display = "none";
+            document.getElementById("showRegisterRow").style.display = "block";
+          } else {
+            // 🚫 不是邀請對象 ➜ 提示文字
+            document.getElementById("registerReminder").innerText = "目前僅限受邀者註冊，請確認您的邀請連結是否正確。";
+          }
+        });
+      }
+    });
   }
 
   loginForm.addEventListener("submit", (e) => {
@@ -180,7 +193,7 @@
       const t = i18n[lang]?.login || {};
       const params = new URLSearchParams(location.search);
       const email = params.get("email");
-      const loginForm = document.getElementById("loginForm");
+      //const loginForm = document.getElementById("loginForm"); // 不要重複宣告，因為上面已經 const 宣告過了
       const resetPasswordLink = document.getElementById("resetPassword");
       const errorMessage = document.getElementById("error-message");
   
@@ -192,13 +205,13 @@
       document.getElementById("registerReminder").innerText = t.registerReminder || "";
   
       // 👀 根據網址參數顯示註冊表單
-      if (params.get("register") === "1" && email) {
-        document.getElementById("registerEmail").value = email;
-        document.getElementById("registerEmail").readOnly = true;
-        document.getElementById("loginSection").style.display = "none";
-        document.getElementById("registerSection").style.display = "block";
-        document.getElementById("showRegisterRow").style.display = "block";
-      }
+      //if (params.get("register") === "1" && email) {
+      //  document.getElementById("registerEmail").value = email;
+      //  document.getElementById("registerEmail").readOnly = true;
+      //  document.getElementById("loginSection").style.display = "none";
+      //  document.getElementById("registerSection").style.display = "block";
+      //  document.getElementById("showRegisterRow").style.display = "block";
+    //  }
       const showLoginBtn = document.getElementById("showLogin");
       if (showLoginBtn) {
         showLoginBtn.addEventListener("click", (e) => {

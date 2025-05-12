@@ -57,6 +57,12 @@
       box-shadow: 0 0 8px rgba(251,170,41,0.6);
       transform: translateY(-2px);
     }
+    .footer-muted {
+      display: block;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: rgba(0, 0, 0, 0.4);
+    }
   </style>
 </head>
 
@@ -71,18 +77,17 @@
     <h1 id="title" class="thanks-title"></h1>
     <p id="thanksText" class="thanks-message"></p>
 
-    <!-- 查看推薦總表 -->
-    <div id="summaryArea" class="summary-link" style="text-align:center; margin: 24px 0;">
-      <p id="summaryIntro" class="summary-intro"></p>
-      <a id="summaryLink" href="#" target="_blank" style="text-decoration: underline;"></a>
-    </div>    
-
     <!-- CTA 區塊 -->
     <div class="call-to-action-board fadeUp">
-      <p id="inviteText" class="invite-text"></p>
+      <p id="ctaMessage" class="invite-text"></p>
       <a href="#" id="startFresh" class="cta-btn brand-orange"></a>
-      <small id="footerText"></small>
-      <p id="emotionalTouch" class="emotional-touch"></p>
+      <small class="footer-muted" id="footerText"></small>
+    </div>    
+    
+     <!-- 查看推薦總表 -->
+     <div id="summaryArea" class="summary-link" style="text-align:center; margin: 24px 0;">
+      <p id="summaryIntro" class="summary-intro"></p>
+      <a id="summaryLink" href="#" target="_blank" style="text-decoration: underline;"></a>
     </div>    
   </main>
 
@@ -107,6 +112,7 @@
     const style = urlParams.get("style") || "direct";
     const recommenderName = urlParams.get("recommenderName") || "";
     const recommenderEmail = urlParams.get("recommenderEmail") || "";
+    const inviteId = urlParams.get("inviteId") || null;
 
     const lang = localStorage.getItem("lang") || "en";
     setLang(lang);
@@ -125,22 +131,21 @@
 
     // CTA 區塊文字
     document.getElementById("footerText").innerText = t.footer || "";
-    document.getElementById("emotionalTouch").innerText = t.emotionalTouch || "";
 
-    if (style === "warmth") {
-      document.getElementById("inviteText").innerText = t.warmthThanks || "";
-      document.getElementById("startFresh").innerText = t.warmthStart || "";
-    } else {
-      document.getElementById("inviteText").innerText = t.invite || "";
-      document.getElementById("startFresh").innerText = t.start || "";
-    }
+  if (style === "warmth") {
+    document.getElementById("ctaMessage").innerText = t.warmthThanks || "";
+    document.getElementById("startFresh").innerText = t.warmthStart || "";
+  } else {
+    document.getElementById("ctaMessage").innerText = t.invite || "";
+    document.getElementById("startFresh").innerText = t.start || "";
+  }
 
     // 推薦人點擊 CTA 註冊
     document.getElementById("startFresh").addEventListener("click", e => {
       e.preventDefault();
       if (recommenderName) sessionStorage.setItem("prefillName", recommenderName);
       if (recommenderEmail) sessionStorage.setItem("prefillEmail", recommenderEmail);
-      location.href = `/pages/login.html?register=1&email=${encodeURIComponent(recommenderEmail)}&next=profile-dashboard.html`;
+      location.href = `/pages/login.html?register=1&email=${encodeURIComponent(recommenderEmail)}&invitedBy=${userId}&message=${encodeURIComponent("我也想推薦你")}&style=warmth`;
     });
 
     // 多語切換即時更新
@@ -153,8 +158,7 @@
       document.getElementById("summaryIntro").innerText = t.summaryIntro || "";
       summaryLink.innerText = t.summaryLink || "";
       document.getElementById("footerText").innerText = t.footer || "";
-      document.getElementById("emotionalTouch").innerText = t.emotionalTouch || "";
-      document.getElementById("inviteText").innerText = (style === "warmth") ? t.warmthThanks : t.invite;
+      document.getElementById("ctaMessage").innerText = (style === "warmth") ? t.warmthThanks : t.invite;
       document.getElementById("startFresh").innerText = (style === "warmth") ? t.warmthStart : t.start;
       document.getElementById("networkImg").alt = t.networkAlt || "Network Illustration";
     });
