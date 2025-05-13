@@ -238,6 +238,18 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
       claimMethod: null,           // 🆕 預留：未來可標示為 "manual" 或 "auto"
       inviteId: inviteId || null,   // ✅ 新增這一行
     };
+    // ✅ 防呆：檢查必填欄位
+    if (!rec.name || !rec.email || !rec.content) {
+      const lang = localStorage.getItem("lang") || "en";
+      const msg = (lang === "zh-Hant")
+        ? "請填寫姓名、Email 與推薦內容"
+        : "Please fill in your name, email, and recommendation content.";
+      alert(msg);
+      btn.disabled = false;
+      btn.innerText = (lang === "zh-Hant") ? "送出推薦" : "Submit Recommendation";
+      return;
+    }
+
   
     const recCollection = db.collection("users").doc(userId).collection("recommendations");
     const existing = await recCollection
@@ -258,7 +270,25 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
   
     // ✅ 儲存推薦內容
     await recCollection.add(rec);
-  
+    // ✅ 同步寫入 Google Sheet（呼叫 Cloud Function）
+    try {
+      await fetch("https://submitrecommendationtosheet-xghyko237a-uc.a.run.app", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: userId,
+          jobId: jobId,
+          recommender: rec.name,
+          email: rec.email,
+          lang: localStorage.getItem("lang") || "en"
+      })
+    });
+  console.log("✅ 推薦內容已同步寫入 Google Sheet");
+} catch (err) {
+  console.error("❌ 寫入 Google Sheet 失敗：", err);
+  alert("推薦已送出，但同步 Google Sheet 發生錯誤，可稍後再試");
+}
+
     // ✅ 檢查 email 是否已經註冊
     const alreadyRegistered = await checkIfRegistered(rec.email);
 

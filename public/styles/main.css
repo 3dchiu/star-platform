@@ -1196,6 +1196,11 @@ text-decoration: underline;
       margin-bottom: 0.5rem;
     }
   }
+  .rec-summary {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: #0c4a6e;
+  }
   
   
   

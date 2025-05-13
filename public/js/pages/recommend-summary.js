@@ -403,7 +403,11 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
         let anyMatch = false;
       
         (job.recommendations || []).forEach(r => {
-          const matchRelation  = !selectedRelation  || r.relation === selectedRelation;
+          const matchRelation =
+            !selectedRelation ||
+            r.relation === selectedRelation ||
+            i18n[langCurrent]?.relationOptions?.find(opt => opt.value === r.relation)?.label === selectedRelation;
+
           const matchHighlight = !selectedHighlight || (r.highlights || []).includes(selectedHighlight);
           if (!matchRelation || !matchHighlight) return;
       

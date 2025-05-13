@@ -146,11 +146,22 @@ document.getElementById("dashboardLoading").style.display = "flex";
   }  
 
   function renderBasic() {
+    const totalRecommendations = profile.workExperiences.reduce((sum, job) => {
+      return sum + (job.recommendations?.length || 0);
+    }, 0);
+  
+    let recommendationsNote = "";
+    if (totalRecommendations > 0) {
+      recommendationsNote = `<p class="rec-summary">✨ 你已收到 <strong>${totalRecommendations}</strong> 則推薦</p>`;
+    }
+  
     basicInfo.innerHTML = `
       <h1>${profile.name || ""}</h1>
       ${profile.englishName ? `<p>${profile.englishName}</p>` : ""}
-      <p>${profile.workExperiences.length} ${t.workExperiences}</p>`;
-  }
+      <p>${profile.workExperiences.length} ${t.workExperiences}</p>
+      ${recommendationsNote}
+    `;
+  }  
 
   function renderBio() {
     // 取出存库的文字（可能包含 \n）
@@ -287,10 +298,6 @@ document.getElementById("dashboardLoading").style.display = "flex";
       openModalForAdd(true);
     }
 // —————————————————————————————————————————————
-
-    // … 讀取 profile 並 normalize 之後 …
-    profile.workExperiences = profile.workExperiences||[];
-    profile.workExperiences.forEach(j=>{ if (!j.endDate) j.endDate=""; });
 
     // … 讀取 profile 並 normalize 之後，先把 recommendations 清空，避免重複 …
     profile.workExperiences = profile.workExperiences || [];
@@ -490,6 +497,14 @@ for (const docSnap of recSnap.docs) {
       await saveProfile();
       renderExperienceCards();
       renderBasic();
+      // 🆕 顯示新推薦通知（用 localStorage 比對未讀）
+      const totalRec = profile.workExperiences.reduce((sum, job) => sum + (job.recommendations?.length || 0), 0);
+      const lastRead = parseInt(localStorage.getItem("lastReadCount") || "0");
+      if (totalRec > lastRead) {
+        const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
+        showToast(tNow.newRecommendation || `🛎️ 你收到了一則新推薦！`);
+        localStorage.setItem("lastReadCount", totalRec); // 更新已讀數
+      }
       expModal.close();
     };
 

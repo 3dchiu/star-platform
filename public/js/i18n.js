@@ -14,6 +14,7 @@ export const i18n = {
       ]
     },
     loadingDashboardMessage: "Loading your profile…",
+    newRecommendation: "🛎️ You've received a new recommendation!",
     workExperiences: "Work Experiences",
     addExperience: "+ Add New Experience",
     addExperienceTitle: "Add Experience",
@@ -276,6 +277,7 @@ That’s the true reason why I created Galaxyz.`,
       ]
     },
     loadingDashboardMessage: "正在載入您的個人資料…",
+    newRecommendation: "🛎️ 你收到了一則新推薦！",
     workExperiences: "工作經歷",
     addExperience: "新增工作經歷",
     addExperienceTitle: "新增工作經歷",
