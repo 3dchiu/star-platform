@@ -35,6 +35,11 @@
       <form id="registerForm">
         <input type="email" id="registerEmail" placeholder="Email" required />
         <input type="password" id="registerPassword" placeholder="Password" required />
+        <!-- 🎫 活動邀請碼欄位（選填） -->
+        <input type="text" id="inviteCodeInput" placeholder="邀請碼（若有）" />
+        <small style="color: gray; display: block; margin-bottom: 12px;">
+          參與活動者請填寫專屬邀請碼，例如 galaxyz12345
+        </small>
         <button id="registerBtn" type="submit">Register</button>
       </form>
       <p>已經有帳號了？<a href="#" id="showLogin">返回登入</a></p>
@@ -68,36 +73,73 @@
   }
   // ✅ 加入 email 驗證，決定要顯示登入還是註冊
   const urlEmail = params.get("email");
-  if (params.get("register") === "1" && urlEmail) {
-    const userRef = db.collection("users");
-    const pendingRef = db.collection("pendingUsers");
+  const inviteCode = params.get("inviteCode");
+  const isRegister = params.get("register") === "1";
 
-    userRef.where("email", "==", urlEmail).limit(1).get().then(snapshot => {
-      if (!snapshot.empty) {
-        // ✅ 已註冊者 ➜ 自動跳轉登入頁，帶入 email 預填
-        location.href = `/pages/login.html?email=${encodeURIComponent(urlEmail)}`;
-      } else {
-        // 👀 未註冊但在 pendingUsers ➜ 顯示註冊表單
-        pendingRef.where("email", "==", urlEmail).limit(1).get().then(pendingSnap => {
-          if (!pendingSnap.empty) {
-            document.getElementById("registerEmail").value = urlEmail;
-            document.getElementById("registerEmail").readOnly = true;
-            document.getElementById("registerSection").style.display = "block";
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("showRegisterRow").style.display = "block";
-          } else {
-            // 🚫 不是邀請對象 ➜ 提示文字
-            document.getElementById("registerReminder").innerText = "目前僅限受邀者註冊，請確認您的邀請連結是否正確。";
-          }
-        });
+  // ✅ 三種情境都集中處理
+  if (isRegister) {
+  const showRegisterForm = async () => {
+    const registerSection = document.getElementById("registerSection");
+    const loginSection = document.getElementById("loginSection");
+    const showRegisterRow = document.getElementById("showRegisterRow");
+    const registerReminder = document.getElementById("registerReminder");
+
+    // ✅ 如果帶有 inviteCode，優先處理活動註冊
+    if (inviteCode) {
+      try {
+        const codeSnap = await db.collection("inviteCodes").doc(inviteCode).get();
+        if (codeSnap.exists && codeSnap.data().isActive === true) {
+          // ✅ 成功，顯示註冊表單
+          registerSection.style.display = "block";
+          loginSection.style.display = "none";
+          showRegisterRow.style.display = "block";
+          document.getElementById("inviteCodeInput").value = inviteCode;
+          return;
+        } else {
+          registerReminder.innerText = "邀請碼無效或已過期，請確認後再試。";
+        }
+      } catch (err) {
+        console.error("❌ 驗證邀請碼時發生錯誤", err);
+        registerReminder.innerText = "系統錯誤，請稍後再試。";
       }
-    });
-  }
+    }
+
+    // ✅ 如果帶有 email，處理推薦人註冊
+    if (urlEmail) {
+      const userSnap = await db.collection("users").where("email", "==", urlEmail).limit(1).get();
+      if (!userSnap.empty) {
+        location.href = `/pages/login.html?email=${encodeURIComponent(urlEmail)}`;
+        return;
+      }
+
+      const pendingSnap = await db.collection("pendingUsers").where("email", "==", urlEmail).limit(1).get();
+      if (!pendingSnap.empty) {
+        registerSection.style.display = "block";
+        loginSection.style.display = "none";
+        showRegisterRow.style.display = "block";
+        document.getElementById("registerEmail").value = urlEmail;
+        document.getElementById("registerEmail").readOnly = true;
+        return;
+      }
+    }
+
+      // ✅ 允許使用者手動輸入邀請碼（純邀請註冊情境）
+      registerSection.style.display = "block";
+      loginSection.style.display = "none";
+      showRegisterRow.style.display = "block";
+      // 不帶 email，不可預填
+  };
+
+  showRegisterForm();
+}
+
 
   loginForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
+    const errorMessage = document.getElementById("error-message");
+
     auth.signInWithEmailAndPassword(email, password)
       .then(() => {
         const next = params.get("next") || "profile-dashboard.html";
@@ -129,23 +171,56 @@
   });
 
   const registerForm = document.getElementById("registerForm");
-  registerForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const errorMessage = document.getElementById("error-message");
-    const email = document.getElementById("registerEmail").value.trim();
-    const password = document.getElementById("registerPassword").value;
-    const name = "";
-    const registerBtn = document.getElementById("registerBtn");
-    console.log("🧪 即將註冊的 email 是：", email); // ✅ 最前面加這行
-    if (!email) {
+  registerForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const errorMessage = document.getElementById("error-message");
+  const email = document.getElementById("registerEmail").value.trim();
+  const password = document.getElementById("registerPassword").value;
+  const inviteCode = document.getElementById("inviteCodeInput").value.trim();
+  const name = "";
+  const registerBtn = document.getElementById("registerBtn");
+
+  console.log("🧪 準備註冊 email：", email, "邀請碼：", inviteCode);
+
+  if (!email) {
+    errorMessage.style.display = "block";
+    errorMessage.textContent = "Email 欄位為必填，請重新填寫。";
+    registerBtn.disabled = false;
+    registerBtn.innerText = "Register";
+    return;
+  }
+
+  // 🔍 檢查是否為 pendingUser 或邀請碼有效
+  let allowRegister = false;
+
+  try {
+    const pendingSnap = await db.collection("pendingUsers").where("email", "==", email).get();
+    if (!pendingSnap.empty) {
+      allowRegister = true;
+    }
+
+    if (!allowRegister && inviteCode) {
+      const codeDoc = await db.collection("inviteCodes").doc(inviteCode).get();
+      if (codeDoc.exists && codeDoc.data().isActive === true) {
+        allowRegister = true;
+      }
+    }
+
+    if (!allowRegister) {
       errorMessage.style.display = "block";
-      errorMessage.textContent = "Email 欄位為必填，請重新填寫。";
-      registerBtn.disabled = false;
-      registerBtn.innerText = "Register";
+      errorMessage.textContent = "您尚未被推薦，且邀請碼無效，暫時無法註冊。";
       return;
     }
-    registerBtn.disabled = true;
-    registerBtn.innerText = "Registering..."; 
+  } catch (err) {
+    console.error("❌ 註冊前驗證錯誤", err);
+    errorMessage.style.display = "block";
+    errorMessage.textContent = "系統錯誤，請稍後再試。";
+    return;
+  }
+
+  // ✅ 通過驗證後繼續註冊
+  registerBtn.disabled = true;
+  registerBtn.innerText = "Registering...";
 
   auth.createUserWithEmailAndPassword(email, password)
     .then(async (userCredential) => {
@@ -158,11 +233,29 @@
           const data = doc.data();
 
           console.log("🧪 寫入 users 時使用的 email：", email);
-          await db.collection("users").doc(uid).set({
+          // 🔍 建立 user profile 資料
+          const userData = {
             email: email,
             name: "",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
+          };
+
+          // ✅ 若使用了 inviteCode，寫進 userData
+          if (inviteCode) {
+            userData.inviteCode = inviteCode;
+
+          // 🔁 將 inviteCodes/{inviteCode}.usageCount + 1
+            const inviteRef = db.collection("inviteCodes").doc(inviteCode);
+            const inviteSnap = await inviteRef.get();
+            if (inviteSnap.exists) {
+              const currentCount = inviteSnap.data().usageCount || 0;
+              await inviteRef.update({
+                usageCount: currentCount + 1
+              });
+            } 
+          }
+
+          await db.collection("users").doc(uid).set(userData, { merge: true });
 
           await doc.ref.delete();
         }
