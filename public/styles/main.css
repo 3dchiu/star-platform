@@ -882,15 +882,16 @@ transform: translateY(-2px);
 transition: all 0.3s ease;
 }
 #loadingMessage {
-position: fixed;               /* 固定於視窗 */
-top: 50%;                      /* 垂直推到一半 */
-left: 50%;                     /* 水平推到一半 */
-transform: translate(-50%, -50%); /* 再往上、往左各移自己一半寬高 */
-background: rgba(255,255,255,0.8);/* 半透明底，可見底下表單 */
-padding: 16px 24px;            /* 四周留點空白 */
-border-radius: 8px;            /* 角落圓潤 */
-font-size: 1.25rem;            /* 稍微放大字體 */
-z-index: 9999;                 /* 蓋過其他內容 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;            /* 整个视窗宽度 */
+  height: 100vh;           /* 整个视窗高度 */
+  background: rgba(255,255,255,0.9);
+  display: flex;           /* 开启 flex 居中 */
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
+  z-index: 9999;           /* 保证盖过页面其它元素 */
 }
 .loading-overlay {
 position: fixed;

@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Galaxyz – Thank You</title>
+  <!-- 🏷️ 頁面標題（支援語系切換） -->
+  <title id="pageTitle" data-i18n="pageTitle">Galaxyz – Thank You</title>
 
   <!-- 主樣式 -->
   <link rel="stylesheet" href="../styles/main.css" />
@@ -67,17 +68,18 @@
 </head>
 
 <body class="star-bg">
+  <!-- 🧩 共用頂欄（由 app-header.js 自動插入） -->
   <div id="appHeader"></div>
-
+  <!-- 🔽 感謝頁主要內容區塊 -->
   <main class="page-container fade-in">
-    <!-- 星系圖插圖 -->
+    <!-- 🌌 星系插圖（象徵推薦網絡） -->
     <img id="networkImg" src="../img/network.png" class="network" loading="lazy" decoding="async" />
 
     <!-- 感謝主標語 -->
     <h1 id="title" class="thanks-title"></h1>
     <p id="thanksText" class="thanks-message"></p>
 
-    <!-- CTA 區塊 -->
+    <!-- 🙌 CTA 區塊：根據 style（direct / warmth）顯示不同邀請語氣 -->
     <div class="call-to-action-board fadeUp">
       <p id="ctaMessage" class="invite-text"></p>
       <a href="#" id="startFresh" class="cta-btn brand-orange"></a>
@@ -164,7 +166,7 @@
     });
   </script>
 
-  <!-- confetti 效果 -->
+  <!-- 🎉 煙火特效：顯示推薦成功的喜悅 -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     window.addEventListener("load", () => {

@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../styles/main.css">
   <link rel="stylesheet" href="../styles/about.css">
 
-  <!-- Firebase + 語言包 -->
+ <!-- 📦 載入 Firebase、語言模組與共用 header 元件 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   <script type="module" src="../js/i18n.js"></script>
@@ -18,7 +18,7 @@
 </head>
 
 <body>
-  <!-- Header自動插入 -->
+  <!-- 🔽 Header 區塊：由 app-header.js 自動載入 -->
   <div id="appHeader"></div>
 
   <main class="about-page">
@@ -32,13 +32,13 @@
 
     <!-- 2. Our Story 區 -->
     <section class="about-story card">
-      <!-- 用 data-i18n 取代死寫的「我們的願景」 -->
+      <!-- 🈶 多語處理：標題與段落由 i18n 決定 -->
       <h2 data-i18n="aboutPage.ourVisionTitle"></h2>
     
       <!-- 第一段文字也由 i18n 負責 -->
       <div class="paragraph" data-i18n="aboutPage.ourVisionContent"></div>
     
-      <!-- 留一個空的 ul，之後用 JS 把 bullets 塞進來 -->
+      <!-- 🔁 願景清單：由 JS 根據語言動態插入 -->
       <ul class="vision-list"></ul>
     
       <!-- 下一個子標題 & 內文依然用 data-i18n -->
@@ -51,7 +51,7 @@
           <img class="fade-in" src="../img/galaxyz-network-star.png" alt="Galaxyz 星圖示意圖" />
         </div>
       </section>
-      <!-- 💬 創辦人手記區塊（請放在 .about-story 之後） -->
+      <!-- 💬 創辦人手記：可放個人理念或故事，支援 i18n -->
       <div class="founder-note fade-in">
         <span class="note-label" data-i18n="aboutPage.founderNoteTitle"></span>
         <p data-i18n="aboutPage.founderNoteContent"></p>
@@ -76,7 +76,7 @@
   <!-- 載入語言與步驟卡片 -->
   <script type="module">
     import { setLang, i18n } from '../js/i18n.js';
-  
+    // 📤 動態載入「How it works」步驟卡片
     function renderHowItWorksSteps() {
       const lang = localStorage.getItem('lang') || 'en';
       const steps = (i18n[lang] && i18n[lang].aboutPage.howItWorksSteps) || [];
@@ -90,7 +90,7 @@
         `).join('');
       }
     }
-  
+    // 📤 動態插入願景清單（ul > li）
     function renderVisionBullets() {
       const lang = localStorage.getItem('lang') || 'en';
       const bullets = (i18n[lang]?.aboutPage?.ourVisionBullets) || [];
@@ -99,7 +99,7 @@
       ul.innerHTML = bullets.map(item => `<li>${item}</li>`).join('');
     }
   
-    // ✅ 宣告 observer（放在最上面）
+    // ✨ 觀察畫面進入時啟動畫面淡入效果
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -109,7 +109,7 @@
       });
     });
   
-    // ✅ 初始化邏輯
+    // 🔽 頁面載入完成後，初始化語言與內容渲染
     document.addEventListener('DOMContentLoaded', () => {
       const lang = localStorage.getItem('lang') || 'en';
       setLang(lang);
@@ -122,7 +122,7 @@
       });
     });
   
-    // ✅ 語言切換時重新渲染
+    // 🔁 當語言切換時，重新渲染願景與步驟內容
     window.addEventListener('langChanged', () => {
       renderHowItWorksSteps();
       renderVisionBullets();

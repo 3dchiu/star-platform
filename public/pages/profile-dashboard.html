@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- 1. Firebase Compat (App + Auth) 一定要最先載入 -->
+  <!-- 🔽 Firebase 初始化（務必最先載入） -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   
@@ -12,7 +12,7 @@
   <!-- 全站 CSS（在 public../styles/main.css） -->
   <link rel="stylesheet" href="../styles/main.css" />
 
-  <!-- 先設定語系，這支 JS 在 public../js/i18n.js -->
+  <!-- 🌐 多語系設定：一進入頁面就根據 localStorage 套用語言 -->
   <script type="module">
     import { setLang } from "../js/i18n.js";
     const lang = localStorage.getItem("lang") || "en";
@@ -26,6 +26,7 @@
   <script type="module" src="../js/pages/profile-dashboard.js"></script>
 </head>
 <body>
+  <!-- 🕒 資料載入中遮罩，等 profile 資料讀取完才會隱藏 -->
   <div id="dashboardLoading" class="loading-overlay">
     <div style="display:flex; align-items:center; justify-content:center;">
       <div class="spinner"></div>
@@ -36,6 +37,7 @@
   <div id="appHeader"></div>
 
   <main class="container">
+      <!-- ✅ 引導使用者第一次建立職涯資料的 Onboarding 卡片 -->
       <!-- Onboarding 小卡 Start -->
   <section id="quickStartCard" class="white-card soft-shadow p-6 mb-6 onboarding-card" style="display: none;">
     <h2 id="onboardingTitle" class="text-xl font-semibold mb-4"></h2>
@@ -45,7 +47,7 @@
 
     <!-- Basic Info -->
     <section id="basicInfo" class="white-card soft-shadow"></section>
-
+    <!-- 🔽 自我介紹區塊（bio），可以按鈕開啟 Modal 編輯 -->
     <!-- About Me -->
     <section id="bioSection" class="white-card soft-shadow p-6 mb-6">
       <h3 class="text-lg font-semibold mb-2" data-i18n="editBio">Edit Bio</h3>
@@ -59,19 +61,20 @@
     <h2 class="mt-8 mb-4 text-xl font-semibold brand-blue-text" data-i18n="workExperiences">
       Work Experiences
     </h2>
+    <!-- 📤 使用者每段工作經歷卡片會插入在這裡（由 JS 動態產生） -->
     <div id="experienceList"></div>
-    <!-- 🔧 加這個容器 div，把按鈕們包起來 -->
+    <!-- ➕ 動態插入的按鈕區塊（新增工作經歷、查看推薦總覽） -->
     <div id="actionBtns" class="btn-group"></div>
   </main>
 
-  <!-- Experience Modal (Add / Edit + 首次填姓名) -->
+  <!-- 🔽 經歷編輯 Modal：新增／編輯經歷，以及第一次填姓名 -->
   <dialog id="expModal" class="white-card p-6">
     <form id="expForm" novalidate>
       <h3 id="modalTitle" class="text-lg font-semibold mb-4" data-i18n="addExperienceTitle">
         Add Experience
       </h3>
 
-      <!-- 首次填姓名 -->
+      <!-- 🆕 首次填寫檔案時才會顯示姓名欄位 -->
       <div id="nameSection" class="form-group mb-4" hidden>
         <label for="nameInput" data-i18n="labelname">
           姓名（母語）
@@ -105,7 +108,7 @@
         <select id="startMonth"></select>
         <span>–</span>
       
-        <!-- ↓ 加個容器 ↓ -->
+        <!-- 🔽 結束日期欄位：若勾選「目前在職」則會自動隱藏 -->
         <div id="endDateContainer">
           <select id="endYear"></select>
           <select id="endMonth"></select>
@@ -137,7 +140,7 @@
       </div>
     </form>
   </dialog>
-    <!-- Bio Modal -->
+    <!-- 🔽 編輯 Bio 的 Modal：由「Edit Bio」按鈕觸發 -->
     <dialog id="bioModal" class="white-card p-6">
         <form id="bioForm" novalidate>
           <h3 class="text-lg font-semibold mb-4" data-i18n="editBio">Edit Bio</h3>
@@ -152,7 +155,7 @@
           </div>
         </form>
       </dialog>
-  <!-- 邀請語編輯 Modal（複製推薦連結用） -->
+  <!-- 🔽 產生推薦邀請連結的 Modal，允許編輯邀請內容與預覽 -->
   <dialog id="inviteModal" class="white-card p-6">
     <h3 data-i18n="editInviteTitle">編輯邀請語</h3>
   
@@ -176,7 +179,7 @@
       style="font-size: 0.9rem; color: #cc3300; margin-bottom: 0.5rem;">
       ⚠️ 請記得按「儲存並複製」，否則推薦人會看不到你的邀請內容
     </p>
-    <!-- 新增：邀請連結預覽 -->
+    <!-- 🔗 推薦預覽連結：會隨輸入內容即時更新 -->
     <div class="form-group mt-4">
       <label data-i18n="previewLinkLabel">預覽連結：</label>
       <a id="invitePreviewLink"

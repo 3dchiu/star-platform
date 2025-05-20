@@ -5,18 +5,18 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 import { firebaseConfig } from "../firebase-config.js";
 
-// 初始化 Firebase
+// 🔽 初始化 Firebase 與 Firestore/Authentication
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
-
+// 🔽 當頁面載入完成後，初始化所有元件與邏輯
 document.addEventListener("DOMContentLoaded", () => {
-  // 一進來先隱藏整個主內容、顯示遮罩
+// 🕒 顯示載入中遮罩（等待 Firebase 資料完成）
 document.getElementById("dashboardLoading").style.display = "flex";
 
   // 多語
   const lang = localStorage.getItem("lang") || "en";
-  // 切換語系時，自動更新所有 [data-i18n] 文案（含動態按鈕）
+  // 🔽 當語系變更時，自動更新畫面上的所有文字（含 bio 與經歷卡片）
   window.addEventListener("langChanged", () => {
     renderStaticText();    // 更新所有 data-i18n 文字
     renderBio();          // 再重新把 bio 內容塞回去
@@ -30,7 +30,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
   const t    = i18n[lang] || i18n.en;
   document.getElementById("loadingDashboardText").innerText = t.loadingDashboardMessage;
 
-  // 元件對應
+  // 📋 抓取所有要用到的 HTML 元件（輸入欄位與按鈕）
   const nameSection      = document.getElementById("nameSection");
   const nameInput = document.getElementById("nameInput");
   const englishNameInput = document.getElementById("englishNameInput");
@@ -63,11 +63,11 @@ document.getElementById("dashboardLoading").style.display = "flex";
   const inviteCancelBtn   = document.getElementById("inviteCancelBtn");
   const inviteSaveBtn     = document.getElementById("inviteSaveBtn");
 
-  // 暫存
+  // 📦 初始化暫存使用者資料與狀態變數
   let profile = { userId:"", name:"", englishName:"", bio:"", workExperiences:[] };
   let editIdx, currentJobIndex, currentCompany, currentDefaultMsg, currentInviteStyle;
-  // ===== 新增這段 =====
-  // 1. 把更新小卡文字的邏輯包成函式
+ 
+  // 🔽 更新 Onboarding 區塊的多語文字內容
   function updateOnboardingText() {
     const langNow = localStorage.getItem("lang") || "en";
     const onb = i18n[langNow]?.onboarding || i18n.en.onboarding;
@@ -75,8 +75,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
     document.getElementById("onboardingSteps").innerHTML =
       onb.steps.map(s => `<li>${s}</li>`).join("");
   }
-  // ===== 結束新增 =====
-  // ===== 工具函式 =====
+  // 🔽 工具函式：產生起始與結束年月的選單選項
   function populateYearMonth() {
     const now = new Date(), thisYear = now.getFullYear();
     let yrs = ['<option value="">--</option>'], mos = ['<option value="">--</option>'];
@@ -110,7 +109,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
   // ===== 新增：當 header.js dispatch langChanged 時，自動重跑小卡文字 =====
   window.addEventListener("langChanged", updateOnboardingText);
   // ===== 結束新增 =====
-
+  // 🔽 儲存使用者個人資料（姓名、簡介、經歷等），寫入 Firestore
   async function saveProfile() {
     console.group("🔍 saveProfile()");
     console.log("→ profile.userId =", profile.userId);
@@ -144,7 +143,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
   
     console.groupEnd();
   }  
-
+  // 🔽 渲染個人檔案基本資料（姓名、英文名、推薦數量）
   function renderBasic() {
     const totalRecommendations = profile.workExperiences.reduce((sum, job) => {
       return sum + (job.recommendations?.length || 0);
@@ -162,7 +161,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
       ${recommendationsNote}
     `;
   }  
-
+  // 🔽 渲染個人簡介區塊（換行符處理為 <br>）
   function renderBio() {
     // 取出存库的文字（可能包含 \n）
     const raw = profile.bio || "";
@@ -173,6 +172,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
   }
   
   console.log("合併後的 experiences:", profile.workExperiences);
+  // 🔽 根據使用者經歷與推薦內容，渲染出每間公司下的經歷卡片區塊
   function renderExperienceCards() {
     const langNow = localStorage.getItem("lang") || "en";
     const tNow = i18n[langNow] || i18n.en;
@@ -224,7 +224,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
       list.appendChild(wrap);
     });
   }
-  
+  // 🔽 顯示 3 秒後自動消失的提示訊息（toast）
   function showToast(msg) {
     const d = document.createElement("div");
     d.className = "toast";
@@ -233,18 +233,20 @@ document.getElementById("dashboardLoading").style.display = "flex";
     setTimeout(()=>d.remove(),3000);
   }
 
-  // ===== 監聽登入狀態 & 初始渲染 =====
+  // 🔽 當使用者登入後，讀取其 profile 與推薦資料並初始化畫面
   onAuthStateChanged(auth, async user => {
+    // 🔍 如果尚未登入，導回登入頁
     if (!user) return location.href = "/pages/login.html";
     profile.userId = user.uid;
     // 🏷️ 是否用過 sessionStorage 的預填功能
     let prefillUsed = false;
-
+  // 📤 從 Firestore 讀取使用者的個人資料（users/{userId}）
   const ref = doc(db, "users", user.uid);
   let snap;
   try {
     snap = await getDoc(ref);
   } catch (err) {
+    // ❌ Firestore 讀取失敗（可能是離線）
     console.error("❌ 無法連接 Firestore，可能是離線狀態：", err);
     alert("目前無法連接資料庫，請確認網路後再試一次。");
     return; // 中斷流程
@@ -256,7 +258,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
       ...snap.data()
     };
 
-  // === 🔥 修正 workExperiences 不是陣列的情況 ===
+    // 🔥 防呆：若 workExperiences 是 object（舊版），自動轉成陣列
     if (!Array.isArray(profile.workExperiences)) {
       const values = Object.values(profile.workExperiences || {});
       console.warn(`⚠️ [${profile.userId}] workExperiences 非陣列，自動轉換為陣列：`, values);
@@ -264,6 +266,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
     }
   } else {
     localStorage.removeItem("profile");
+    // 🆕 若 user 資料尚未建立，建立初始空白檔案
     profile = {
       userId: user.uid,
       name: "",
@@ -277,13 +280,14 @@ document.getElementById("dashboardLoading").style.display = "flex";
         createdAt: new Date()
       });
     } catch (err) {
+      // ❌ 建立預設使用者資料時失敗
       console.error("❌ 建立預設 user 資料失敗：", err);
       alert("初始化使用者資料時出現錯誤。請稍後再試。");
       return;
     }
   }
 
-    // —— 不論文件存不存在，都先檢查 sessionStorage 裡的 prefillName —— 
+    // 🏷️ 若 sessionStorage 有預填姓名（多來自分享連結），自動帶入
     const prefillName = sessionStorage.getItem("prefillName");
     if (prefillName) {
       // 填入「中文姓名」輸入框
@@ -304,20 +308,20 @@ document.getElementById("dashboardLoading").style.display = "flex";
     profile.workExperiences.forEach(j => {
       if (!j.endDate) j.endDate = "";
     });
-    // ✅ 清空每筆經歷的 recommendations，避免重複 push
+    // ✅ 清空每段經歷的 recommendations，避免與 Firestore 資料重複
     profile.workExperiences.forEach(j => j.recommendations = []);
 
-    // ✅ 自 Firestore 抓取推薦資料並套入對應 job
+    // 📤 從 Firestore 抓取該使用者所有推薦內容（users/{userId}/recommendations）
     const recSnap = await getDocs(collection(db, "users", profile.userId, "recommendations"));
 for (const docSnap of recSnap.docs) {
   const rec = docSnap.data();
   const targetJob = profile.workExperiences.find(j => j.id === rec.jobId);
   if (targetJob) {
-
+    // 📥 將推薦內容加入對應的工作經歷物件中
     targetJob.recommendations.push(rec);
   }
 }
-    // 再呼叫 renderExperienceCards()
+    // 🔽 初始化畫面顯示（年月下拉、靜態文字、卡片內容）
     populateYearMonth();
     renderStaticText();
     renderBasic();
@@ -325,7 +329,7 @@ for (const docSnap of recSnap.docs) {
     renderExperienceCards();
     updateOnboardingText();
 
-    // ===== 在這裡插入隱藏遮罩 =====
+    // 🕒 所有資料初始化完成後，關閉遮罩畫面
     document.getElementById("dashboardLoading").style.display = "none";
 
     // 3. 顯示小卡（由 toggleQuickStartCard 決定 display）並觸發淡入
@@ -333,7 +337,7 @@ for (const docSnap of recSnap.docs) {
     // 注意：toggleQuickStartCard 已幫你做 display:block/none
     setTimeout(() => card.classList.add("show"), 300);
     // ===== 結束 Onboarding 小卡多語＆淡入動畫 =====
-    // ===== 新增：快速開始小卡的顯示邏輯 =====
+    // 🔽 判斷是否顯示 QuickStart 小卡（無經歷或無推薦才顯示）
     function toggleQuickStartCard() {
       const card = document.getElementById("quickStartCard");
       if (!card) return;
@@ -360,7 +364,7 @@ for (const docSnap of recSnap.docs) {
   const actionBtns = document.getElementById("actionBtns");
   actionBtns.classList.add("btn-group");
 
-  // ➕ 新增「新增工作經歷」按鈕
+  // ➕ 產生「新增工作經歷」按鈕並加到畫面上
   const addBtn = document.createElement("button");
   addBtn.id = "addBtn";
   addBtn.type = "button";
@@ -369,7 +373,7 @@ for (const docSnap of recSnap.docs) {
   addBtn.innerText = t.addExperience;
   actionBtns.appendChild(addBtn);
 
-  // 📄 推薦總覽按鈕
+  // 📄 產生「推薦總覽」按鈕（連到推薦 summary 頁面）
   const summaryBtn = document.createElement("button");
   summaryBtn.type = "button";
   summaryBtn.classList.add("btn", "cta-btn");
@@ -377,7 +381,7 @@ for (const docSnap of recSnap.docs) {
   summaryBtn.innerText = t.viewSummaryAll;
   actionBtns.appendChild(summaryBtn);
 
-  // 🌐 公開推薦頁按鈕
+  // 🌐 產生「公開推薦頁」按鈕（可分享給他人查看）
   const previewBtn = document.createElement("button");
   previewBtn.type = "button";
   previewBtn.classList.add("btn", "cta-btn");
@@ -420,11 +424,13 @@ for (const docSnap of recSnap.docs) {
 
     // 新增 / 編輯 Experience
     addBtn.onclick = () => openModalForAdd(false);
+    // 🔽 使用者按下送出經歷表單時，進行資料驗證並儲存至 profile
     expForm.onsubmit = async e => {
       e.preventDefault();
       
       if (!nameSection.hidden) {
         const nameVal = nameInput.value.trim();
+        // 🔍 若為首次填寫，驗證使用者必須輸入姓名
         if (!nameVal) {
           showToast(t.enterName || "請填寫姓名");
           nameInput.focus();
@@ -439,10 +445,12 @@ for (const docSnap of recSnap.docs) {
       
     
       const pad = v => v.padStart(2, "0");
+      // 📦 將開始年月組合為 YYYY-MM 格式
       const startDate = `${startY.value}-${pad(startM.value)}`;
     
       // 驗證結束日期：只有「未勾選仍在職」才需要檢查
       let endDate = "";
+      // 🔍 若使用者「未勾選仍在職」，必須進行結束日期的完整驗證
       if (!stillChk.checked) {
         // 1. 確認有選年/月
         if (!endY.value || !endM.value) {
@@ -454,12 +462,12 @@ for (const docSnap of recSnap.docs) {
         const endObj   = new Date(`${endY.value}-${pad(endM.value)}-01`);
         const today    = new Date();
     
-        // 3. 結束不能早於開始
+        // ❌ 錯誤：結束日期不能早於開始日期
         if (endObj < startObj) {
           showToast(t.errEndBeforeStart);
           return;
         }
-        // 4. 結束不能超過今天
+        // ❌ 錯誤：結束日期不能超過今天
         if (endObj > today) {
           showToast(t.errEndAfterToday);
           return;
@@ -468,7 +476,7 @@ for (const docSnap of recSnap.docs) {
         endDate = `${endY.value}-${pad(endM.value)}`;
       }
     
-      // 組 payload
+      // 📦 組合經歷內容 payload（含編輯與新增共用欄位）
       const payload = {
       id: editIdx===null ? crypto.randomUUID() : profile.workExperiences[editIdx].id,
       company:     companyInp.value.trim(),
@@ -478,7 +486,7 @@ for (const docSnap of recSnap.docs) {
       description: descInp.value.trim(),
       recommendations: profile.workExperiences[editIdx]?.recommendations || []
   };
-
+      // 🔁 根據 editIdx 是 null 判斷是「新增」還是「編輯」
       if (editIdx==null) {
         // 新增模式：推入整個 payload
         profile.workExperiences.push(payload);
@@ -493,13 +501,14 @@ for (const docSnap of recSnap.docs) {
           Object.assign(job, payload);
         }
       }
-
+      // ✅ 儲存成功後更新畫面內容與卡片樣式
       await saveProfile();
       renderExperienceCards();
       renderBasic();
       // 🆕 顯示新推薦通知（用 localStorage 比對未讀）
       const totalRec = profile.workExperiences.reduce((sum, job) => sum + (job.recommendations?.length || 0), 0);
       const lastRead = parseInt(localStorage.getItem("lastReadCount") || "0");
+      // 🆕 若有新推薦內容，顯示提示訊息，並記錄已讀數
       if (totalRec > lastRead) {
         const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
         showToast(tNow.newRecommendation || `🛎️ 你收到了一則新推薦！`);
@@ -519,11 +528,11 @@ for (const docSnap of recSnap.docs) {
         }
       }
       else if (e.target.matches(".edit-btn")) openModalForEdit(idx);
-      // 在 list.addEventListener(... link-btn) 里面
+      // 🔗 使用者點擊「複製推薦連結」按鈕，開啟邀請 Modal 並初始化內容
       else if (e.target.matches(".link-btn")) {
         currentJobIndex = idx;
         currentCompany  = profile.workExperiences[idx].company;
-      // ➊ 先定义更新预设文案的函数
+        // 📋 根據選擇的邀請風格，自動填入對應預設文案
         function updateDefaultMessage() {
           const style = currentInviteStyle || "warmth";
           currentInviteStyle = style;
@@ -540,7 +549,7 @@ for (const docSnap of recSnap.docs) {
         const previewText = (i18n[langNow] || i18n.en).previewLinkText || "🔍 Preview";
         const previewLinkEl = document.getElementById("invitePreviewLink");
 
-      // ➊ 把產生 URL 的邏輯包成一個函式
+        // 🔍 根據使用者輸入內容，產出預覽推薦連結 URL
         function generatePreviewUrl() {
           const message = inviteTextarea.value.trim();
           const jobId   = encodeURIComponent(profile.workExperiences[currentJobIndex].id);
@@ -563,7 +572,7 @@ for (const docSnap of recSnap.docs) {
         previewLinkEl.title       = generatePreviewUrl();
         previewLinkEl.classList.add("preview-link");
 
-      // 🆕 新增點擊文字插入範本的功能
+      // 🆕 點擊「直接風格」按鈕，插入範本並更新預覽連結
       document.getElementById("insertDirect")?.addEventListener("click", () => {
         const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
         const text = (tNow["defaultInvite_direct"] || "").replace("{{company}}", currentCompany);
@@ -571,7 +580,7 @@ for (const docSnap of recSnap.docs) {
         previewLinkEl.setAttribute("href", generatePreviewUrl());
         previewLinkEl.title = generatePreviewUrl();
       });
-
+      // 🆕 點擊「溫暖風格」按鈕，插入範本並更新預覽連結
       document.getElementById("insertWarmth")?.addEventListener("click", () => {
         const tNow = i18n[localStorage.getItem("lang")] || i18n.en;
         const text = (tNow["defaultInvite_warmth"] || "").replace("{{company}}", currentCompany);
@@ -580,7 +589,7 @@ for (const docSnap of recSnap.docs) {
         previewLinkEl.title = generatePreviewUrl();
       });
 
-      // ➌ 監聽「textarea 輸入」事件，動態更新 previewLink
+        // 🆕 使用者手動輸入推薦文字時，自動即時更新預覽連結
         inviteTextarea.addEventListener("input", () => {
           const url = generatePreviewUrl();
           previewLinkEl.setAttribute("href", url);
@@ -593,7 +602,7 @@ for (const docSnap of recSnap.docs) {
 
     // 邀請 Modal 按鈕
     inviteCancelBtn.onclick = () => inviteModal.close();
-
+    // 🔽 儲存推薦邀請，產生 inviteId 並複製分享連結
     inviteSaveBtn.onclick = async () => {
       const langNow = localStorage.getItem("lang") || "en";
       const message = inviteTextarea.value.trim();
@@ -607,7 +616,7 @@ for (const docSnap of recSnap.docs) {
       let inviteRef; // ✅ 這行是關鍵！提前宣告
 
       try {
-        // 1️⃣ 儲存到 Firestore 並取得 inviteId
+        // 📥 寫入邀請內容至 Firestore 的 invites collection
         inviteRef = await addDoc(collection(db, "invites"), {
           userId: profile.userId,
           jobId: job.id,
@@ -622,7 +631,7 @@ for (const docSnap of recSnap.docs) {
         // 2️⃣ 產出最終分享連結
         const finalLink = `${location.origin}/pages/recommend-form.html?inviteId=${inviteId}`;
     
-        // 3️⃣ 複製連結到剪貼簿（必須在 user gesture context）
+        // 📤 將產生的連結複製到剪貼簿
         await navigator.clipboard.writeText(finalLink);
         showToast(t.linkCopied); // ✅ 成功提示
       } 
@@ -640,7 +649,7 @@ for (const docSnap of recSnap.docs) {
       inviteModal.close();
     };    
     
-    // 打開 Add/Edit Modal
+  // 🔽 開啟「新增／編輯經歷」的 Modal，根據是否首次填寫決定是否顯示姓名欄位
   function openModalForAdd(isFirst = false) {
   editIdx = null;
   // 顯示「姓名」欄位只在首次填檔案時
@@ -651,7 +660,7 @@ for (const docSnap of recSnap.docs) {
     expForm.reset();
   }
 
-  // 首次填檔案模式下，渲染語系文字
+ // 🔍 如果是第一次填檔案，顯示對應語系文字（姓名欄位／標題等）
   if (isFirst) {
     renderStaticText();
   }
@@ -665,7 +674,7 @@ for (const docSnap of recSnap.docs) {
   stillChk.checked = false;
   endY.disabled = endM.disabled = false;
 
-  // 年月下拉選單
+  // 🕒 填入年月選單，並初始化結束日期是否啟用
   populateYearMonth();
   stillChk.dispatchEvent(new Event("change"));
 
@@ -673,11 +682,11 @@ for (const docSnap of recSnap.docs) {
   unlockCore();
   expModal.showModal();
 }
-
-
+    // 🔽 編輯指定 index 的工作經歷，填入對應欄位值與狀態
     function openModalForEdit(idx) {
       editIdx = idx;
       const job = profile.workExperiences[idx];
+      // 🔐 若該經歷已有推薦，限制部分欄位不可修改
       const locked = !!job.recommendations?.length;
       nameSection.hidden = true;
       modalTitle.textContent = locked

@@ -13,6 +13,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { firebaseConfig } from "../firebase-config.js";
+// 🔽 根據推薦數量回傳對應的等級、名稱與顏色
 function getLevelInfo(count) {
   if (count >= 100) return { level: 10, name: "星光領袖", color: "legendary" };
   if (count >= 80)  return { level: 9,  name: "職涯任性代言人", color: "diamond" };
@@ -188,7 +189,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       </div>
     `;
     }
-
+    // 🔽 根據等級數字，取得升級所需的推薦數門檻（靜態對照表）
     function getNextLevelThreshold(level) {
       const map = {
         1: 1,  2: 4,  3: 7,  4: 10,  5: 15,
@@ -470,6 +471,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     }    
   }
 });
+// 🔽 動態載入外部 script（html2canvas / jsPDF）避免初始頁面變慢
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) return resolve();

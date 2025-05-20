@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <!-- 🌐 基本設定（編碼、響應式） -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Galaxyz Admin Dashboard</title>
+    <!-- 🎨 載入共用樣式 -->
+  <link rel="stylesheet" href="../styles/main.css" />
+</head>
+<body>
+  <!-- 🔽 管理員主頁容器 -->
+  <div class="container p-6">
+    <h1 class="text-2xl font-bold mb-4">Galaxyz Admin Dashboard</h1>
+
+<!-- ➕ 邏輯：輸入邀請碼參數（代碼、用途、次數）並建立 -->
+<section class="white-card p-4 mb-6 shadow-md">
+  <h2 class="text-xl font-semibold mb-4">➕ 新增邀請碼</h2>
+  <!-- 🔧 各欄位：代碼、說明、次數、類型 -->
+  <div class="flex flex-wrap gap-2 mb-2">
+    <input id="inviteCodeInput" class="input flex-1 min-w-[200px]" placeholder="邀請碼 (如 galaxy20250517)" />
+    <input id="inviteTitleInput" class="input flex-1 min-w-[200px]" placeholder="用途說明 (如 活動用碼)" />
+    <input id="inviteMaxInput" type="number" class="input w-32" placeholder="最多可使用次數" />
+    <select id="inviteTypeSelect" class="input w-32">
+      <option value="event">活動用</option>
+      <option value="test">測試用</option>
+      <option value="internal">內部使用</option>
+    </select>
+  </div>
+  <!-- 📤 提交：點擊後呼叫 JS 建立邀請碼 -->
+  <button id="createInviteBtn" class="btn-primary">建立邀請碼</button>
+</section>
+
+    <!-- 📋 顯示已建立邀請碼清單，含使用上限與啟用狀態 -->
+    <section class="white-card p-4 shadow-md">
+      <h2 class="text-xl font-semibold mb-2">📋 已建立邀請碼</h2>
+      <table class="w-full text-left">
+        <thead>
+          <tr>
+            <th>代碼</th>
+            <th>說明</th>
+            <th>使用次數</th>
+            <th>上限</th>
+            <th>是否啟用</th>
+          </tr>
+        </thead>
+        <tbody id="inviteCodeTableBody">
+        <!-- 📥 JavaScript 動態插入邀請碼資料列 -->
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- 🔗 載入 admin 頁面控制邏輯（建立與顯示邀請碼） -->
+  <script type="module" src="../js/pages/admin-dashboard.js"></script>
+</body>
+</html>

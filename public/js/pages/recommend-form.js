@@ -1,11 +1,9 @@
 // public/js/recommend-form.js
 import { i18n, setLang } from "../i18n.js";
-import { firebaseConfig } from "../firebase-config.js";
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();  // ✅ 加這行
-// 解析 URL 參數
+import { auth, db, ts } from "../firebase-init.js";
+import { doc, getDoc, collection, addDoc, query, where, getDocs } 
+  from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+// 🔍 從 URL 中解析推薦人連結的參數（userId、jobId、message、style 等）
 const params = new URLSearchParams(window.location.search);
 const userId = params.get("userId");
 const jobId = params.get("jobId");
@@ -13,9 +11,9 @@ const urlMessage = params.get("message");
 const style = params.get("style") || "direct";
 // —— 新增：如果 URL 有带 lang，就强制套用此語系 ——
 const forcedLang = params.get("lang");
-const invitedBy = params.get("invitedBy");  // ✅ 新增：推薦來源 userId
+let invitedBy = params.get("invitedBy");
 const inviteId = params.get("inviteId");  // 新增
-
+// ✅ 若 URL 中有帶入 lang，則立即切換語言並記錄在 localStorage
 if (forcedLang) {
   // 1) 立即切換 i18n
   setLang(forcedLang);
@@ -29,7 +27,7 @@ let userEdited = false;
 let profileData = null;
 let jobData = null;
 
-// 渲染函式：刷新整個表單的動態區塊
+// 🔽 根據語系與資料，動態更新整份推薦表單（包含職缺、文字、欄位選項等）
 function renderPageByLang() {
   const langNow = localStorage.getItem("lang") || "en";
   const t = i18n[langNow] || i18n.en;
@@ -101,36 +99,42 @@ function renderPageByLang() {
     hlContainer.appendChild(lab);
   });
 }
-
+// 🔽 頁面載入完成後，執行推薦表單初始化流程
 window.addEventListener("DOMContentLoaded", async () => {
   let userId = params.get("userId");
   let jobId  = params.get("jobId");
   let urlMessage = params.get("message");
-
+  // 📥 若連結中帶有 inviteId，從 invites collection 讀取邀請資訊
   if (inviteId) {
-    try {
-      const inviteSnap = await db.collection("invites").doc(inviteId).get();
-      if (inviteSnap.exists) {
-        const inviteData = inviteSnap.data();
-        userId = inviteData.userId;
-        jobId  = inviteData.jobId;
-        urlMessage = inviteData.message;
+  try {
+    // 1) 建立 Reference
+    const inviteRef  = doc(db, "invites", inviteId);
+    // 2) 用 Modular API 拿数据
+    const inviteSnap = await getDoc(inviteRef);
+    // 3) 检查是否存在
+    if (inviteSnap.exists()) {
+      const inviteData = inviteSnap.data();
+      userId     = inviteData.userId;
+      jobId      = inviteData.jobId;
+      urlMessage = inviteData.message;
+      invitedBy  = inviteData.invitedBy || null;
 
-        const inviteArea = document.getElementById("inviteContent");
-        if (inviteArea && urlMessage) {
-          inviteArea.value = decodeURIComponent(urlMessage);
-          userEdited = true;
-        }
-      } else {
-        throw new Error("Invite not found");
+      const inviteArea = document.getElementById("inviteContent");
+      if (inviteArea && urlMessage) {
+        inviteArea.value = decodeURIComponent(urlMessage);
+        userEdited = true;
       }
-    } catch (err) {
-      document.getElementById("loadingMessage").style.display = "none";
-      document.getElementById("errorMessage").innerText = "Invalid or expired invite link.";
-      document.getElementById("errorMessage").style.display = "block";
-      return;
+    } else {
+      throw new Error("Invite not found");
     }
+  } catch (err) {
+    document.getElementById("loadingMessage").style.display = "none";
+    const errEl = document.getElementById("errorMessage");
+    errEl.innerText   = "Invalid or expired invite link.";
+    errEl.style.display = "block";
+    return;
   }
+}
 
   if (forcedLang) {
     document.documentElement.lang = forcedLang;
@@ -176,8 +180,9 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
 
   });
 
-  // 初始化 Firebase, 讀取使用者 profile & 職缺
-  const snap = await db.doc(`users/${userId}`).get();
+  // 📥 根據 userId 抓取使用者 profile，再找到對應的 job 經歷
+  const userRef = doc(db, "users", userId);
+  const snap    = await getDoc(userRef);
   if (!snap.exists) { 
     document.getElementById("formContainer").style.display = "none";
     document.getElementById("loadingMessage").style.display = "none";
@@ -206,6 +211,7 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
   document.getElementById("formContainer").style.display = "block";
 
   const form = document.getElementById("recommendForm");
+  // 🔽 當使用者送出推薦表單時，進行驗證與儲存推薦內容
   form.addEventListener("submit", async e => {
     e.preventDefault();
   
@@ -218,7 +224,8 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
       .map(cb => cb.value);
     if (customHighlight) highlights.push(customHighlight);
 
-    // 🔍 用 email 查 Firestore 是否已經註冊為正式使用者
+    // 🔍 檢查推薦人是否已註冊（根據 email 是否存在於 users）
+    // 📤 用來決定是否要寫入 pendingUsers
     const checkIfRegistered = async (email) => {
       const snapshot = await db.collection("users").where("email", "==", email).limit(1).get();
       return !snapshot.empty;
@@ -233,7 +240,6 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
       inviteMessage: document.getElementById("inviteContent").value.trim(),
       jobId,
       invitedBy: invitedBy || null,
-      recommenderId: auth.currentUser?.uid || null,   // ✅ 新增這行
       claimedBy: null,            // 🆕 預留：目前尚未歸戶
       claimMethod: null,           // 🆕 預留：未來可標示為 "manual" 或 "auto"
       inviteId: inviteId || null,   // ✅ 新增這一行
@@ -252,6 +258,7 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
 
   
     const recCollection = db.collection("users").doc(userId).collection("recommendations");
+    // 🔍 防呆：檢查該 email 是否已經對此工作經歷填寫過推薦
     const existing = await recCollection
       .where("email", "==", rec.email)
       .where("jobId", "==", rec.jobId)
@@ -270,29 +277,12 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
   
     // ✅ 儲存推薦內容
     await recCollection.add(rec);
-    // ✅ 同步寫入 Google Sheet（呼叫 Cloud Function）
-    try {
-      await fetch("https://submitrecommendationtosheet-xghyko237a-uc.a.run.app", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: userId,
-          jobId: jobId,
-          recommender: rec.name,
-          email: rec.email,
-          lang: localStorage.getItem("lang") || "en"
-      })
-    });
-  console.log("✅ 推薦內容已同步寫入 Google Sheet");
-} catch (err) {
-  console.error("❌ 寫入 Google Sheet 失敗：", err);
-  alert("推薦已送出，但同步 Google Sheet 發生錯誤，可稍後再試");
-}
 
     // ✅ 檢查 email 是否已經註冊
     const alreadyRegistered = await checkIfRegistered(rec.email);
-
+    // 🆕 若推薦人尚未註冊，寫入 pendingUsers 供日後補上 recommenderId
     if (!alreadyRegistered) {
+      console.log("🧪 進入寫入 pendingUser 判斷區段", rec.email);
       const existingPending = await db.collection("pendingUsers")
         .where("email", "==", rec.email)
         .limit(1)
@@ -302,15 +292,18 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
         await db.collection("pendingUsers").add({
           name: rec.name,
           email: rec.email,
-          invitedBy: rec.invitedBy,
+          invitedBy: rec.invitedBy,  // 可以保留作為傳播追蹤用
+          inviteId: rec.inviteId,    // Cloud Function 用於推薦查找
+          userId: userId,            // ✅ 核心關鍵：補 recommenderId 時一定要用
           fromRecommendation: true,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+          ccreatedAt: ts()
+        });        
       }
     }
     // ✅ 導向 thank-you 頁
     sessionStorage.setItem("prefillEmail", rec.email);
     sessionStorage.setItem("prefillName", rec.name);
+    // ✅ 導向推薦完成感謝頁，並將推薦人資訊傳入 URL
     window.location.href = `thank-you.html?userId=${profileData.userId}&style=${style}`
       + `&recommenderName=${encodeURIComponent(rec.name)}`
       + `&recommenderEmail=${encodeURIComponent(rec.email)}`
