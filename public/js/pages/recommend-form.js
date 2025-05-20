@@ -1,13 +1,13 @@
 // public/js/recommend-form.js
 import { i18n, setLang } from "../i18n.js";
 import { auth, db, ts } from "../firebase-init.js";
-import { doc, getDoc, collection, addDoc, query, where, getDocs } 
+import { doc, getDoc, collection, addDoc, query, where, getDocs, limit } 
   from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 // 🔍 從 URL 中解析推薦人連結的參數（userId、jobId、message、style 等）
 const params = new URLSearchParams(window.location.search);
-const userId = params.get("userId");
-const jobId = params.get("jobId");
-const urlMessage = params.get("message");
+let   userId     = params.get("userId");
+let   jobId      = params.get("jobId");
+let   urlMessage = params.get("message");
 const style = params.get("style") || "direct";
 // —— 新增：如果 URL 有带 lang，就强制套用此語系 ——
 const forcedLang = params.get("lang");
@@ -83,7 +83,6 @@ function renderPageByLang() {
     o.textContent = opt.label;  // 顯示文字用 label（如 "我是他的主管"）
     relSel.appendChild(o);
   });
-  
 
   // 更新三個推薦亮點
   const hlContainer = document.getElementById("highlightsContainer"); hlContainer.innerHTML = "";
@@ -101,7 +100,6 @@ function renderPageByLang() {
 }
 // 🔽 頁面載入完成後，執行推薦表單初始化流程
 window.addEventListener("DOMContentLoaded", async () => {
-  let userId = params.get("userId");
   let jobId  = params.get("jobId");
   let urlMessage = params.get("message");
   // 📥 若連結中帶有 inviteId，從 invites collection 讀取邀請資訊
@@ -227,7 +225,9 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
     // 🔍 檢查推薦人是否已註冊（根據 email 是否存在於 users）
     // 📤 用來決定是否要寫入 pendingUsers
     const checkIfRegistered = async (email) => {
-      const snapshot = await db.collection("users").where("email", "==", email).limit(1).get();
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", email), limit(1));
+      const snapshot = await getDocs(q);
       return !snapshot.empty;
     };
 
@@ -255,14 +255,15 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
       btn.innerText = (lang === "zh-Hant") ? "送出推薦" : "Submit Recommendation";
       return;
     }
-
   
-    const recCollection = db.collection("users").doc(userId).collection("recommendations");
+    const recCollection = collection(db, "users", userId, "recommendations");
     // 🔍 防呆：檢查該 email 是否已經對此工作經歷填寫過推薦
-    const existing = await recCollection
-      .where("email", "==", rec.email)
-      .where("jobId", "==", rec.jobId)
-      .get();
+    const recQuery = query(
+      collection(db, "users", userId, "recommendations"),
+      where("email", "==", rec.email),
+      where("jobId", "==", rec.jobId)
+    );
+    const existing = await getDocs(recQuery);
   
     if (!existing.empty) {
       const lang = localStorage.getItem("lang") || "en";
@@ -276,28 +277,27 @@ inviteArea.addEventListener("input", () => { userEdited = true; });
     }
   
     // ✅ 儲存推薦內容
-    await recCollection.add(rec);
+    await addDoc(recCollection, rec);
 
     // ✅ 檢查 email 是否已經註冊
     const alreadyRegistered = await checkIfRegistered(rec.email);
     // 🆕 若推薦人尚未註冊，寫入 pendingUsers 供日後補上 recommenderId
     if (!alreadyRegistered) {
       console.log("🧪 進入寫入 pendingUser 判斷區段", rec.email);
-      const existingPending = await db.collection("pendingUsers")
-        .where("email", "==", rec.email)
-        .limit(1)
-        .get();
+      const pendingRef = collection(db, "pendingUsers");
+      const q = query(pendingRef, where("email", "==", rec.email), limit(1));
+      const existingPending = await getDocs(q);
 
       if (existingPending.empty) {
-        await db.collection("pendingUsers").add({
+        await addDoc(collection(db, "pendingUsers"), {
           name: rec.name,
           email: rec.email,
-          invitedBy: rec.invitedBy,  // 可以保留作為傳播追蹤用
-          inviteId: rec.inviteId,    // Cloud Function 用於推薦查找
-          userId: userId,            // ✅ 核心關鍵：補 recommenderId 時一定要用
+          invitedBy: rec.invitedBy,
+          inviteId: rec.inviteId,
+          userId: userId,
           fromRecommendation: true,
           ccreatedAt: ts()
-        });        
+        });
       }
     }
     // ✅ 導向 thank-you 頁
