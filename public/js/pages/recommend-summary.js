@@ -201,7 +201,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
 
     // 渲染列表
     const { t, lang } = getCurrentT();
-    renderRecommendations(profile, t, lang);
+    renderRecommendations(profile, t, lang, isPublic);
     document.getElementById("relationFilter")
       .addEventListener("change", () => renderRecommendations(profile, t, lang));
     document.getElementById("highlightFilter")
@@ -302,8 +302,12 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     // ─────── 新增全域切語言後廣播的監聽 ───────
     window.addEventListener("langChanged", () => {
       const { t: tNow, lang: langNow } = getCurrentT(); // ✅ 改這裡
-    
-    
+      //「展開／收起」按鈕：
+      document.querySelectorAll(".toggle-job-btn").forEach(btn => {
+        const isOpen = btn.getAttribute("data-open") === "true";
+        btn.innerText = tNow("toggleRecommenders");
+      });
+
       // 🔁 更新所有 data-i18n 的文字（包含 <option> 與一般元素）
       document.querySelectorAll("[data-i18n]").forEach(el => {
         const key = el.getAttribute("data-i18n");
@@ -333,7 +337,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     
       // 🔁 重新渲染推薦內容（使用新的翻譯函式 tNow 和語言 langNow）
       if (window._loadedProfile) {
-        renderRecommendations(window._loadedProfile, tNow, langNow);
+        renderRecommendations(window._loadedProfile, tNow, langNow, isPublic);
       }
     });
   }
@@ -352,7 +356,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     });
   }
 
-  function renderRecommendations(profile, tCurrent, langCurrent) {
+  function renderRecommendations(profile, tCurrent, langCurrent, isPublic) {
       summaryArea.innerHTML = "";
       const exps = profile.workExperiences || [];
       if (exps.length === 0) {
@@ -393,73 +397,131 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
         if (!onlyShowRecommendations) {
           card = document.createElement("div");
           card.className = "job-card";
-          card.innerHTML = `
+          // 先準備標題與日期
+          let headerHtml = `
             <div class="job-title">${job.position}</div>
             <div class="job-date">
               ${job.startDate} ～ ${job.endDate || (langCurrent === "zh-Hant" ? "目前在職" : "Present")}
             </div>
           `;
-        }
-      
+
+          // 如果有填寫 job.description，就顯示在卡片裡
+          if (job.description) {
+            headerHtml += `
+              <div class="job-description">${job.description}</div>
+            `;
+          }
+
+          // 最後把 headerHtml 放進 card
+          card.innerHTML = headerHtml;
+        
         let anyMatch = false;
       
-        (job.recommendations || []).forEach(r => {
-          const matchRelation =
-            !selectedRelation ||
-            r.relation === selectedRelation ||
-            i18n[langCurrent]?.relationOptions?.find(opt => opt.value === r.relation)?.label === selectedRelation;
-
-          const matchHighlight = !selectedHighlight || (r.highlights || []).includes(selectedHighlight);
-          if (!matchRelation || !matchHighlight) return;
-      
-          anyMatch = true;
-          hasMatch = true;
-      
-          const recDiv = document.createElement("div");
-          recDiv.className = "recommendation";
-          let nameLine = "";
-          if (isPublic) {
-            nameLine = `<span class="recommender-name">★</span>`; // ⭐️ 隱藏推薦人名，用星星取代
-          } else {
-            if (r.recommenderId) {
-              nameLine = `<a class="recommender-name link" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`;
-            } else {
-              nameLine = `<span class="recommender-name">${r.name}</span>`;
-            }
-          }
-
-          recDiv.innerHTML =` 
-            <div class="recommender-line">
-              ${nameLine}
-              <span class="recommender-relation">（${tRelation(r.relation, tCurrent)}）</span>
-            </div>
-            <div class="badge-container">
-              ${renderBadges(r.highlights, tCurrent)}
-            </div>
-          `;
-      
-          if (r.content?.trim()) {
-            const contentDiv = document.createElement("div");
-            contentDiv.className = "recommend-content";
-            contentDiv.innerText = r.content.trim();
-            recDiv.appendChild(contentDiv);
-          }
-      
-          if (onlyShowRecommendations) {
-            section.appendChild(recDiv); // 👉 只看推薦時，直接 append
-          } else {
-            card.appendChild(recDiv); // 👉 否則 append 到卡片中
-          }
-        });
+       
       
         if (!onlyShowRecommendations && (!isFiltering || anyMatch)) {
           section.appendChild(card);
+           // ===== 新增：折叠／展開推薦內容 =====
+  const recs = job.recommendations || [];
+  if (recs.length > 0) {
+    // 1) 建立容器，只放第一条摘要
+    const recContainer = document.createElement('div');
+    recContainer.className = 'rec-container';
+    // 取第一条
+    const first = recs[0];
+    const fullText  = first.content || '';
+    const firstLine = fullText.split('\n')[0];
+    const snippet   = firstLine.length > 50
+      ? firstLine.slice(0, 50) + '…'
+      : firstLine;
+
+    // 关系文字
+    const relKey   = `relation_${first.relation}`;
+    const relLabel = tCurrent(relKey) || first.relation || '';
+
+    // badges
+    const badges = (first.highlights || [])
+      .map(h => `<span class="badge">${tCurrent(`highlight_${h}`) || h}</span>`)
+      .join(' ');
+
+  // 依照 public/private 顯示 ★ 或 姓名，再加關係與亮點
+ const iconOrName = isPublic
+   ? `<span class="public-icon">★</span>`
+   : `<span class="name">${first.name}</span>`;
+ const metaHtml    = `<span class="meta">（${relLabel}）</span>`;
+ const badgesHtml  = badges
+   ? `<div class="badge-container">${badges}</div>`
+   : '';
+ recContainer.innerHTML = `
+   <div class="rec-card">
+     ${iconOrName}${metaHtml}
+     ${badgesHtml}
+     <div class="rec-snippet">${snippet}</div>
+   </div>
+ `;
+
+    // 2) 如果有多于一条，就加折叠按钮
+    if (recs.length > 1) {
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className      = 'btn btn-link rec-toggle-btn';
+      toggleBtn.dataset.expanded = 'false';
+      toggleBtn.innerText      = tCurrent('showAll').replace('{count}', recs.length);
+
+      toggleBtn.addEventListener('click', () => {
+        if (toggleBtn.dataset.expanded === 'false') {
+          // 展開：把全部內容放進 container
+          recContainer.innerHTML = recs.map(r => {
+   const iconOrName2 = isPublic
+     ? `<span class="public-icon">★</span>`
+     : `<span class="name">${r.name}</span>`;
+   const metaHtml2   = `<span class="meta">（${tCurrent(`relation_${r.relation}`)}）</span>`;
+   const rBadgesRaw  = (r.highlights||[])
+     .map(h => `<span class="badge">${tCurrent(`highlight_${h}`)||h}</span>`)
+     .join('');
+   const rBadgesHtml = rBadgesRaw
+     ? `<div class="badge-container">${rBadgesRaw}</div>`
+     : '';
+
+   return `
+     <div class="rec-card">
+       ${iconOrName2}${metaHtml2}
+       ${rBadgesHtml}
+       <div>${r.content}</div>
+     </div>
+   `;
+ }).join('');
+
+          toggleBtn.innerText        = tCurrent('showLess');
+          toggleBtn.dataset.expanded = 'true';
+        } else {
+  // 收合也顯示關係與亮點＋摘要
+  const metaHtml   = `<span class="meta">（${relLabel}）</span>`;
+  const badgesHtml = badges
+    ? `<div class="badge-container">${badges}</div>`
+    : '';
+  recContainer.innerHTML = `
+    <div class="rec-card">
+      ${metaHtml}
+      ${badgesHtml}
+      <div class="rec-snippet">${snippet}</div>
+    </div>
+  `;
+
+          toggleBtn.innerText        = tCurrent('showAll').replace('{count}', recs.length);
+          toggleBtn.dataset.expanded = 'false';
+        }
+      });
+
+      card.appendChild(toggleBtn);
+    }
+    card.appendChild(recContainer);
+  }
           hasCard = true;
         } else if (onlyShowRecommendations && anyMatch) {
           hasCard = true;
         }
+        }
       });
-      
 
       if (hasCard) {
         summaryArea.appendChild(section);

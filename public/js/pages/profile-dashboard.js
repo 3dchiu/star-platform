@@ -203,21 +203,62 @@ document.getElementById("dashboardLoading").style.display = "flex";
           <div>${job.startDate} ～ ${job.endDate || tNow.currentlyWorking}</div>
           ${job.description ? `<div>${job.description}</div>` : ""}
         `;
-  
-        if (hasRec) {
-          const recHTML = job.recommendations.map(r => `
-            <div class="rec-card">
-              <span class="name">${r.name}</span>
-              <span class="meta">（${r.relation}）</span><br>${r.content}
-            </div>`).join("");
-          roleCard.insertAdjacentHTML("beforeend", recHTML);
-        } else {
-          const hint = document.createElement("div");
-          hint.className = "no-recommend-hint";
-          hint.innerText = tNow.noRecommendationsHint;
-          roleCard.appendChild(hint);
-        }
-  
+        // ===== 改為：先顯示「收合/展開」按鈕，再顯示灰底 rec-container =====
+if (hasRec) {
+  const recs = job.recommendations;
+  // snippetHtml 先組好，給 toggle 還原用
+  const first = recs[0];
+  const text = first.content.split('\n')[0];
+  const snippet = text.length > 50 ? text.slice(0,50) + '…' : text;
+  const rel = tNow[`relation_${first.relation}`] || first.relation;
+  const badges = (first.highlights||[])
+    .map(h=>`<span class="badge">${tNow[`highlight_${h}`]||h}</span>`)
+    .join('');
+  const snippetHtml = `
+    <div class="rec-card">
+      <strong>${first.name}</strong>
+      <p>${snippet}</p>
+    </div>
+  `;
+
+  // 1) 如果超過一則，先加按鈕
+  if (recs.length > 1) {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-link rec-toggle-btn';
+    btn.dataset.expanded = 'false';
+    btn.innerText = tNow.showAll.replace('{count}', recs.length);
+    btn.addEventListener('click', () => {
+      const open = btn.dataset.expanded === 'true';
+      if (!open) {
+        recContainer.innerHTML = recs.map(r => `
+          <div class="rec-card">
+             <strong>${r.name}</strong>
+             <p>${r.content}</p>
+          </div>
+       `).join('');
+        btn.innerText = tNow.showLess;
+        btn.dataset.expanded = 'true';
+      } else {
+        recContainer.innerHTML = snippetHtml;
+        btn.innerText = tNow.showAll.replace('{count}', recs.length);
+        btn.dataset.expanded = 'false';
+      }
+    });
+    roleCard.appendChild(btn);
+  }
+
+  // 2) 再加灰底 rec-container 顯示第一則摘要
+  const recContainer = document.createElement('div');
+  recContainer.className = 'rec-container';
+  recContainer.innerHTML = snippetHtml;
+  roleCard.appendChild(recContainer);
+} else {
+  const hint = document.createElement("div");
+  hint.className = "no-recommend-hint";
+  hint.innerText = tNow.noRecommendationsHint;
+  roleCard.appendChild(hint);
+}
+       
         wrap.appendChild(roleCard);
       });
   
@@ -427,7 +468,11 @@ for (const docSnap of recSnap.docs) {
     // 🔽 使用者按下送出經歷表單時，進行資料驗證並儲存至 profile
     expForm.onsubmit = async e => {
       e.preventDefault();
-      
+    // ─── 新增：檢查開始年月必填 ─────────────────────────────
+     if (!startY.value || !startM.value) {
+       showToast(t.selectStart || "請選擇開始年月");  // 確保 i18n 有對應的 key，例如 selectStart
+       return;
+     }
       if (!nameSection.hidden) {
         const nameVal = nameInput.value.trim();
         // 🔍 若為首次填寫，驗證使用者必須輸入姓名
@@ -638,17 +683,28 @@ for (const docSnap of recSnap.docs) {
       catch (err) {
         console.error("❌ 複製失敗：", err);
       
-        // 👉 後備備案：顯示 prompt 讓使用者手動複製
+        // 👉 後備備案：prompt fallback 改成 copyModal
         const fallbackLink = `${location.origin}/pages/recommend-form.html?inviteId=${inviteRef?.id || "unknown"}`;
-        prompt(t.linkCopyFailed + "\n\n👇請手動複製這個連結：", fallbackLink);
-      
-        showToast(t.linkCopyFailed); // 也可以保留原本的 toast 提示
+        const copyModal   = document.getElementById("copyModal");
+        const copyInput   = document.getElementById("copyLinkInput");
+        const btnCopy     = document.getElementById("copyConfirmBtn");
+        const btnCancel   = document.getElementById("copyCancelBtn");
+
+        copyInput.value = fallbackLink;
+        copyModal.showModal();
+
+        btnCopy.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(copyInput.value);
+            showToast(t.linkCopied);
+          } catch {
+            showToast(t.linkCopyFailed);
+          }
+          copyModal.close();
+        };
+        btnCancel.onclick = () => copyModal.close();
       }
-          
-      // 4️⃣ 關閉 Modal
-      inviteModal.close();
-    };    
-    
+    }; 
   // 🔽 開啟「新增／編輯經歷」的 Modal，根據是否首次填寫決定是否顯示姓名欄位
   function openModalForAdd(isFirst = false) {
   editIdx = null;

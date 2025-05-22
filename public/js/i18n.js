@@ -35,6 +35,8 @@ export const i18n = {
     inviteSaveAndCopy:  "Save & Copy",
     noRecommendationsHint: "📭 No recommendations received yet.\n🧡 Invite a colleague to share their kind words about you!",
     viewPublicSummary: "🌟 View Public Recommendation Page",
+    showAll: "Show all {count} recommendations",
+    showLess: "Show less",
 
     // invitation templates & UI
     defaultInvite_direct: "I'm building my professional career profile and would love to invite you to write a short recommendation about our time working together. If you're open to it, I'd be happy to return the favor!",
@@ -58,7 +60,10 @@ export const i18n = {
     selectStart: "Select start date",
     selectEnd: "Select end date",
     linkCopied: "Link copied!",
-    linkCopyFailed: "Copy failed, please copy manually",
+    linkCopyFailed: "Copy failed, please copy the link below:",
+    copy: "Copy",
+    cancel: "Cancel",
+    linkCopied: "Link copied!",
 
     // recommend-form.html
     loadingMessage: "Loading recommendation form...",
@@ -160,6 +165,10 @@ export const i18n = {
       loadingSummaryMessage: "Loading recommendation summary…",
       received: "Received",
       recommendations: "Recommendations",
+      showAllRec: "Show full recommendation",
+      showLessRec: "Collapse recommendation",
+      showAll: "Show all {count} recommendations",
+      showLess: "Collapse recommendations",
     },
     // index.html
     home: {
@@ -298,6 +307,8 @@ That’s the true reason why I created Galaxyz.`,
     inviteSaveAndCopy:  "儲存並複製",
     noRecommendationsHint: "📭 尚未收到推薦內容\n🧡 邀請合作夥伴寫下對你的肯定吧！",
     viewPublicSummary: "🌟 查看公開推薦頁",
+    showAll: "展開 {count} 則推薦", 
+    showLess: "收合推薦", 
 
     // invitation templates & UI
     defaultInvite_direct: "我正在建立自己的職涯推薦檔案，想邀請您幫我寫一段我們合作時期的推薦文字。如果您願意，我也很樂意回饋推薦您！",
@@ -321,7 +332,10 @@ That’s the true reason why I created Galaxyz.`,
     selectStart: "請選擇開始年月",
     selectEnd: "請選擇結束年月",
     linkCopied: "已複製推薦連結",
-    linkCopyFailed: "複製失敗，請手動複製",
+    linkCopyFailed: "複製失敗，請手動複製以下連結：",
+    copy: "複製",
+    cancel: "取消",
+    linkCopied: "連結已複製！",
 
     // recommend-form.html
     identityReminder: `
@@ -423,7 +437,8 @@ That’s the true reason why I created Galaxyz.`,
       loadingSummaryMessage: "正在載入推薦總表…",
       received: "收到",
       recommendations: "則推薦",
-
+      showAll: "展開 {count} 則推薦",
+      showLess: "收合推薦",
     },
     // index.html
     home: {

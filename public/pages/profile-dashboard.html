@@ -195,5 +195,15 @@
       <button id="inviteSaveBtn" class="btn btn-primary" data-i18n="inviteSaveAndCopy"></button>
     </div>    
   </dialog>  
+    <!-- 自訂複製連結的 Modal -->
+  <dialog id="copyModal" class="white-card p-6">
+    <p data-i18n="linkCopyFailed">複製失敗，請手動複製以下連結：</p>
+    <input id="copyLinkInput" readonly
+           style="width:100%; padding:8px; margin:8px 0; border:1px solid #ccc; border-radius:4px;" />
+    <menu style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+      <button id="copyConfirmBtn" class="btn btn-primary" data-i18n="copy">複製</button>
+      <button id="copyCancelBtn" class="btn btn-secondary" data-i18n="cancel">取消</button>
+    </menu>
+  </dialog>
 </body>
 </html>

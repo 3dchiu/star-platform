@@ -97,6 +97,11 @@
   // 🔽 頁面載入完成後，執行推薦表單初始化流程
   window.addEventListener("DOMContentLoaded", async () => {
   const inviteArea = document.getElementById("inviteContent");
+  //如果 URL 帶了 message 參數（preview 模式），先把它填入 textarea ——
+  if (urlMessage) {
+    inviteArea.value = decodeURIComponent(urlMessage);
+    userEdited = true;
+  }
     // 📥 若連結中帶有 inviteId，從 invites collection 讀取邀請資訊
     if (inviteId) {
     try {
@@ -167,13 +172,25 @@
 
     // 📥 根據 userId 抓取使用者 profile，再找到對應的 job 經歷
     const userRef = doc(db, "users", userId);
-    const snap    = await getDoc(userRef);
-    if (!snap.exists) { 
+    let snap;
+    try {
+      snap = await getDoc(userRef);
+    } catch (err) {
+      console.error("❌ 讀取使用者資料失敗：", err);
+      // 隱藏 loading、顯示錯誤訊息
+      document.getElementById("loadingMessage").style.display = "none";
+      const errEl = document.getElementById("errorMessage");
+      errEl.innerText   = "無法連線到伺服器，請稍後再試。";
+      errEl.style.display = "block";
+      return;
+    }
+    // 正確檢查 Document 是否存在
+    if (!snap.exists()) {
       document.getElementById("formContainer").style.display = "none";
       document.getElementById("loadingMessage").style.display = "none";
-      const err = document.getElementById("errorMessage");
-      err.innerText = "User not found.";
-      err.style.display = "block";
+      const errEl = document.getElementById("errorMessage");
+      errEl.innerText = "User not found.";
+      errEl.style.display = "block";
       return;
     }
     profileData = snap.data();
