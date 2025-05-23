@@ -4,7 +4,8 @@
   import { doc, getDoc, collection, addDoc, query, where, getDocs, limit } 
     from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
   // 🔍 從 URL 中解析推薦人連結的參數（userId、jobId、message、style 等）
-  const params = new URLSearchParams(window.location.search);
+  const raw = window.location.search.replace(/;/g, '&');
+  const params = new URLSearchParams(raw);
   let jobId     = params.get("jobId");
   let   userId     = params.get("userId");
   let urlMessage = params.get("message");
