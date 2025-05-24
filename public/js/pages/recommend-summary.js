@@ -528,7 +528,13 @@ if (isPublic) {
     const bdg = renderBadges(r.highlights, tCurrent);
     return `
       <div class="rec-card">
-        <span class="public-icon">★</span>
+           ${isPublic
+            ? `<span class="public-icon">★</span>`
+            : ( r.recommenderId
+                ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
+                : `<span class="name">${r.name}</span>`
+             )
+          }
         <span class="meta">（${rel}）</span>
         ${bdg ? `<div class="badge-container">${bdg}</div>` : ''}
         <div>${r.content}</div>
@@ -539,7 +545,10 @@ if (isPublic) {
   // 私有頁維持只顯示「第一筆摘要」
   recContainer.innerHTML = `
     <div class="rec-card">
-      <span class="name">${first.name}</span>
+      ${ first.recommenderId
+          ? `<a class="name" href="recommend-summary.html?public=true&userId=${first.recommenderId}" target="_blank">${first.name}</a>`
+          : `<span class="name">${first.name}</span>`
+        }
       <span class="meta">（${relLabel}）</span>
       ${badgesHtml}
       <div class="rec-snippet">${snippet}</div>
@@ -567,7 +576,13 @@ if (isPublic) {
             const bdg = renderBadges(r.highlights, tCurrent);
             return `
               <div class="rec-card">
-                ${isPublic ? '★' : r.name}
+                 ${isPublic
+                  ? `<span class="public-icon">★</span>`
+                  : ( r.recommenderId
+                      ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
+                      : `<span class="name">${r.name}</span>`
+                    )
+                }
                 <span class="meta">（${rel}）</span>
                 ${bdg ? `<div class="badge-container">${bdg}</div>` : ''}
                 <div>${r.content}</div>
@@ -579,13 +594,16 @@ if (isPublic) {
         } else {
           // 收合回第一筆摘要...
           recContainer.innerHTML = `
-            <div class="rec-card">
-              ${isPublic ? '★' : first.name}
-              <span class="meta">（${relLabel}）</span>
-              ${badgesHtml}
-              <div class="rec-snippet">${snippet}</div>
-            </div>
-          `;
+          <div class="rec-card">
+            ${first.recommenderId
+              ? `<a class="name" href="recommend-summary.html?public=true&userId=${first.recommenderId}" target="_blank">${first.name}</a>`
+              : `<span class="name">${first.name}</span>`
+            }
+            <span class="meta">（${relLabel}）</span>
+            ${badgesHtml}
+            <div class="rec-snippet">${snippet}</div>
+          </div>
+        `;
           toggleBtn.innerText = tCurrent('showAll').replace('{count}', job.recommendations.length);
           toggleBtn.dataset.expanded = 'false';
         }

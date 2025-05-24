@@ -1270,8 +1270,18 @@ text-decoration: underline;
   border: 1px solid #e5e7eb;
   border-top: none;
   border-radius: 0 0 8px 8px;
-  padding: 1em;
+  padding: 0.5em;
   margin-top: -1px;
+}
+
+/* ========== Individual Recommendation Card ========== */
+/* 白底、內邊距，讓每則推薦更突出 */
+.rec-container .rec-card {
+  background: var(--color-surface);  /* 白底 */
+  border-radius: 8px;                /* 小圓角 */
+  padding: 1em;                      /* 白色區域內邊距 */
+  margin-bottom: 1em;                /* 各卡片間距 */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* 3) 選做：滑鼠互動效果 */
@@ -1292,4 +1302,8 @@ text-decoration: underline;
   text-overflow: ellipsis;     /* 顯示「…」 */
   padding-right: 3.5rem;       /* 留出圖示按鈕（🔗✏️🗑️）寬度，可微調 */
   margin: 0;                   /* 如果預設有 margin，按需調整 */
+}
+.rec-card .name,
+.rec-card strong {
+  font-weight: 600;
 }

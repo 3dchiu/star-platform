@@ -187,6 +187,39 @@ exports.notifyOnRecommendationCreated = onDocumentCreated("users/{userId}/recomm
   
     return null;
   });
+// 🔽 功能 4：新推薦建立時，若 email 對應已有註冊使用者，補上 recommenderId
+exports.assignRecommenderIdOnRecCreated = onDocumentCreated(
+  "users/{userId}/recommendations/{recId}",
+  async (event) => {
+    const recRef = event.data.ref;
+    const rec    = event.data.data();
+
+    // 如果已經有 recommenderId 就不動作
+    if (rec.recommenderId) {
+      return null;
+    }
+
+    // 以 email 去 users 集合查找對應 uid
+    const usersSnap = await admin
+      .firestore()
+      .collection("users")
+      .where("email", "==", rec.email)
+      .limit(1)
+      .get();
+
+    if (usersSnap.empty) {
+      // 沒註冊的推薦人留給 onUserCreated_assignRecommenderId 處理
+      return null;
+    }
+
+    const recommenderUid = usersSnap.docs[0].id;
+    // 補寫 recommenderId
+    await recRef.update({ recommenderId: recommenderUid });
+    console.log(`✅ assignRecommenderIdOnRecCreated: ${event.params.recId} => ${recommenderUid}`);
+
+    return null;
+  }
+);
 
 // 🔽 功能 2：推薦人完成註冊後，自動補上 recommenderId
 // 📥 監聽路徑：users/{userId}

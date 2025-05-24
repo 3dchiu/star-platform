@@ -217,7 +217,8 @@
     // 🔽 當使用者送出推薦表單時，進行驗證與儲存推薦內容
     form.addEventListener("submit", async e => {
       e.preventDefault();
-    
+    // 可選：如果使用者已登入，就把 uid 寫進 recommenderId
+      const currentUser = auth.currentUser;
       const btn = document.getElementById("submitBtn");
       btn.disabled = true;
       btn.innerText = (localStorage.getItem("lang") === "zh-Hant") ? "送出中..." : "Submitting...";
@@ -245,9 +246,10 @@
         inviteMessage: document.getElementById("inviteContent").value.trim(),
         jobId,
         invitedBy: invitedBy || null,
-        claimedBy: null,            // 🆕 預留：目前尚未歸戶
-        claimMethod: null,           // 🆕 預留：未來可標示為 "manual" 或 "auto"
-        inviteId: inviteId || null,   // ✅ 新增這一行
+        claimedBy: null,                // 🆕 預留：目前尚未歸戶
+        claimMethod: null,              // 🆕 預留：未來可標示為 "manual" 或 "auto"
+        inviteId: inviteId || null,     // ✅ 新增這一行
+        ...(currentUser && { recommenderId: currentUser.uid }),
       };
       // ✅ 防呆：檢查必填欄位
       if (!rec.name || !rec.email || !rec.content) {
