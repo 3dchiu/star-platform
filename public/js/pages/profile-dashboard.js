@@ -178,6 +178,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
     const tNow = i18n[langNow] || i18n.en;
   
     list.innerHTML = "";
+    const frag = document.createDocumentFragment();
     const grouped = {};
     profile.workExperiences.sort((a,b)=>b.startDate.localeCompare(a.startDate))
       .forEach(job=> (grouped[job.company] = grouped[job.company]||[]).push(job));
@@ -222,7 +223,7 @@ if (hasRec) {
   `;
 
   // 1) 如果超過一則，先加按鈕
-  if (recs.length > 1) {
+  if (recs.length > 0) {
     const btn = document.createElement('button');
     btn.className = 'btn btn-link rec-toggle-btn';
     btn.dataset.expanded = 'false';
@@ -262,8 +263,9 @@ if (hasRec) {
         wrap.appendChild(roleCard);
       });
   
-      list.appendChild(wrap);
+      frag.appendChild(wrap);
     });
+    list.appendChild(frag);
   }
   // 🔽 顯示 3 秒後自動消失的提示訊息（toast）
   function showToast(msg) {
@@ -283,15 +285,11 @@ if (hasRec) {
     let prefillUsed = false;
   // 📤 從 Firestore 讀取使用者的個人資料（users/{userId}）
   const ref = doc(db, "users", user.uid);
-  let snap;
-  try {
-    snap = await getDoc(ref);
-  } catch (err) {
-    // ❌ Firestore 讀取失敗（可能是離線）
-    console.error("❌ 無法連接 Firestore，可能是離線狀態：", err);
-    alert("目前無法連接資料庫，請確認網路後再試一次。");
-    return; // 中斷流程
-  }
+  // 🔧 並行拿 profile + recommendations
+const [snap, recSnap] = await Promise.all([
+  getDoc(ref),
+  getDocs(collection(db, "users", profile.userId, "recommendations"))
+]);
 
   if (snap.exists()) {
     profile = {
@@ -353,8 +351,7 @@ if (hasRec) {
     profile.workExperiences.forEach(j => j.recommendations = []);
 
     // 📤 從 Firestore 抓取該使用者所有推薦內容（users/{userId}/recommendations）
-    const recSnap = await getDocs(collection(db, "users", profile.userId, "recommendations"));
-for (const docSnap of recSnap.docs) {
+  for (const docSnap of recSnap.docs) {
   const rec = docSnap.data();
   const targetJob = profile.workExperiences.find(j => j.id === rec.jobId);
   if (targetJob) {

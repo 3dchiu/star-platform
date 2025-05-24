@@ -603,10 +603,13 @@ if (isPublic) {
           // 收合回第一筆摘要...
           recContainer.innerHTML = `
           <div class="rec-card">
-            ${first.recommenderId
-              ? `<a class="name" href="recommend-summary.html?public=true&userId=${first.recommenderId}" target="_blank">${first.name}</a>`
-              : `<span class="name">${first.name}</span>`
-            }
+            ${isPublic
+              ? `<span class="public-icon">★</span>`
+              : ( first.recommenderId
+                  ? `<a class="name" href="recommend-summary.html?public=true&userId=${first.recommenderId}" target="_blank">${first.name}</a>`
+                  : `<span class="name">${first.name}</span>`
+                )
+              }
             <span class="meta">（${relLabel}）</span>
             ${badgesHtml}
             <div class="rec-snippet">${snippet}</div>
