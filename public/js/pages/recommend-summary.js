@@ -6,7 +6,8 @@ import {
   doc,
   getDoc,
   collection,
-  getDocs
+  getDocs,
+  enableIndexedDbPersistence
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 import {
   getAuth,
@@ -98,6 +99,10 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
   // 1) 初始化 Firebase + Firestore + Auth
   const app  = initializeApp(firebaseConfig);
   const db   = getFirestore(app);
+  enableIndexedDbPersistence(db).catch(err => {
+  // 例如：已有其它 tab 打开了离线缓存，就会报错，直接忽略
+  console.warn("IndexedDB persistence error:", err.code);
+});
   const auth = getAuth(app);
 
   // 2) 替換所有 data-i18n
@@ -136,14 +141,16 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     skeleton.className = "skeleton-loader";
     skeleton.innerText = "載入中…";
     summaryArea.appendChild(skeleton);
-    // 讀 profile
+    // 🔧 同時拿 profile 與 recommendations（並行）
     const userRef = doc(db, "users", userId);
-    const snap    = await getDoc(userRef);
+    const [snap, recSn] = await Promise.all([
+      getDoc(userRef),
+      getDocs(collection(db, "users", userId, "recommendations"))
+    ]);
     if (!snap.exists()) {
       summaryArea.innerHTML = `<p>${t("noExperience")}</p>`;
       return;
     }
-
     const profile = snap.data();
      
     // —— 優化：用 jobMap 快速索引
@@ -153,8 +160,6 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       jobMap[job.id] = job;
     });
 
-    // 讀取所有 recommendations，再用 jobMap 歸類
-    const recSn = await getDocs(collection(db, "users", userId, "recommendations"));
     recSn.forEach(docSnap => {
       const rec = docSnap.data();
       const job = jobMap[rec.jobId];
@@ -432,7 +437,10 @@ const isRecOnly         = onlyShowRecommendations;
       });
       // —— 新增：讀入使用者選的篩選
       const selectedRelationValue = relationNameToValue[selectedRelation] || selectedRelation;
+      // 清空旧内容
       summaryArea.innerHTML = "";
+      // 用 DocumentFragment 批量构建
+      const frag = document.createDocumentFragment();
       const exps = profile.workExperiences || [];
       if (exps.length === 0) {
         summaryArea.innerHTML = `<p>${tCurrent("noExperience")}</p>`;
@@ -664,12 +672,13 @@ if (isPublic) {
 
     // 如果任何分支有資料，就把 section 推到 summaryArea
     if (section.children.length > 0) {
-      summaryArea.appendChild(section);
+      frag.appendChild(section);
       hasMatch = true;
     }
   });
 
 });
+    summaryArea.appendChild(frag);
 
     if (!hasMatch && isFiltering) {
       summaryArea.innerHTML = `<p>${tCurrent("noFilteredMatch")}</p>`;
