@@ -146,7 +146,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
   // 🔽 渲染個人檔案基本資料（姓名、英文名、推薦數量）
   function renderBasic() {
     const totalRecommendations = profile.workExperiences.reduce((sum, job) => {
-      return sum + (job.recommendations?.length || 0);
+      return sum + (job.recCount || 0);
     }, 0);
   
     let recommendationsNote = "";
@@ -190,7 +190,7 @@ document.getElementById("dashboardLoading").style.display = "flex";
       
       jobs.forEach(job => {
         const idx = profile.workExperiences.indexOf(job);
-        const hasRec = !!job.recommendations?.length;
+        const hasRec = job.recCount > 0;
   
         const roleCard = document.createElement("div");
         roleCard.className = "role-card";
@@ -202,62 +202,50 @@ document.getElementById("dashboardLoading").style.display = "flex";
           <button class="edit-btn" data-idx="${idx}">📝</button>
           <button class="del-btn" data-idx="${idx}">🗑️</button>
           <div>${job.startDate} ～ ${job.endDate || tNow.currentlyWorking}</div>
-          ${job.description ? `<div>${job.description}</div>` : ""}
+          ${job.description ? `<div>${job.description.replace(/\n/g, "<br>")}</div>` : ""}
         `;
-        // ===== 改為：先顯示「收合/展開」按鈕，再顯示灰底 rec-container =====
-if (hasRec) {
-  const recs = job.recommendations;
-  // snippetHtml 先組好，給 toggle 還原用
-  const first = recs[0];
-  const text = first.content.split('\n')[0];
-  const snippet = text.length > 50 ? text.slice(0,50) + '…' : text;
-  const rel = tNow[`relation_${first.relation}`] || first.relation;
-  const badges = (first.highlights||[])
-    .map(h=>`<span class="badge">${tNow[`highlight_${h}`]||h}</span>`)
-    .join('');
-  const snippetHtml = `
-    <div class="rec-card">
-      <strong>${first.name}</strong>
-      <p>${snippet}</p>
-    </div>
+        // ➕ 若尚未收到推薦，顯示 CTA 提示區塊
+        if (!hasRec) {
+  const emptyRec = document.createElement("div");
+  emptyRec.className = "empty-rec-hint";
+  emptyRec.innerHTML = `
+    <span class="emoji">📬</span> ${tNow.recommendSummary.noRecommendation}<br/>
+    <span class="emoji">🧡</span> ${tNow.noRecommendationsHint.split('\n')[1] || ''}
   `;
+  roleCard.appendChild(emptyRec);
+}
 
-  // 1) 如果超過一則，先加按鈕
-  if (recs.length > 0) {
-    const btn = document.createElement('button');
-    btn.className = 'btn btn-link rec-toggle-btn';
-    btn.dataset.expanded = 'false';
-    btn.innerText = tNow.showAll.replace('{count}', recs.length);
-    btn.addEventListener('click', () => {
-      const open = btn.dataset.expanded === 'true';
-      if (!open) {
-        recContainer.innerHTML = recs.map(r => `
-          <div class="rec-card">
-             <strong>${r.name}</strong>
-             <p>${r.content}</p>
-          </div>
-       `).join('');
-        btn.innerText = tNow.showLess;
-        btn.dataset.expanded = 'true';
-      } else {
-        recContainer.innerHTML = snippetHtml;
-        btn.innerText = tNow.showAll.replace('{count}', recs.length);
-        btn.dataset.expanded = 'false';
-      }
-    });
-    roleCard.appendChild(btn);
-  }
+// 🔢 新增：統計推薦數、亮點、關係
+if (hasRec) {
+  const total = job.recCount;
+  const unit = langNow === "zh-Hant" ? "位" : (count => count === 1 ? "person" : "people");
 
-  // 2) 再加灰底 rec-container 顯示第一則摘要
-  const recContainer = document.createElement('div');
-  recContainer.className = 'rec-container';
-  recContainer.innerHTML = snippetHtml;
-  roleCard.appendChild(recContainer);
-} else {
-  const hint = document.createElement("div");
-  hint.className = "no-recommend-hint";
-  hint.innerText = tNow.noRecommendationsHint;
-  roleCard.appendChild(hint);
+// 亮點統計
+const highlightText = Object.entries(job.highlightCount)
+  .map(([key, count]) => {
+    const label = tNow.recommendSummary[`highlight_${key}`] || key;
+    return `${label} ${count} ${typeof unit === "function" ? unit(count) : unit}`;
+  })
+  .join('、');
+
+// 關係統計
+const relationText = Object.entries(job.relationCount)
+  .map(([key, count]) => {
+    const match = tNow.recommendSummary.relationFilterOptions?.find(r => r.value === key);
+    const label = match?.label || key;
+    return `${label} ${count} ${typeof unit === "function" ? unit(count) : unit}`;
+  })
+  .join('、');
+
+  const summaryDiv = document.createElement('div');
+  summaryDiv.className = 'rec-summary-block';
+  summaryDiv.innerHTML = `
+    <hr style="border: none; border-top: 1px solid #ddd; margin: 16px 0;" />
+    <p> ${tNow.recommendSummary.received} ${total} ${tNow.recommendSummary.recommendations}</p>
+    <p> ${tNow.recommendSummary.highlights}：${highlightText}</p>
+    <p> ${tNow.recommendSummary.relations}：${relationText}</p>
+  `;
+  roleCard.appendChild(summaryDiv);
 }
        
         wrap.appendChild(roleCard);
@@ -285,11 +273,27 @@ if (hasRec) {
     let prefillUsed = false;
   // 📤 從 Firestore 讀取使用者的個人資料（users/{userId}）
   const ref = doc(db, "users", user.uid);
-  // 🔧 並行拿 profile + recommendations
+
+// 🔍 同時抓取使用者個人資料與推薦統計
 const [snap, recSnap] = await Promise.all([
   getDoc(ref),
   getDocs(collection(db, "users", profile.userId, "recommendations"))
 ]);
+const recStats = {};
+recSnap.forEach(doc => {
+  const r = doc.data();
+  const jobId = r.jobId;
+  if (!recStats[jobId]) {
+    recStats[jobId] = { count: 0, highlights: {}, relations: {} };
+  }
+  recStats[jobId].count++;
+  (r.highlights || []).forEach(h => {
+    recStats[jobId].highlights[h] = (recStats[jobId].highlights[h] || 0) + 1;
+  });
+  const rel = r.relation || "unknown";
+  recStats[jobId].relations[rel] = (recStats[jobId].relations[rel] || 0) + 1;
+});
+
 
   if (snap.exists()) {
     profile = {
@@ -347,18 +351,14 @@ const [snap, recSnap] = await Promise.all([
     profile.workExperiences.forEach(j => {
       if (!j.endDate) j.endDate = "";
     });
-    // ✅ 清空每段經歷的 recommendations，避免與 Firestore 資料重複
-    profile.workExperiences.forEach(j => j.recommendations = []);
+    // ✅ 將推薦統計資料加到每段工作經歷中
+profile.workExperiences.forEach(j => {
+  const stats = recStats[j.id];
+  j.recCount = stats?.count || 0;
+  j.highlightCount = stats?.highlights || {};
+  j.relationCount = stats?.relations || {};
+});
 
-    // 📤 從 Firestore 抓取該使用者所有推薦內容（users/{userId}/recommendations）
-  for (const docSnap of recSnap.docs) {
-  const rec = docSnap.data();
-  const targetJob = profile.workExperiences.find(j => j.id === rec.jobId);
-  if (targetJob) {
-    // 📥 將推薦內容加入對應的工作經歷物件中
-    targetJob.recommendations.push(rec);
-  }
-}
     // 🔽 初始化畫面顯示（年月下拉、靜態文字、卡片內容）
     populateYearMonth();
     renderStaticText();

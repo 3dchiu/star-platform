@@ -507,8 +507,10 @@ const isRecOnly         = onlyShowRecommendations;
     </div>
   `;
   if (job.description) {
-    headerHtml += `<div class="job-description">${job.description}</div>`;
+    const descHtml = job.description.replace(/\n/g, "<br>");
+    headerHtml += `<div class="job-description">${descHtml}</div>`;
   }
+
   // **這行必須在此**，把 headerHtml 寫入 card
   card.innerHTML = headerHtml;
 

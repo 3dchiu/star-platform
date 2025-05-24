@@ -172,6 +172,11 @@ export const i18n = {
       showLessRec: "Collapse recommendation",
       showAll: "Show all {count} recommendations",
       showLess: "Collapse recommendations",
+      received: "Received",
+      recommendations: "recommendations",
+      highlights: "Highlight Summary",
+      relations: "Relationship Summary",
+
     },
     // index.html
     home: {
@@ -445,6 +450,11 @@ That’s the true reason why I created Galaxyz.`,
       recommendations: "則推薦",
       showAll: "展開 {count} 則推薦",
       showLess: "收合推薦",
+      received: "收到",
+      recommendations: "則推薦",
+      highlights: "亮點統計",
+      relations: "關係統計",
+
     },
     // index.html
     home: {

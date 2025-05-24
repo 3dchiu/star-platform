@@ -319,19 +319,20 @@ input, select, textarea {
     margin-top: 1rem;
   }
  
-    .company-card {
-   background: var(--color-surface);
-   border-left: 8px solid var(--brand-blue);
-   border-radius: 20px;
-   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-   padding: 20px;
-   margin-bottom: 32px;
- }
+   .company-card {
+  border-left: 6px solid var(--brand-blue); /* 保留品牌色 */
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
  .company-title {
-   font-size: 1.125rem;
-   font-weight: 600;
-   margin-bottom: 8px;
- }
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
  .role-card {
    position: relative;
    background: var(--color-surface);
@@ -1306,4 +1307,19 @@ text-decoration: underline;
 .rec-card .name,
 .rec-card strong {
   font-weight: 600;
+}
+.empty-rec-hint {
+  background: #fff8e1;
+  color: #5a4c00;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  border-left: 3px solid #f5b041;
+  margin-top: 8px;
+  border-radius: 8px;
+  max-width: 360px;
+  line-height: 1.4;
+}
+.empty-rec-hint .emoji {
+  font-weight: bold;
+  margin-right: 4px;
 }
