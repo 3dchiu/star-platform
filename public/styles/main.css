@@ -1284,3 +1284,12 @@ text-decoration: underline;
   font-size: 1rem;
   vertical-align: middle;
 }
+
+/* Profile-dashboard：職稱過長截斷，並留出右側按鈕空間 */
+.role-card > p:first-of-type {
+  white-space: nowrap;         /* 不換行 */
+  overflow: hidden;            /* 超出隱藏 */
+  text-overflow: ellipsis;     /* 顯示「…」 */
+  padding-right: 3.5rem;       /* 留出圖示按鈕（🔗✏️🗑️）寬度，可微調 */
+  margin: 0;                   /* 如果預設有 margin，按需調整 */
+}
