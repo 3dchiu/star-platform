@@ -150,9 +150,9 @@ document.getElementById("dashboardLoading").style.display = "flex";
     }, 0);
   
     let recommendationsNote = "";
-    if (totalRecommendations > 0) {
-      recommendationsNote = `<p class="rec-summary">✨ 你已收到 <strong>${totalRecommendations}</strong> 則推薦</p>`;
-    }
+  if (totalRecommendations > 0) {
+    recommendationsNote = `<p class="rec-summary">✨ 你已收到 <strong>${totalRecommendations}</strong> 則推薦</p>`;
+  }
   
     basicInfo.innerHTML = `
       <h1>${profile.name || ""}</h1>
@@ -241,7 +241,12 @@ const relationText = Object.entries(job.relationCount)
   summaryDiv.className = 'rec-summary-block';
   summaryDiv.innerHTML = `
     <hr style="border: none; border-top: 1px solid #ddd; margin: 16px 0;" />
-    <p> ${tNow.recommendSummary.received} ${total} ${tNow.recommendSummary.recommendations}</p>
+    <p>
+      ${tNow.recommendSummary.received}
+      <a href="/pages/recommend-summary.html?userId=${profile.userId}&jobId=${job.id}" target="_blank">
+        <strong>${total}</strong> ${tNow.recommendSummary.recommendations}
+      </a>
+    </p>
     <p> ${tNow.recommendSummary.highlights}：${highlightText}</p>
     <p> ${tNow.recommendSummary.relations}：${relationText}</p>
   `;

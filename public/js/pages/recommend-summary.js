@@ -70,6 +70,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
 
   // ————— 支持 公共/私有 模式 —————
   const params      = new URLSearchParams(location.search);
+  const jobIdToExpand = params.get("jobId");
   const isPublic    = params.get("public") === "true";
   const publicUserId= params.get("userId");
   // ————————————————————————————————
@@ -241,6 +242,11 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     const { t, lang } = getCurrentT();
     updateRelationFilter(t, lang);
     renderRecommendations(profile, t, lang, isPublic);
+    if (jobIdToExpand) {
+      const el = document.querySelector(`[data-jobid="${jobIdToExpand}"]`);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
+
     // —— 資料渲染完後，移除 Skeleton
     const sk = document.getElementById("skeletonLoader");
     if (sk) sk.remove();
@@ -485,6 +491,7 @@ const isRecOnly         = onlyShowRecommendations;
 
       let hasCard = false;
        jobsToShow.forEach(job => {
+        const shouldExpand = job.id === jobIdToExpand;
   // 先找出此工作底下符合篩選的推薦
   const matchingRecs = job.recommendations.filter(r =>
     doesRecommendationMatch(r, selectedRelationValue, selectedHighlight)
@@ -499,6 +506,7 @@ const isRecOnly         = onlyShowRecommendations;
   // 建立 job-card
   const card = document.createElement("div");
   card.className = "job-card";
+  card.dataset.jobid = job.id;
   // headerHtml 只包含職稱與日期（和 description，如果有）
   let headerHtml = `
     <div class="job-title">${job.position}</div>
@@ -531,7 +539,7 @@ const isRecOnly         = onlyShowRecommendations;
       : '';
 
     // 建立 recContainer 之後，替換 innerHTML 這段：
-if (isPublic) {
+if (isPublic || shouldExpand) {
   // 公開頁一進來就全部「攤開」
   recContainer.innerHTML = job.recommendations.map(r => {
     const rel = tCurrent(`relation_${r.relation}`) || r.relation;
@@ -570,13 +578,11 @@ if (isPublic) {
     if (job.recommendations.length > 0) {
       const toggleBtn = document.createElement('button');
       toggleBtn.className = 'btn btn-link rec-toggle-btn';
-      if (isPublic) {
-        toggleBtn.dataset.expanded = 'true';
-        toggleBtn.innerText       = tCurrent('showLess');
-      } else {
-        toggleBtn.dataset.expanded = 'false';
-        toggleBtn.innerText       = tCurrent('showAll').replace('{count}', job.recommendations.length);
-      }
+      // ③ 初始時，如果是公開頁 or shouldExpand，就預設展開；否則收合
+      toggleBtn.dataset.expanded = (isPublic || shouldExpand) ? 'true' : 'false';
+      toggleBtn.innerText       = (isPublic || shouldExpand)
+        ? tCurrent('showLess')
+        : tCurrent('showAll').replace('{count}', job.recommendations.length);
 
       toggleBtn.addEventListener('click', () => {
         if (toggleBtn.dataset.expanded === 'false') {
