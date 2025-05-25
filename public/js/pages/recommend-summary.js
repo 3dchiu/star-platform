@@ -141,6 +141,17 @@ document.getElementById("summaryLoading").style.display = "flex";
   const filters   = document.getElementById("filters");
   const exportBtn = document.getElementById("export-pdf");
   if (isPublic && exportBtn) exportBtn.style.display = "none";
+  // ↓ 強制綁到全域 window，確保任何地方都能存取
+  window.relFilterEl = document.getElementById("relationFilter");
+  window.hiFilterEl  = document.getElementById("highlightFilter");
+
+// ↓ 只綁一次 change 事件
+  window.relFilterEl.addEventListener("change", () =>
+    renderRecommendations(window._loadedProfile, t, lang, isPublic)
+  );
+  window.hiFilterEl.addEventListener("change", () =>
+    renderRecommendations(window._loadedProfile, t, lang, isPublic)
+  );
 
   // 4) 核心加载函数
   async function loadAndRender(userId, loggedIn) {
@@ -449,11 +460,9 @@ if (toggleViewBtn) {
 
 }); // ← 這是關閉 DOMContentLoaded 的
   function renderRecommendations(profile, tCurrent, langCurrent, isPublic) {
-    // ↓ 批次 innerHTML 用的暫存字串
-  let html = "";
   // —— 新增：先讀取「關係」「亮點」篩選器的值，以及三種顯示模式
-  const selectedRelation  = relFilterEl.value;
-  const selectedHighlight = hiFilterEl.value;
+  const selectedRelation  = window.relFilterEl.value;
+  const selectedHighlight = window.hiFilterEl.value;
   const isFiltering       = !!selectedRelation || !!selectedHighlight;
   const isRecOnly         = onlyShowRecommendations;
 
@@ -728,8 +737,7 @@ if (isPublic || shouldExpand) {
   });
 
 });
-    // 一次設定整個內容，省掉多次 appendChild
-    summaryArea.innerHTML = html;
+    summaryArea.appendChild(frag);
     
     if (!hasMatch && isFiltering) {
       summaryArea.innerHTML = `<p>${tCurrent("noFilteredMatch")}</p>`;
