@@ -1323,3 +1323,28 @@ text-decoration: underline;
   font-weight: bold;
   margin-right: 4px;
 }
+.rec-card { position: relative; }
+
+.share-rec-btn {
+  all: unset;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--color-primary);
+  font-size: 0.875rem;
+}
+.share-rec-btn .icon-share {
+  width: 1em;
+  height: 1em;
+  margin-right: 0.25em;
+  stroke: currentColor;
+}
+.share-rec-btn:hover { opacity: 0.8; }
+.rec-card.highlight {
+  box-shadow: 0 0 0 2px #f90;
+  background: #fffbe6;
+}
+

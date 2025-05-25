@@ -14,6 +14,10 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { firebaseConfig } from "../firebase-config.js";
+// ─── 全域變數，一次宣告 ───
+let onlyShowRecommendations = false;
+let jobIdToExpand           = null;
+
 // 🔽 根據推薦數量回傳對應的等級、名稱與顏色
 function getLevelInfo(count) {
   if (count >= 100) return { level: 10, name: "星光領袖", color: "legendary" };
@@ -66,13 +70,13 @@ function doesRecommendationMatch(r, selectedRelationValue, selectedHighlight) {
 window.addEventListener("DOMContentLoaded", async () => {
 document.getElementById("summaryLoading").style.display = "flex";
 
-let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 false）
 
   // ————— 支持 公共/私有 模式 —————
-  const params      = new URLSearchParams(location.search);
-  const jobIdToExpand = params.get("jobId");
-  const isPublic    = params.get("public") === "true";
-  const publicUserId= params.get("userId");
+  const params          = new URLSearchParams(location.search);
+  jobIdToExpand         = params.get("jobId");
+  const highlightRecId  = params.get("highlightRecId");
+  const isPublic        = params.get("public") === "true";
+  const publicUserId    = params.get("userId");
   // ————————————————————————————————
 
   setLang(localStorage.getItem("lang") || "en");
@@ -96,18 +100,17 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     return { t, lang };
   }
   
-
+  const { t } = getCurrentT();  // ✅ 新增這行
   // 1) 初始化 Firebase + Firestore + Auth
   const app  = initializeApp(firebaseConfig);
-  const db   = getFirestore(app);
-  enableIndexedDbPersistence(db).catch(err => {
-  // 例如：已有其它 tab 打开了离线缓存，就会报错，直接忽略
-  console.warn("IndexedDB persistence error:", err.code);
-});
+  const db = getFirestore(app);
+    enableIndexedDbPersistence(db).catch(err => {
+      // 若同時開了多個 tab 或其他原因失敗，忽略即可
+      console.warn("IndexedDB persistence error:", err.code);
+  });
   const auth = getAuth(app);
 
   // 2) 替換所有 data-i18n
-  const { t } = getCurrentT();  // ✅ 新增這行
   document
   .querySelectorAll("[data-i18n]")
   .forEach(el => {
@@ -142,6 +145,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     skeleton.className = "skeleton-loader";
     skeleton.innerText = "載入中…";
     summaryArea.appendChild(skeleton);
+    try {
     // 🔧 同時拿 profile 與 recommendations（並行）
     const userRef = doc(db, "users", userId);
     const [snap, recSn] = await Promise.all([
@@ -162,7 +166,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     });
 
     recSn.forEach(docSnap => {
-      const rec = docSnap.data();
+      const rec = { id: docSnap.id, ...docSnap.data() };
       const job = jobMap[rec.jobId];
       if (job) {
         job.recommendations.push(rec);
@@ -193,7 +197,16 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
           </div>
         `;
       }
-    }    
+    }
+    // 🔽 新增：公開模式下隱藏上方篩選器
+    const filtersDiv = document.querySelector(".filters-toolbar");
+    if (isPublic && filtersDiv) filtersDiv.style.display = "none";
+    
+    // 🔽 新增：公開模式下，只保留那些有推薦的工作經歷
+    if (isPublic) {
+      profile.workExperiences = (profile.workExperiences || [])
+        .filter(job => (job.recommendations || []).length > 0);
+      }
 
     // ⭐ 插入星星等級區塊
     if (userLevelBox && !isPublic) {
@@ -228,6 +241,17 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       </div>
     `;
     }
+    const toggleViewBtn = document.getElementById("toggleViewBtn");
+if (toggleViewBtn) {
+  toggleViewBtn.addEventListener("click", () => {
+    onlyShowRecommendations = !onlyShowRecommendations;
+    // 使用 loadAndRender 作用域內的 t, lang
+    toggleViewBtn.innerText = t(
+      onlyShowRecommendations ? "showWithCompany" : "onlyShowRecommendations"
+    );
+    renderRecommendations(profile, t, lang, isPublic);
+  });
+}
     // 🔽 根據等級數字，取得升級所需的推薦數門檻（靜態對照表）
     function getNextLevelThreshold(level) {
       const map = {
@@ -242,27 +266,83 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
     const { t, lang } = getCurrentT();
     updateRelationFilter(t, lang);
     renderRecommendations(profile, t, lang, isPublic);
-    if (jobIdToExpand) {
-      const el = document.querySelector(`[data-jobid="${jobIdToExpand}"]`);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+    const sk = document.getElementById("skeletonLoader");
+    if (sk) sk.remove();
+    document.getElementById("summaryLoading").style.display = "none";
+    if (isPublic && highlightRecId) {
+      const el = document.getElementById(`rec-${highlightRecId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("highlight");  // <- （可選）加個 CSS 高亮
+      }
+    }
+    if (!isPublic && jobIdToExpand) {
+    // 1⃣ 用正確的模板字串插值
+      const card = document.querySelector(`.job-card[data-jobid="${jobIdToExpand}"]`);
+      if (card) {
+        const toggle = card.querySelector('.rec-toggle-btn');
+        // 2⃣ 只有在還沒展開的時候觸發一次 click
+        if (toggle && toggle.dataset.expanded === 'false') {
+          toggle.click();
+        }
+    // 3⃣ 捲動到卡片中央
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
 
     // —— 資料渲染完後，移除 Skeleton
-    const sk = document.getElementById("skeletonLoader");
-    if (sk) sk.remove();
     document.getElementById("relationFilter")
       .addEventListener("change", () => renderRecommendations(profile, t, lang));
     document.getElementById("highlightFilter")
       .addEventListener("change", () => renderRecommendations(profile, t, lang));
+    // 🌟 【移到 try 裡】標題 ＆ 個人簡介 ＆ 使用者名稱
+    document.title = t("pageTitle");
+    document.getElementById("pageTitle").innerText = t("pageTitle");
+    // bio
+    if (profile.bio?.trim()) {
+      descEl.innerText = profile.bio.trim();
+    } else {
+      descEl.style.display = "none";
+    }
+    // 名字 & 返回按鈕
+    const dn = profile.name || "";
+    userNameEl.innerText = t("summaryFor", dn);
+    if (loggedIn) {
+      backBtn.classList.remove("hidden");
+      backBtn.innerText = t("backToProfile");
+      backBtn.onclick = () => location.href = "profile-dashboard.html";
+    } else {
+      backBtn.classList.add("hidden");
+    }
+    // ✨ **就在這裡** 保存 profile 到全域
+    window._loadedProfile = profile;
+    // ——— 分享按鈕全域事件委派 ———
+    document.body.addEventListener('click', e => {
+    const btn = e.target.closest('.share-rec-btn');
+    if (!btn) return;                // 沒按在按鈕或其子元素就略過
+    const recId = btn.dataset.recId;  // 從找到的按鈕上讀取
+    const userId = window._loadedProfile.userId;
+    const shareUrl =
+      `${location.origin}/pages/recommend-summary.html?public=true&userId=${userId}&highlightRecId=${recId}`;
+    const message = `謝謝你的推薦與支持，這是我們一起共事的紀錄 💬\n👉 ${shareUrl}`;
+    navigator.clipboard.writeText(message)
+      .then(() => alert('分享連結已複製！'))
+      .catch(() => alert('複製失敗，請手動複製：' + shareUrl));
+    });
+    } 
+    catch (err) {
+    console.error("載入失敗：", err);
+    summaryArea.innerHTML = `<p>載入失敗，請稍後再試</p>`;
     document.getElementById("summaryLoading").style.display = "none";
-
+    return;
+  }
     exportBtn.addEventListener('click', async () => {
       // Lazy load html2canvas & jsPDF
       if (!window.html2canvas || !window.jspdf) {
         await Promise.all([
           loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"),
           loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
-        ]);
+        ]);  
       }
     
       const html2canvas = window.html2canvas;
@@ -310,54 +390,7 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       exportBtn.style.display = 'inline-block';
     });
     
-    
-    // 標題 & Bio
-    document.title = t("pageTitle");
-    document.getElementById("pageTitle").innerText = t("pageTitle");
-    if (profile.bio?.trim()) {
-      descEl.innerText = profile.bio.trim();
-    } else {
-      descEl.style.display = "none";
-    }
-
-    // 顯示或隱藏使用者姓名 & 返回按鈕（私有模式才顯示）
-    if (loggedIn) {
-      const dn = profile.name || "";
-      userNameEl.innerText = t("summaryFor", dn);
-      backBtn.classList.remove("hidden");
-      backBtn.innerText = t("backToProfile");
-      backBtn.onclick    = () => (location.href = "profile-dashboard.html");
-    } 
-    else {
-      const dn = profile.name || "";
-      userNameEl.innerText = t("summaryFor", dn);
-      backBtn.classList.add("hidden");
-    }
-    // ✨ 保存 profile 到 window
-    window._loadedProfile = profile;
-    // ➕ 綁定切換按鈕
-  const toggleViewBtn = document.getElementById("toggleViewBtn");
-  toggleViewBtn.addEventListener("click", () => {
-    onlyShowRecommendations = !onlyShowRecommendations;
-    const { t, lang } = getCurrentT(); // ✅ 新增這行
-    const relOptions = i18n[lang]?.recommendSummary?.relationFilterOptions || [];
-    const relSel = document.getElementById("relationFilter");
-    if (relSel) {
-      relSel.innerHTML = `<option value="">${t("allRelations")}</option>`;
-      relOptions.forEach(opt => {
-        const o = document.createElement("option");
-        o.value = opt.value;
-        o.textContent = opt.label;
-        relSel.appendChild(o);
-      });
-    }
-    const key = onlyShowRecommendations ? "showWithCompany" : "onlyShowRecommendations";
-    toggleViewBtn.setAttribute("data-i18n", key);
-    toggleViewBtn.innerText = t(key);
-    renderRecommendations(window._loadedProfile, t, lang);
-  });
-  
-    // ─────── 新增全域切語言後廣播的監聽 ───────
+  // ─────── 新增全域切語言後廣播的監聽 ───────
     window.addEventListener("langChanged", () => {
       const { t: tNow, lang: langNow } = getCurrentT(); // ✅ 改這裡
       updateRelationFilter(tNow, langNow);
@@ -400,7 +433,6 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       }
     });
   }
-
   // 5) 根據模式呼叫 loadAndRender
   if (isPublic) {
     // 公共：不用登入，直接載入
@@ -414,26 +446,14 @@ let onlyShowRecommendations = false; // ➕ 新增一個切換狀態（預設 fa
       await loadAndRender(user.uid, true);
     });
   }
-  function updateRelationFilter(t, lang) {
-  const relSel = document.getElementById("relationFilter");
-  if (!relSel) return;
 
-  const relOptions = i18n[lang]?.recommendSummary?.relationFilterOptions || [];
-  relSel.innerHTML = `<option value="">${t("allRelations")}</option>`;
-  relOptions.forEach(opt => {
-    const o = document.createElement("option");
-    o.value = opt.value;
-    o.textContent = opt.label;
-    relSel.appendChild(o);
-  });
-}
-
+}); // ← 這是關閉 DOMContentLoaded 的
   function renderRecommendations(profile, tCurrent, langCurrent, isPublic) {
   // —— 新增：先讀取「關係」「亮點」篩選器的值，以及三種顯示模式
-const selectedRelation  = document.getElementById("relationFilter").value;
-const selectedHighlight = document.getElementById("highlightFilter").value;
-const isFiltering       = !!selectedRelation || !!selectedHighlight;
-const isRecOnly         = onlyShowRecommendations;
+  const selectedRelation  = document.getElementById("relationFilter").value;
+  const selectedHighlight = document.getElementById("highlightFilter").value;
+  const isFiltering       = !!selectedRelation || !!selectedHighlight;
+  const isRecOnly         = onlyShowRecommendations;
 
     // 🔁 轉換中文關係名稱 → 英文代碼（給篩選器用）
     const relationNameToValue = {};
@@ -469,6 +489,7 @@ const isRecOnly         = onlyShowRecommendations;
     Object.entries(grouped).forEach(([company, jobs]) => {
       // —— 新增：当在「篩選模式」或「只看推薦內容」时，只保留那些底下有匹配推薦的工作
   let jobsToShow = jobs;
+  // 公開頁：只顯示有推薦的工作
   if (isFiltering) {
     jobsToShow = jobs.filter(job =>
       job.recommendations.some(r =>
@@ -545,31 +566,39 @@ if (isPublic || shouldExpand) {
     const rel = tCurrent(`relation_${r.relation}`) || r.relation;
     const bdg = renderBadges(r.highlights, tCurrent);
     return `
-      <div class="rec-card">
-           ${isPublic
-            ? `<span class="public-icon">★</span>`
-            : ( r.recommenderId
-                ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
-                : `<span class="name">${r.name}</span>`
-             )
-          }
-        <span class="meta">（${rel}）</span>
-        ${bdg ? `<div class="badge-container">${bdg}</div>` : ''}
-        <div>${r.content}</div>
-      </div>
-    `;
-  }).join('');
+    <div class="rec-card" id="rec-${r.id}">
+      ${isPublic
+        ? `<span class="public-icon">★</span>`
+        : ( r.recommenderId
+            ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
+            : `<span class="name">${r.name}</span>`
+          )
+      }
+      <span class="meta">（${tCurrent(`relation_${r.relation}`)}）</span>
+      ${renderBadges(r.highlights, tCurrent) ? `<div class="badge-container">${renderBadges(r.highlights, tCurrent)}</div>` : ''}
+      <div>${r.content}</div>
+      ${!isPublic
+       ? `<button class="share-rec-btn" data-rec-id="${r.id}">⬆️ 分享</button>`
+       : ''
+     }
+    </div>
+  `;
+}).join('');
 } else {
   // 私有頁維持只顯示「第一筆摘要」
   recContainer.innerHTML = `
-    <div class="rec-card">
-      ${ first.recommenderId
-          ? `<a class="name" href="recommend-summary.html?public=true&userId=${first.recommenderId}" target="_blank">${first.name}</a>`
-          : `<span class="name">${first.name}</span>`
-        }
-      <span class="meta">（${relLabel}）</span>
-      ${badgesHtml}
-      <div class="rec-snippet">${snippet}</div>
+  <div class="rec-card" id="rec-${first.id}">
+    ${ first.recommenderId
+        ? `<a class="name" href="recommend-summary.html?public=true&userId=${first.recommenderId}" target="_blank">${first.name}</a>`
+        : `<span class="name">${first.name}</span>`
+      }
+    <span class="meta">（${relLabel}）</span>
+    ${badgesHtml}
+    <div class="rec-snippet">${snippet}</div>
+      ${!isPublic
+        ? `<button class="share-rec-btn" data-rec-id="${first.id}">⬆️ 分享</button>`
+        : ''
+      }
     </div>
   `;
 }
@@ -591,26 +620,30 @@ if (isPublic || shouldExpand) {
             const rel = tCurrent(`relation_${r.relation}`) || r.relation;
             const bdg = renderBadges(r.highlights, tCurrent);
             return `
-              <div class="rec-card">
-                 ${isPublic
-                  ? `<span class="public-icon">★</span>`
-                  : ( r.recommenderId
-                      ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
-                      : `<span class="name">${r.name}</span>`
-                    )
-                }
-                <span class="meta">（${rel}）</span>
-                ${bdg ? `<div class="badge-container">${bdg}</div>` : ''}
-                <div>${r.content}</div>
-              </div>
-            `;
-          }).join('');
+    <div class="rec-card" id="rec-${r.id}">
+      ${isPublic
+        ? `<span class="public-icon">★</span>`
+        : ( r.recommenderId
+            ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
+            : `<span class="name">${r.name}</span>`
+          )
+      }
+      <span class="meta">（${tCurrent(`relation_${r.relation}`)}）</span>
+      ${renderBadges(r.highlights, tCurrent) ? `<div class="badge-container">${renderBadges(r.highlights, tCurrent)}</div>` : ''}
+      <div>${r.content}</div>
+      ${!isPublic
+       ? `<button class="share-rec-btn" data-rec-id="${r.id}">⬆️ 分享</button>`
+       : ''
+     }
+    </div>
+  `;
+}).join('');
           toggleBtn.innerText = tCurrent('showLess');
           toggleBtn.dataset.expanded = 'true';
         } else {
           // 收合回第一筆摘要...
           recContainer.innerHTML = `
-          <div class="rec-card">
+          <div class="rec-card" id="rec-${first.id}">
             ${isPublic
               ? `<span class="public-icon">★</span>`
               : ( first.recommenderId
@@ -621,8 +654,12 @@ if (isPublic || shouldExpand) {
             <span class="meta">（${relLabel}）</span>
             ${badgesHtml}
             <div class="rec-snippet">${snippet}</div>
+            ${!isPublic
+              ? `<button class="share-rec-btn" data-rec-id="${first.id}">⬆️ 分享</button>`
+              : ''
+            }
           </div>
-        `;
+          `;
           toggleBtn.innerText = tCurrent('showAll').replace('{count}', job.recommendations.length);
           toggleBtn.dataset.expanded = 'false';
         }
@@ -690,12 +727,11 @@ if (isPublic || shouldExpand) {
 
 });
     summaryArea.appendChild(frag);
-
+    
     if (!hasMatch && isFiltering) {
       summaryArea.innerHTML = `<p>${tCurrent("noFilteredMatch")}</p>`;
     }    
-  }
-});
+  }  
 // 🔽 動態載入外部 script（html2canvas / jsPDF）避免初始頁面變慢
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -707,3 +743,6 @@ function loadScript(src) {
     document.body.appendChild(script);
   });
 }
+
+
+
