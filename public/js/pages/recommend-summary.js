@@ -126,6 +126,11 @@ document.getElementById("summaryLoading").style.display = "flex";
   });
 
   // 3) 取得主要元素
+  // ↓ 快取篩選器 DOM，並只綁一次 change 事件
+  const relFilterEl = document.getElementById("relationFilter");
+  const hiFilterEl  = document.getElementById("highlightFilter");
+  relFilterEl.addEventListener("change", () => renderRecommendations(window._loadedProfile, t, lang, isPublic));
+  hiFilterEl.addEventListener("change",  () => renderRecommendations(window._loadedProfile, t, lang, isPublic));
   const summaryArea = document.getElementById("summaryArea");
   const userNameEl  = document.getElementById("userName");
   const descEl      = document.getElementById("description");
@@ -290,11 +295,6 @@ if (toggleViewBtn) {
       }
     }
 
-    // —— 資料渲染完後，移除 Skeleton
-    document.getElementById("relationFilter")
-      .addEventListener("change", () => renderRecommendations(profile, t, lang));
-    document.getElementById("highlightFilter")
-      .addEventListener("change", () => renderRecommendations(profile, t, lang));
     // 🌟 【移到 try 裡】標題 ＆ 個人簡介 ＆ 使用者名稱
     document.title = t("pageTitle");
     document.getElementById("pageTitle").innerText = t("pageTitle");
@@ -449,9 +449,11 @@ if (toggleViewBtn) {
 
 }); // ← 這是關閉 DOMContentLoaded 的
   function renderRecommendations(profile, tCurrent, langCurrent, isPublic) {
+    // ↓ 批次 innerHTML 用的暫存字串
+  let html = "";
   // —— 新增：先讀取「關係」「亮點」篩選器的值，以及三種顯示模式
-  const selectedRelation  = document.getElementById("relationFilter").value;
-  const selectedHighlight = document.getElementById("highlightFilter").value;
+  const selectedRelation  = relFilterEl.value;
+  const selectedHighlight = hiFilterEl.value;
   const isFiltering       = !!selectedRelation || !!selectedHighlight;
   const isRecOnly         = onlyShowRecommendations;
 
@@ -726,7 +728,8 @@ if (isPublic || shouldExpand) {
   });
 
 });
-    summaryArea.appendChild(frag);
+    // 一次設定整個內容，省掉多次 appendChild
+    summaryArea.innerHTML = html;
     
     if (!hasMatch && isFiltering) {
       summaryArea.innerHTML = `<p>${tCurrent("noFilteredMatch")}</p>`;
