@@ -218,12 +218,6 @@ document.getElementById("summaryLoading").style.display = "flex";
     const filtersDiv = document.querySelector(".filters-toolbar");
     if (isPublic && filtersDiv) filtersDiv.style.display = "none";
     
-    // 🔽 新增：公開模式下，只保留那些有推薦的工作經歷
-    if (isPublic) {
-      profile.workExperiences = (profile.workExperiences || [])
-        .filter(job => (job.recommendations || []).length > 0);
-      }
-
     // ⭐ 插入星星等級區塊
     if (userLevelBox && !isPublic) {
       const info = getLevelInfo(profile._totalRecCount);
@@ -286,12 +280,17 @@ if (toggleViewBtn) {
     if (sk) sk.remove();
     document.getElementById("summaryLoading").style.display = "none";
     if (isPublic && highlightRecId) {
-      const el = document.getElementById(`rec-${highlightRecId}`);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        el.classList.add("highlight");  // <- （可選）加個 CSS 高亮
-      }
+    // 延遲一下，等 DOM 完全渲染好再滾動
+      setTimeout(() => {
+        const el = document.getElementById(`rec-${highlightRecId}`);
+        if (el) {
+          // 這裡不用 smooth，確保各平台都能觸發
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.classList.add("highlight");
+        }
+      }, 100);
     }
+
     if (!isPublic && jobIdToExpand) {
     // 1⃣ 用正確的模板字串插值
       const card = document.querySelector(`.job-card[data-jobid="${jobIdToExpand}"]`);
@@ -460,6 +459,11 @@ if (toggleViewBtn) {
 
 }); // ← 這是關閉 DOMContentLoaded 的
   function renderRecommendations(profile, tCurrent, langCurrent, isPublic) {
+    // 公開模式：只保留有推薦的工作
+    if (isPublic) {
+      profile.workExperiences = (profile.workExperiences||[])
+      .filter(job => (job.recommendations||[]).length > 0);
+    }
   // —— 新增：先讀取「關係」「亮點」篩選器的值，以及三種顯示模式
   const selectedRelation  = window.relFilterEl.value;
   const selectedHighlight = window.hiFilterEl.value;
