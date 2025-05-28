@@ -1260,9 +1260,11 @@ text-decoration: underline;
   border-radius: 8px 8px 0 0;
   padding: 0.5em 1em;
   margin: 0;
-  color: #fff;
+  color: var(--brand-blue);
   font-size: 0.875rem;
   cursor: pointer;
+  position: relative;
+  z-index: 101;
 }
 
 /* 2) rec-container 跟按鈕無縫接合 */
@@ -1273,6 +1275,11 @@ text-decoration: underline;
   border-radius: 0 0 8px 8px;
   padding: 0.5em;
   margin-top: -1px;
+}
+
+.rec-card-wrapper {
+  position: relative;
+  z-index: 1;
 }
 
 /* ========== Individual Recommendation Card ========== */
@@ -1347,4 +1354,7 @@ text-decoration: underline;
   box-shadow: 0 0 0 2px #f90;
   background: #fffbe6;
 }
-
+/* 新增：讓 .loading-overlay 只要加 .hidden 就一定隱藏 */
+.loading-overlay.hidden {
+  display: none !important;
+}

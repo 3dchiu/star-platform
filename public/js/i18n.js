@@ -157,6 +157,15 @@ export const i18n = {
         { value: "client",             label: "Client" },
         { value: "vendor",             label: "Vendor / Partner" }
       ],
+      relationOptions: [
+        { value: "directManager",      label: "Direct Supervisor" },
+        { value: "crossDeptManager",   label: "Cross-team Supervisor" },
+        { value: "sameDeptColleague",  label: "Teammate (Same Team)" },
+        { value: "crossDeptColleague", label: "Teammate (Different Team)" },
+        { value: "subordinate",        label: "Direct Report" },
+        { value: "client",             label: "Client" },
+        { value: "vendor",             label: "Vendor / Partner" }
+      ],
       allRelations: "All Relations",
       label_relation: "Relation:",
       label_highlight: "Highlight:",
@@ -176,6 +185,7 @@ export const i18n = {
       recommendations: "recommendations",
       highlights: "Highlight Summary",
       relations: "Relationship Summary",
+      present: "Present",
 
     },
     // index.html
@@ -437,6 +447,15 @@ That’s the true reason why I created Galaxyz.`,
         { value: "client", label: "客戶" },
         { value: "vendor", label: "供應商或外部合作夥伴" }
       ],
+      relationFilterOptions: [
+        { value: "directManager",      label: "直屬主管" },
+        { value: "crossDeptManager",   label: "跨部門主管" },
+        { value: "sameDeptColleague",  label: "同部門同事" },
+        { value: "crossDeptColleague", label: "跨部門同事" },
+        { value: "subordinate",        label: "部屬" },
+        { value: "client",             label: "客戶" },
+        { value: "vendor",             label: "供應商或外部合作夥伴" }
+      ],
       allRelations: "全部關係",
       label_relation: "推薦關係：",
       label_highlight: "亮點：",
@@ -454,6 +473,7 @@ That’s the true reason why I created Galaxyz.`,
       recommendations: "則推薦",
       highlights: "亮點統計",
       relations: "關係統計",
+      present: "目前在職",
 
     },
     // index.html

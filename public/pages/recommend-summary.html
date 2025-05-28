@@ -4,6 +4,7 @@
   <!-- 1. Firebase Compat (App + Auth) 一定要最先載入 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
   <!-- html2canvas & jsPDF 從 CDN 載入 -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -19,8 +20,8 @@
   <meta property="og:type" content="website" />
 
   <!-- 全域樣式（含 token 與 thank-you / summary 共用規則） -->
-  <link rel="stylesheet" href="../styles/main.css" />
-  <link rel="stylesheet" href="../styles/level.css" />
+  <link rel="stylesheet" href="/styles/main.css" />
+  <link rel="stylesheet" href="/styles/level.css" />
 
   <!-- 共用 i18n 與頂欄 -->
   <script type="module" src="../js/i18n.js"></script>
@@ -106,8 +107,9 @@
     <!-- 推薦列表 -->
     <section id="summaryArea"></section>
   </main>  
-  
-  <!-- 專屬邏輯 -->
-  <script type="module" src="../js/pages/recommend-summary.js"></script>
+
+  <!-- 根據 public 參數動態載入私有/公開版 JS -->
+ <script type="module" src="../js/pages/entry-summary.js"></script>
+
 </body>
 </html>
