@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- 🔽 Firebase 初始化：載入 compat 版本以支援匿名寫入推薦 -->
- <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
- <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
- <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <!-- 🔽 Firebase 8.10.1 SDK - 與 profile-dashboard 保持一致 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  
+  <!-- 🔥 Firebase 初始化腳本 -->
+  <script src="../js/firebase-init.js"></script>
+  
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- 頁面標題由 JS 自動填入 -->
   <title data-i18n="pageTitle">推薦表單</title>
   <link rel="stylesheet" href="../styles/main.css" />
+  
   <!-- 🌐 Open Graph Meta：分享推薦頁用預覽圖與描述 -->
   <meta property="og:type"        content="website" />
   <meta property="og:title"       content="⭐ 讓真實推薦照亮你的職涯！" />
@@ -18,6 +23,7 @@
   <meta property="og:image"       content="/img/preview-banner.png" />
   <meta property="og:url"         content="https://your-domain.netlify.app/pages/recommend-form.html?userId=XX&lang=zh" />
   <meta name="twitter:card"       content="summary_large_image" />
+  
   <!-- 🈯 多語系支援：i18n 語言切換模組 -->
   <script type="module" src="../js/i18n.js"></script>
 
@@ -118,9 +124,47 @@
   const lang = localStorage.getItem('lang') || 'en';
   setLang(lang);
 </script>
-<script type="module" src="../js/firebase-init.js"></script>
+
 <!-- 📜 本頁核心邏輯：推薦表單載入與送出處理 -->
-<script type="module" src="../js/pages/recommend-form.js"></script>
+<script type="module">
+  // 🔄 檢查 URL 參數決定載入哪個 JS
+  const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode');
+  const inviteId = urlParams.get('inviteId');
+  const targetUserId = urlParams.get('targetUserId');
+  const originalRecId = urlParams.get('originalRecId');
+  
+  console.log('🔍 URL 參數檢測:', {
+    mode: mode,
+    inviteId: inviteId,
+    targetUserId: targetUserId,
+    originalRecId: originalRecId,
+    isReply: mode === 'reply',
+    isOutgoing: mode === 'outgoing'
+  });
+  
+  // 🎯 修正邏輯：回推薦和推薦他人都使用同一個 JS
+  if (mode === 'outgoing' || mode === 'reply') {
+    console.log('📦 載入推薦他人/回推薦邏輯 (give-recommendation.js)');
+    
+    // 統一載入 give-recommendation.js
+    import('../js/pages/give-recommendation.js')
+      .then(() => {
+        console.log('✅ give-recommendation.js 載入完成');
+        console.log('🎯 模式:', mode === 'reply' ? '回推薦模式' : '推薦他人模式');
+      })
+      .catch(err => console.error('❌ give-recommendation.js 載入失敗:', err));
+      
+  } else {
+    console.log('📦 載入被邀請推薦邏輯 (recommend-form.js)');
+    
+    // 載入原有的被邀請推薦邏輯
+    import('../js/pages/recommend-form.js')
+      .then(() => console.log('✅ recommend-form.js 載入完成'))
+      .catch(err => console.error('❌ recommend-form.js 載入失敗:', err));
+  }
+</script>
+
 <!-- 🧩 共用 Header 組件（自動插入導覽列） -->
 <script type="module" src="../js/components/app-header.js"></script>
 </body>

@@ -24,4 +24,6 @@ dist-ssr
 *.sw?
 # 忽略前端機密設定檔
 .env
-
+service-account-key.json
+# 排除本地端的開發和救援用資料夾
+recovery/

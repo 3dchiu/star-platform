@@ -10,10 +10,13 @@
   <link href="https://unpkg.com/vis-network/styles/vis-network.css" rel="stylesheet" />
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 
-  <!-- Firebase -->
+  <!-- Firebase Compat 載入 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  
+  <!-- 🔧 重要：載入 Firebase 初始化腳本 -->
+  <script src="../js/firebase-init.js"></script>
 
   <!-- 多語 & Header -->
   <script type="module" src="../js/i18n.js"></script>
@@ -25,8 +28,8 @@
 <body>
   <div id="appHeader"></div>
   <main class="container">
-    <h1 data-i18n="recommendNetwork.title"></h1>
-    <p data-i18n="recommendNetwork.hint"></p>
+    <h1 data-i18n="recommendNetwork.title">推薦網絡圖</h1>
+    <p data-i18n="recommendNetwork.hint">探索推薦關係的網絡連結</p>
 
     <!-- 🔥 正確的圖表容器（只保留這個） -->
     <div id="networkContainer" style="width: 100%; height: 600px; border: 1px solid #ccc; margin-top: 20px;"></div>

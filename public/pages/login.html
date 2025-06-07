@@ -5,14 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login – Galaxyz</title>
   <link rel="stylesheet" href="../styles/main.css" />
+  
+  <!-- Firebase Compat 載入 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  
+  <!-- 🔧 重要：載入 Firebase 初始化腳本 -->
+  <script src="../js/firebase-init.js"></script>
 </head>
 <body>
   <div id="appHeader"></div>
   <main class="container">
-    <h2 id="welcomeTitle" data-i18n="login.welcomeTitle"></h2>
+    <h2 id="welcomeTitle" data-i18n="login.welcomeTitle">歡迎來到 Galaxyz ✨</h2>
+    
     <!-- 🔐 登入區 --> 
     <div id="loginSection">
       <form id="loginForm" novalidate>
@@ -20,12 +26,15 @@
         <input type="password" id="loginPassword" class="login-input" placeholder="Password" required />
         <button type="submit" class="login-input btn btn-primary">Login</button>
       </form>
-      <p id="registerReminder" style="color:#cc0000; margin-top: 12px;"></p>
+      <p id="registerReminder" style="color:#cc0000; margin-top: 12px;">目前僅限受邀者與推薦人註冊，請確認您的邀請連結是否正確。</p>
 
       <p><a href="#" id="resetPassword">忘記密碼？</a></p>
-      <p id="showRegisterRow" style="display:none">
-        <span id="noAccountText"></span><br />
-        <small id="registerOnlyNote"></small>
+      
+      <!-- 🔧 只保留一個註冊入口 -->
+      <p id="showRegisterRow">
+        <span id="noAccountText">還沒有帳號？</span>
+        <a href="#" id="showRegister"></a><br />
+        <small id="registerOnlyNote">（僅限曾填寫推薦表者可註冊）</small>
       </p>      
     </div>
 
@@ -48,9 +57,9 @@
     <div id="error-message" style="color: red; display: none;"></div>
   </main>
 
-<script type="module" src="../js/firebase-init.js"></script>
-<script type="module" src="../js/pages/login.js"></script>
+<!-- 載入腳本 -->
 <script type="module" src="../js/components/app-header.js"></script>
+<script type="module" src="../js/pages/login.js"></script>
 
 </body>
 </html>

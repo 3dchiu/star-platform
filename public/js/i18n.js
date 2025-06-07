@@ -6,11 +6,11 @@ export const i18n = {
 
     // profile-dashboard.html
     onboarding: {
-      title: "Quick Start ✨",
+      title: "Build Authentic Professional Network ✨",
       steps: [
-        "📄 Create a work experience: just company, title, dates – takes 30 seconds!",
-        "Invite collaborators: click 🔗 to copy a link and send it – choose EN or ZH templates!",
-        "🧑‍🤝‍🧑 Build your career reputation: once submitted, it’s shown on your profile!"
+        "Recommend a great partner who deserves recognition",
+        "Reply with gratitude when you receive recommendations",
+        "Invite friends to build authentic professional profiles together"
       ]
     },
     loadingDashboardMessage: "Loading your profile…",
@@ -33,12 +33,45 @@ export const i18n = {
     errEndAfterToday: "End date cannot be in the future",
     inviteCancel:       "Cancel",
     inviteSaveAndCopy:  "Save & Copy",
-    noRecommendationsHint: "📭 No recommendations received yet.\n🧡 Invite a colleague to share their kind words about you!",
+    noRecommendationsHint: "Start by recommending amazing partners who deserve to be recognized!\nWhen others recommend you too, you can reply to build meaningful professional connections.",
     viewPublicSummary: "🌟 View Public Recommendation Page",
     showAll: "Show all {count} recommendations",
     showLess: "Show less",
     save: "Save",
-
+    inviteRecommender: "Ask Friends to Recommend",
+    recommendOthers: "Recommend Great Partners",
+    replyRecommend: "Reply",
+    edit: "Edit",
+    delete: "Delete",
+    recommendOthersSuccess: "Opening recommendation form...",
+    recommendOthersError: "Failed to create recommendation invite, please try again",
+    // 回覆相關
+    canReply: "can reply to",
+    replyRecommend: "Reply",
+    replyOptions: "Reply Options", 
+    replyOptionsDescription: "Choose how you'd like to reply:",
+    selectColleagueToReply: "Select Colleague to Reply",
+    startReply: "Reply with Recommendation",
+    noReplyAvailable: "No recommendations available to reply to",
+    loadReplyOptionsError: "Failed to load reply options, please try again",
+    alreadyRecommendedThem: "You have already recommended them, no need to reply",
+    replySubmittedSuccess: "Reply recommendation submitted!",
+    
+    // 推薦回覆選項
+    recommendReply: "Recommendation Reply",
+    recommendReplyDesc: "Share your observations about this colleague",
+    
+    // 咖啡感謝選項
+    coffeeGratitude: "Coffee Gratitude",
+    coffeeGratitudeDesc: "Send a cup of coffee to express thanks",
+    comingSoon: "Coming Soon", 
+    joinWaitlist: "Join Waitlist",
+    
+    // 統計文字
+    received: "Received",
+    recommendations: "recommendations",
+    people: "people", 
+    totalRecommended: "Total recommended",
     // invitation templates & UI
     defaultInvite_direct: "I'm building my professional career profile and would love to invite you to write a short recommendation about our time working together. If you're open to it, I'd be happy to return the favor!",
     defaultInvite_warmth: "I'm building my professional network profile, and while reflecting on our past collaborations, I’d love to invite you to share a few words about your impressions of working with me. If you ever want to build your own network, I’d be more than happy to return the recommendation and grow our professional credibility together.",
@@ -112,11 +145,60 @@ export const i18n = {
     highlightOptionCustomPlaceholder: "Enter a custom highlight",
     hintCustomHighlight:              "Up to 30 characters; optional",
     highlightLimitMsg:                "You can select up to 3 highlights only",
+    brandSlogan: "Galaxyz | Where everyone is seen through authenticity and trust.",
+    giveRecommendationReminder: "Please ensure your recommendation is truthful and based on actual collaboration experience. The recommendee will receive an email notification inviting them to register and view your recommendation.",
+    mportantNotice: "📋 Important Notice",
+    confirmationNotice: "Your recommendation will be officially recorded after the recipient registers and verifies their identity.",
+    proTip: "💡 Pro Tip",
+    reminderMessage: "You can proactively message them to remind them to check their email and ensure your recommendation reaches them!",
 
     // fallback for form invite
     defaultInviteForm: `I'm currently building my professional network profile and thought of you as a great collaborator. I'd truly appreciate a few words of recommendation from you. If you're also building your career network, I'd be happy to write one for you in return!`,
     notFound: "⚠️ User data not found.",
     notFoundJob: "⚠️ Job experience not found.",
+
+    // give-recommendation
+    recommendPartnerTitle: "Recommend a Colleague",
+    recommendPartnerNote: "Write a recommendation for your colleague from this work experience",
+    
+    // 工作背景區塊
+    workBackground: "Work Background",
+    company: "Company",
+    position: "Position",
+    recommenderName: "Recommender",
+    
+    // 表單標籤
+    recommendeeName: "Colleague's Name",
+    recommendeeEmail: "Colleague's Email",
+    selectRelation: "Select Relationship",
+    
+    // 表單提示文字
+    hintRecommendeeName: "Enter your colleague's full name",
+    hintRecommendeeEmail: "We'll send them an invitation to view your recommendation",
+
+    // 按鈕文字
+    submitRecommendation: "Send Recommendation",
+    submitting: "Sending...",
+    closeWindow: "Close Window",
+    backToDashboard: "Back to Dashboard",
+    
+    // 最終提醒
+    importantNote: "Important Note",
+    giveRecommendationReminder: "Please ensure your recommendation is truthful and based on actual work experience. Your colleague will receive an email invitation to register and view your recommendation.",
+    
+    // 成功訊息
+    recommendationSentTitle: "Recommendation Sent!",
+    recommendationSentMessage: "Your recommendation has been sent successfully. Your colleague will receive an email notification.",
+    thankYouMessage: "Thank you for taking the time to recommend your colleague and help great talent get recognized!",
+    
+    // 錯誤訊息
+    errorMissingName: "Please enter the colleague's name",
+    errorMissingEmail: "Please enter the colleague's email",
+    errorInvalidEmail: "Please enter a valid email address",
+    errorMissingRelation: "Please select your relationship",
+    errorMissingContent: "Please write your recommendation",
+    errorMissingHighlight: "Please select at least one highlight",
+    submitError: "Failed to send recommendation. Please try again later.",
 
     // thank-you.html
     thankYou: {
@@ -296,11 +378,11 @@ That’s the true reason why I created Galaxyz.`,
 
     // profile-dashboard.html
     onboarding: {
-      title: "快速開始 ✨",
+      title: "開始建立職場好人脈 ✨",
       steps: [
-        "📄 建立一段經歷：填寫公司、職稱、起訖日期，只要 30 秒！",
-        "邀請合作夥伴推薦：點 🔗 複製連結，發給共事過的人，有兩種範本可選！",
-        "🧑‍🤝‍🧑 累積你的職涯推薦：完成後，推薦會自動出現在你的個人檔案，展現你的專業價值！"
+        "推薦一位值得被看見的好夥伴",
+        "當收到推薦時，記得回覆感謝",
+        "邀請朋友一起建立真實的職場檔案"
       ]
     },
     loadingDashboardMessage: "正在載入您的個人資料…",
@@ -323,11 +405,45 @@ That’s the true reason why I created Galaxyz.`,
     errEndAfterToday: "結束日期不可晚於今天",
     inviteCancel:       "取消",
     inviteSaveAndCopy:  "儲存並複製",
-    noRecommendationsHint: "📭 尚未收到推薦內容\n🧡 邀請合作夥伴寫下對你的肯定吧！",
+    noRecommendationsHint: "開始推薦值得被看見的好夥伴吧！\n當別人也推薦你時，就能互相回覆建立職場人脈。",
     viewPublicSummary: "🌟 查看公開推薦頁",
     showAll: "展開 {count} 則推薦", 
     showLess: "收合推薦", 
     save: "儲存",
+    inviteRecommender: "請朋友推薦",
+    recommendOthers: "推薦好夥伴",
+    replyRecommend: "回覆",
+    edit: "編輯",
+    delete: "刪除",
+    recommendOthersSuccess: "正在開啟推薦表單...",
+    recommendOthersError: "建立推薦邀請時發生錯誤，請稍後再試",
+    // 回覆相關
+    canReply: "可回覆",
+    replyRecommend: "回覆", 
+    replyOptions: "回覆選項",
+    replyOptionsDescription: "選擇你想要的回覆方式：",
+    selectColleagueToReply: "選擇要回覆的同事",
+    startReply: "用推薦回覆",
+    noReplyAvailable: "目前沒有可回覆的推薦",
+    loadReplyOptionsError: "載入回覆選項失敗，請稍後再試",
+    alreadyRecommendedThem: "你已經推薦過他們了，無需回覆推薦",
+    replySubmittedSuccess: "回覆推薦已送出！",
+    
+    // 推薦回覆選項
+    recommendReply: "推薦回覆",
+    recommendReplyDesc: "分享你對這位同事的工作觀察",
+    
+    // 咖啡感謝選項
+    coffeeGratitude: "咖啡感謝",
+    coffeeGratitudeDesc: "送一杯咖啡表達感謝",
+    comingSoon: "即將推出",
+    joinWaitlist: "加入等候清單",
+    
+    // 統計文字
+    received: "收到",
+    recommendations: "則推薦",
+    people: "人",
+    totalRecommended: "共推薦",
 
     // invitation templates & UI
     defaultInvite_direct: "我正在建立自己的職涯推薦檔案，想邀請您幫我寫一段我們合作時期的推薦文字。如果您願意，我也很樂意回饋推薦您！",
@@ -346,7 +462,7 @@ That’s the true reason why I created Galaxyz.`,
     previewReminder: "⚠️ 請記得按「儲存並複製」，否則推薦人會看不到你的邀請內容",
 
     // toast & confirm
-    deleteConfirm: "確定刪除此經歷？",
+    deleteConfirm: "刪除後將無法復原，確定刪除此經歷？",
     deleteToast: "已刪除",
     selectStart: "請選擇開始年月",
     selectEnd: "請選擇結束年月",
@@ -402,11 +518,60 @@ That’s the true reason why I created Galaxyz.`,
     hintCustomHighlight:              "最多 30 字，可留空",
     highlightLimitMsg:                "最多只能選 3 個亮點",
 
-  
+    brandSlogan: "Galaxyz｜讓每個人因真實與信任被看見。",
+    giveRecommendationReminder: "請確保推薦內容真實且基於實際合作經驗。被推薦人將收到 Email 通知，邀請他們註冊查看你的推薦。",
+    importantNotice: "📋 重要說明",
+    confirmationNotice: "推薦將在對方註冊並核實身份後，正式納入你的推薦記錄。",
+    proTip: "💡 小提醒",
+    reminderMessage: "你可以主動傳訊息提醒對方查收 Email，以確保推薦能順利送達！",
+
     // fallback for form invite
     defaultInviteForm: `我正在建立自己的專業人脈檔案，想到您是我工作中合作愉快的夥伴，很希望能請您幫我寫幾句推薦。如果您也想建立自己的職涯人脈，我也很樂意回饋推薦您！`,
     notFound: "⚠️ 找不到使用者資料。",
     notFoundJob: "⚠️ 找不到對應的工作經歷。",
+
+    // 推薦他人頁面標題和說明
+    recommendPartnerTitle: "推薦合作夥伴",
+    recommendPartnerNote: "為你在此工作期間合作的夥伴寫下推薦",
+    
+    // 工作背景區塊
+    workBackground: "工作背景",
+    company: "公司",
+    position: "職位",
+    recommenderName: "推薦人",
+    
+    // 表單標籤
+    recommendeeName: "被推薦人姓名",
+    recommendeeEmail: "被推薦人 Email",
+    selectRelation: "請選擇關係",
+    
+    // 表單提示文字
+    hintRecommendeeName: "請填寫被推薦人的真實姓名",
+    hintRecommendeeEmail: "系統將發送通知邀請對方觀看",
+
+    // 按鈕文字
+    submitRecommendation: "送出推薦",
+    submitting: "送出中...",
+    closeWindow: "關閉視窗",
+    backToDashboard: "返回首頁",
+    
+    // 最終提醒
+    importantNote: "重要提醒",
+    giveRecommendationReminder: "請確保推薦內容真實且基於實際合作經驗。被推薦人將收到 Email 通知，邀請他們註冊查看你的推薦。",
+    
+    // 成功訊息
+    recommendationSentTitle: "推薦已送出！",
+    recommendationSentMessage: "你的推薦已成功送出，被推薦人將收到 Email 通知。",
+    thankYouMessage: "感謝你花時間為合作夥伴寫推薦，讓優秀的人才被看見！",
+    
+    // 錯誤訊息
+    errorMissingName: "請填寫被推薦人姓名",
+    errorMissingEmail: "請填寫被推薦人 Email",
+    errorInvalidEmail: "請填寫有效的 Email 地址",
+    errorMissingRelation: "請選擇關係",
+    errorMissingContent: "請填寫推薦內容",
+    errorMissingHighlight: "請選擇至少一個亮點",
+    submitError: "推薦提交失敗，請稍後再試",
 
     // thank-you.html
     thankYou: {
@@ -603,3 +768,4 @@ export function setLang(langCode = "en") {
   window.dispatchEvent(new CustomEvent("langChanged", { detail: langCode }));
 }
 
+window.i18n = i18n;

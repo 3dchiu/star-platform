@@ -1,9 +1,5 @@
 // public/js/pages/recommend-network.js
-import { firebaseConfig } from "../firebase-config.js";
-
-// 初始化 Firebase (compat)
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+console.log("recommend-network.js 啟動");
 
 window.addEventListener("DOMContentLoaded", async () => {
   console.log("❇️ rootUserId =", new URLSearchParams(window.location.search).get("userId"));
@@ -12,6 +8,19 @@ window.addEventListener("DOMContentLoaded", async () => {
   container.innerText = "Loading...";
 
   try {
+    // 🔧 檢查 Firebase 是否已初始化
+    if (typeof firebase === 'undefined') {
+      throw new Error("Firebase 未載入");
+    }
+
+    if (firebase.apps.length === 0) {
+      throw new Error("Firebase 未初始化，請檢查 firebase-init.js");
+    }
+
+    // 使用已初始化的 Firebase 實例
+    const db = firebase.firestore();
+    console.log("✅ Firebase 服務已連接");
+
     // 解析 rootUserId（推薦網絡的起點）
     const params = new URLSearchParams(window.location.search);
     const rootUserId = params.get("userId");

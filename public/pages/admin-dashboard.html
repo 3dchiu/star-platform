@@ -5,7 +5,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Galaxyz Admin Dashboard</title>
-    <!-- 🎨 載入共用樣式 -->
+  
+  <!-- 🔥 Firebase Compat 載入（必須在其他腳本之前） -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  
+  <!-- 🔧 重要：載入 Firebase 初始化腳本 -->
+  <script src="../js/firebase-init.js"></script>
+  
+  <!-- 🎨 載入共用樣式 -->
   <link rel="stylesheet" href="../styles/main.css" />
 </head>
 <body>
@@ -42,6 +51,7 @@
             <th>使用次數</th>
             <th>上限</th>
             <th>是否啟用</th>
+            <th>操作</th>
           </tr>
         </thead>
         <tbody id="inviteCodeTableBody">

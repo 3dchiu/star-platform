@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- 🔽 Firebase 初始化（務必最先載入） -->
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-  
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="profileTitle">My Career Profile</title>
@@ -12,12 +9,32 @@
   <!-- 全站 CSS（在 public../styles/main.css） -->
   <link rel="stylesheet" href="../styles/main.css" />
 
+  <!-- 🔥 Firebase compat SDK - 嘗試不同版本 -->
+ 
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  
+  <!-- 如果上面都不行，試試選項 3: Firebase 10.11.0 -->
+  <!--
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-compat-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-compat-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-compat-auth.js"></script>
+  -->
+  
+  <!-- 🔥 Firebase 初始化腳本 -->
+  <script src="../js/firebase-init.js"></script>
+  
+  <!-- 🌐 多語系檔案載入 -->
+  <script type="module" src="../js/i18n.js"></script>
+
   <!-- 🌐 多語系設定：一進入頁面就根據 localStorage 套用語言 -->
-  <script type="module">
-    import { setLang } from "../js/i18n.js";
-    const lang = localStorage.getItem("lang") || "en";
-    setLang(lang);
-  </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const lang = localStorage.getItem("lang") || "zh-Hant";
+    if (window.setLang) window.setLang(lang);
+  });
+</script>
 
   <!-- 公共 header -->
   <script type="module" src="../js/components/app-header.js"></script>
@@ -205,5 +222,94 @@
       <button id="copyCancelBtn" class="btn btn-secondary" data-i18n="cancel">取消</button>
     </menu>
   </dialog>
+  <!-- 🏗️ Modal 架構設計 -->
+
+<!-- 第一層：回覆選項選擇 Modal（新增）-->
+<dialog id="replyOptionsModal" class="white-card p-6">
+  <div class="modal-header">
+    <h3 data-i18n="replyOptions">回覆選項</h3>
+    <button class="close-btn" id="replyOptionsCloseBtn">&times;</button>
+  </div>
+  <div class="modal-body">
+    <div class="reply-options-grid">
+      <div class="reply-option" data-option="recommend">
+        <div class="option-icon">📝</div>
+        <div class="option-content">
+          <h4 data-i18n="recommendReply">推薦回覆</h4>
+          <p data-i18n="recommendReplyDesc">分享你對這位同事的工作觀察</p>
+        </div>
+        <div class="option-action">
+          <button class="option-btn primary">選擇</button>
+        </div>
+      </div>
+      
+      <div class="reply-option coming-soon" data-option="coffee">
+        <div class="option-icon">☕</div>
+        <div class="option-content">
+          <h4>
+            <span data-i18n="coffeeGratitude">咖啡感謝</span>
+            <span class="coming-soon-badge" data-i18n="comingSoon">即將推出</span>
+          </h4>
+          <p data-i18n="coffeeGratitudeDesc">送一杯咖啡表達感謝</p>
+        </div>
+        <div class="option-action">
+          <button class="option-btn secondary" data-i18n="joinWaitlist">加入等候清單</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- 第二層：具體推薦人員列表 Modal（保留，但更新標題）-->
+<dialog id="replyModal" class="white-card p-6">
+  <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <h3 id="replyModalTitle" data-i18n="selectColleagueToReply">選擇要回覆的同事</h3>
+    <button class="close-btn" id="replyCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+  </div>
+  <div class="modal-body">
+    <div id="replyList" class="reply-list">
+      <!-- 可回覆的人員列表會動態插入這裡 -->
+    </div>
+  </div>
+</dialog>
+
+<!-- 🔧 完整的等候清單 Modal -->
+<dialog id="waitlistModal" class="white-card p-6">
+  <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+    <h3>☕ 咖啡感謝功能等候清單</h3>
+    <button class="close-btn" id="waitlistCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+  </div>
+  
+  <div class="modal-body">
+    <p style="margin-bottom: 16px;">我們正在開發咖啡感謝功能，讓你可以用一杯咖啡向推薦你的同事表達感謝。</p>
+    <p style="margin-bottom: 24px; color: #6b7280;">留下你的 email，我們會在功能上線時第一時間通知你！</p>
+    
+    <form id="waitlistForm">
+      <div class="form-group">
+        <label for="waitlistEmail">Email</label>
+        <input type="email" id="waitlistEmail" required placeholder="your.email@company.com">
+      </div>
+      
+      <div class="form-group">
+        <label for="coffeePreference">你希望的咖啡價位？</label>
+        <select id="coffeePreference">
+          <option value="150">NT$ 150 (便利商店咖啡)</option>
+          <option value="200">NT$ 200 (連鎖咖啡店)</option>
+          <option value="250">NT$ 250 (精品咖啡)</option>
+          <option value="flexible">彈性選擇</option>
+        </select>
+      </div>
+      
+      <div class="flex justify-end gap-4" style="margin-top: 20px;">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('waitlistModal').close()">
+          取消
+        </button>
+        <button type="submit" class="btn btn-primary">
+          加入等候清單
+        </button>
+      </div>
+    </form>
+  </div>
+</dialog>
 </body>
 </html>

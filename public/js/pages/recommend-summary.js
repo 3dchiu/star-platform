@@ -118,39 +118,29 @@ async function initializeApp() {
       throw new Error("Firebase 未載入");
     }
 
-    // Firebase 配置載入
-    let firebaseConfig = null;
-    
-    if (window.firebaseConfig) {
-      firebaseConfig = window.firebaseConfig;
-    } else {
-      try {
-        const configModule = await import("../firebase-config.js");
-        firebaseConfig = configModule.firebaseConfig;
-      } catch (importError) {
-        console.error("動態載入 firebase-config.js 失敗:", importError);
-        const summaryArea = document.getElementById("summaryArea");
-        if (summaryArea) {
-          summaryArea.innerHTML = `<div style="color: red; padding: 20px;">Firebase 配置載入失敗</div>`;
-        }
-        if (loadingEl) loadingEl.style.display = "none";
-        return;
-      }
-    }
+    // 🔧 Firebase 已經在 HTML 中初始化，直接使用
+    let db, auth;
 
-    if (!firebaseConfig || !firebaseConfig.apiKey) {
-      console.error("Firebase 配置無效");
+    try {
+    // 檢查 Firebase 是否已初始化
+      if (firebase.apps.length === 0) {
+        console.error("Firebase 未初始化");
+        throw new Error("Firebase 未初始化，請檢查 firebase-init.js");
+      }
+  
+    // 使用已初始化的 Firebase 實例
+      db = firebase.firestore();
+      auth = firebase.auth();
+      console.log("✅ Firebase 服務已連接");
+    } catch (firebaseError) {
+      console.error("Firebase 連接失敗:", firebaseError);
+      const summaryArea = document.getElementById("summaryArea");
+      if (summaryArea) {
+        summaryArea.innerHTML = `<div style="color: red; padding: 20px;">Firebase 連接失敗</div>`;
+      }
       if (loadingEl) loadingEl.style.display = "none";
       return;
     }
-
-    // Firebase 初始化
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    
-    const db = firebase.firestore();
-    const auth = firebase.auth();
 
     // 替換所有 data-i18n
     document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -246,13 +236,31 @@ async function loadAndRender(userId, db, t, loadingEl, highlightRecId) {
     }
     
     const profile = snap.data();
-    
-    // 建立工作經歷的推薦索引
-    const jobMap = {};
-    (profile.workExperiences || []).forEach(job => {
-      job.recommendations = [];
-      jobMap[job.id] = job;
-    });
+
+// 🔧 兼容物件和陣列兩種工作經歷格式
+const jobMap = {};
+let workExperiencesArray = [];
+
+if (Array.isArray(profile.workExperiences)) {
+  // ✅ 標準陣列格式（其他用戶）
+  workExperiencesArray = profile.workExperiences;
+} else if (profile.workExperiences && typeof profile.workExperiences === 'object') {
+  // 🔧 物件格式轉換（你的數據）
+  workExperiencesArray = Object.values(profile.workExperiences);
+} else {
+  // 空值處理
+  workExperiencesArray = [];
+}
+
+workExperiencesArray.forEach(job => {
+  if (job && typeof job === 'object') {
+    job.recommendations = [];
+    jobMap[job.id] = job;
+  }
+});
+
+// 統一使用陣列格式供後續邏輯使用
+profile.workExperiences = workExperiencesArray;
 
     recSn.forEach(docSnap => {
       const rec = { id: docSnap.id, ...docSnap.data() };
@@ -266,12 +274,13 @@ async function loadAndRender(userId, db, t, loadingEl, highlightRecId) {
     profile.workExperiences.sort((a, b) =>
       (b.startDate || "").localeCompare(a.startDate || "")
     );
+  
+    // 🔧 計算推薦總數：優先使用統計數字，如果沒有才手動計算
+    profile._totalRecCount = profile.recommendationStats?.totalReceived || 
+      (profile.workExperiences || []).reduce((sum, job) => {
+        return sum + (job.recommendations?.length || 0);
+      }, 0);
 
-    // 計算推薦總數
-    profile._totalRecCount = (profile.workExperiences || []).reduce((sum, job) => {
-      return sum + (job.recommendations?.length || 0);
-    }, 0);
-    
     // 顯示等級資訊
     const userLevelBox = document.getElementById("userLevelInfo");
     if (userLevelBox) {
