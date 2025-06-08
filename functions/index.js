@@ -2163,28 +2163,26 @@ function calculateOverlapMonths(start1, end1, start2, end2) {
 }
 
 // 🆕 監聽回覆推薦的創建和處理
+// Cloud Functions/index.js
+
 exports.handleReplyRecommendation = onDocumentCreated(
   "users/{userId}/recommendations/{recId}",
   async (event) => {
     const recData = event.data.data();
-    const userId = event.params.userId;
+    const userId = event.params.userId; // 回覆者的 ID
     const recId = event.params.recId;
     
-    // 🔧 明確只處理回覆推薦
     if (recData.type !== 'reply') {
       return null;
     }
     
     console.log(`💬 處理回覆推薦: ${recId}`);
-    console.log(`→ 回覆者: ${userId}`);
     
-    // 🔧 防重複處理檢查
     if (recData.processed || recData.processing) {
       console.log(`⏭️ 回覆推薦已處理或正在處理中，跳過: ${recId}`);
       return null;
     }
     
-    // 🔧 原子性鎖定
     try {
       await event.data.ref.update({
         processing: true,
@@ -2196,24 +2194,42 @@ exports.handleReplyRecommendation = onDocumentCreated(
     }
     
     try {
-      // 🔍 更新原始推薦記錄
-    if (recData.originalRecommendationId) {
-      await updateOriginalRecommendation(userId, recData.originalRecommendationId, recId);
-    }
-      
-      // 2. 根據目標用戶狀態處理
+      // 🔽🔽🔽 【核心修改】 🔽🔽🔽
+      // 在處理郵件前，先讀取原始推薦的內容
+      let originalContent = '';
+      if (recData.originalRecommendationId) {
+        try {
+          // 原始推薦記錄存在於回覆者(userId)的檔案底下
+          const originalRecSnap = await admin.firestore()
+            .collection("users").doc(userId)
+            .collection("recommendations").doc(recData.originalRecommendationId)
+            .get();
+
+          if (originalRecSnap.exists) {
+            originalContent = originalRecSnap.data().content || '';
+            console.log("✅ 成功讀取原始推薦內容。");
+          }
+          // 同時更新原始推薦的狀態
+          await updateOriginalRecommendation(userId, recData.originalRecommendationId, recId);
+
+        } catch (readError) {
+          console.error("❌ 讀取原始推薦內容失敗:", readError);
+        }
+      }
+
+      // 將原始推薦內容加入到 recData 中，傳遞給郵件函數
+      const fullRecData = { ...recData, originalContent };
+      // 🔼🔼🔼 【核心修改結束】 🔼🔼🔼
+
       const targetUserId = recData.targetUserId;
       const targetEmail = recData.targetEmail;
       
       if (targetUserId && targetUserId !== 'unregistered') {
-        // 目標用戶已註冊
-        await handleRegisteredUserReply(recData, userId, targetUserId, recId);
+        await handleRegisteredUserReply(fullRecData, userId, targetUserId, recId);
       } else if (targetEmail) {
-        // 目標用戶未註冊
-        await handleUnregisteredUserReply(recData, userId, recId);
+        await handleUnregisteredUserReply(fullRecData, userId, recId);
       }
       
-      // 🔧 處理完成
       await event.data.ref.update({
         processed: true,
         processing: false,
@@ -2225,7 +2241,6 @@ exports.handleReplyRecommendation = onDocumentCreated(
     } catch (error) {
       console.error(`❌ 處理回覆推薦失敗: ${recId}`, error);
       
-      // 錯誤時清除處理標記
       try {
         await event.data.ref.update({
           processing: false,

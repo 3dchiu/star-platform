@@ -915,7 +915,8 @@ async function saveRecommendation(inviteData, formData, t) {
         originalRecommendationId: inviteData.originalRecId,
         targetUserId: inviteData.targetUserId, // 原推薦人的 ID
         targetEmail: commonData.email,
-        targetName: commonData.name
+        targetName: commonData.name,
+        replierEmail: auth.currentUser.email
       };
 
       // 回覆是寫入到自己的 recommendations 子集合中
