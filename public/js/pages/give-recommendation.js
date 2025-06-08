@@ -913,10 +913,10 @@ async function saveRecommendation(inviteData, formData, t) {
         ...commonData,
         type: "reply",
         originalRecommendationId: inviteData.originalRecId,
-        targetUserId: inviteData.targetUserId, // 原推薦人的 ID
+        targetUserId: inviteData.targetUserId,
         targetEmail: commonData.email,
         targetName: commonData.name,
-        replierEmail: auth.currentUser.email
+        recommenderEmail: auth.currentUser.email 
       };
 
       // 回覆是寫入到自己的 recommendations 子集合中

@@ -1190,20 +1190,19 @@ exports.onUserCreated_assignRecommenderId = onDocumentCreated("users/{userId}", 
     // 🆕 使用 Promise.all 並行處理多筆記錄
     const updatePromises = [];
 
+    // index.js -> onUserCreated_assignRecommenderId 函數內部
+
     for (const pendingDoc of pendingSnap.docs) {
       const pendingData = pendingDoc.data();
       console.log(`📋 處理 pending 記錄:`, {
         id: pendingDoc.id,
-        type: pendingData.type,
-        email: pendingData.email,
-        recommendationId: pendingData.recommendationId
+        type: pendingData.type
       });
 
-      // 🔥 根據不同類型的 pendingUser 進行不同處理
+      // 🔥 根據不同類型的 pendingUser 進行不同處理 (修正後的平行結構)
       if (pendingData.type === "recommendation_invitee") {
-        // 推薦他人的情況
+        // 情況一：被「推薦好夥伴」的人註冊了
         const recommendationId = pendingData.recommendationId;
-        
         if (recommendationId && pendingData.recommendationData) {
           console.log(`🎯 處理推薦他人註冊: ${recommendationId}`);
           updatePromises.push(
@@ -1212,13 +1211,10 @@ exports.onUserCreated_assignRecommenderId = onDocumentCreated("users/{userId}", 
         } else {
           console.warn(`⚠️ 推薦他人記錄缺少必要資料:`, pendingData);
         }
-      } 
-      
-      // 在 onUserCreated_assignRecommenderId 函數的 for 迴圈中添加
-      else if (pendingData.type === "reply_recommendation") {
-      // 回覆推薦的情況
+
+      } else if (pendingData.type === "reply_recommendation") {
+        // 情況二：被「回覆推薦」的人註冊了
         const replyRecId = pendingData.replyRecommendationId;
-  
         if (replyRecId && pendingData.recommendationData) {
           console.log(`🎯 處理回覆推薦註冊: ${replyRecId}`);
           updatePromises.push(
@@ -1227,14 +1223,29 @@ exports.onUserCreated_assignRecommenderId = onDocumentCreated("users/{userId}", 
         } else {
           console.warn(`⚠️ 回覆推薦記錄缺少必要資料:`, pendingData);
         }
-      } else {
-        // 原有的邀請推薦邏輯
+
+      } else if (pendingData.type === "recommender_registration") { 
+        // 情況三：「邀請推薦」的推薦人註冊了
         const inviteId = pendingData?.inviteId;
         if (inviteId) {
-          console.log(`🎯 處理邀請推薦: ${inviteId}`);
+          console.log(`🎯 處理邀請推薦的推薦人註冊: ${inviteId}`);
           updatePromises.push(
             updateInviteRecommendation(newUserId, inviteId, pendingData)
           );
+        } else {
+            console.warn(`⚠️ 推薦人註冊記錄缺少 inviteId:`, pendingData);
+        }
+
+      } else {
+        // 情況四：兼容最舊版的「邀請推薦」邏輯 (沒有 type)
+        const inviteId = pendingData?.inviteId;
+        if (inviteId) {
+          console.log(`🎯 處理舊版邀請推薦: ${inviteId}`);
+          updatePromises.push(
+            updateInviteRecommendation(newUserId, inviteId, pendingData)
+          );
+        } else {
+            console.warn(`⚠️ 未知的 pendingUser 類型或資料不完整:`, pendingData);
         }
       }
 
@@ -1976,87 +1987,78 @@ console.log(`📊 推廣期驗證結果:`, {
   };
 }
 
-// 🔧 修復後的 updateRecommenderStats 函數
+// 🔧 修復後的 updateRecommenderStats 函數 (原子化版本)
 async function updateRecommenderStats(recommenderId, increment, jobId = null, recommendationData = null) {
   try {
-    console.log(`📊 開始更新推薦人統計: ${recommenderId}, 增量: ${increment}, 工作ID: ${jobId}`);
-    
-    await admin.firestore().runTransaction(async (transaction) => {
-      const userRef = admin.firestore().doc(`users/${recommenderId}`);
+    console.log(`📊 開始更新推薦人統計 (原子化): ${recommenderId}, 增量: ${increment}, 工作ID: ${jobId}`);
+
+    const userRef = admin.firestore().doc(`users/${recommenderId}`);
+
+    // 使用 Transaction 來確保更新工作經歷和統計數字的原子性
+    await db.runTransaction(async (transaction) => {
       const userDoc = await transaction.get(userRef);
-      
       if (!userDoc.exists) {
-        console.log(`❌ 找不到推薦人: ${recommenderId}`);
+        console.warn(`❌ 找不到推薦人: ${recommenderId}，無法更新統計`);
         return;
       }
-      
-      const userData = userDoc.data();
-      
-      // 更新全域統計
-      const currentTotalGiven = userData.recommendationStats?.totalGiven || 0;
-      const newTotalGiven = Math.max(0, currentTotalGiven + increment);
-      
-      // 更新工作經歷統計
-      let workExperiences = userData.workExperiences || [];
-      
-      if (!Array.isArray(workExperiences)) {
-        workExperiences = Object.values(workExperiences);
-      }
-      
+
+      // 1. 原子化更新 recommendationStats.totalGiven
+      // 這裡直接在 updateData 中使用 FieldValue.increment
+      const updateData = {
+        'recommendationStats.totalGiven': admin.firestore.FieldValue.increment(increment)
+      };
+
+      // 2. 如果有 jobId，處理 workExperiences 陣列
       if (jobId) {
+        const userData = userDoc.data();
+        let workExperiences = userData.workExperiences || [];
+        if (!Array.isArray(workExperiences)) {
+          workExperiences = Object.values(workExperiences);
+        }
+
+        let jobFound = false;
         workExperiences = workExperiences.map(job => {
           if (job.id === jobId) {
+            jobFound = true;
             const currentGivenCount = job.givenCount || 0;
-            let recommendations = job.recommendations || [];
-            
-            if (recommendationData && increment > 0) {
-              const recommendationRecord = {
-                id: recommendationData.recommendationId || `rec_${Date.now()}`,
-                type: 'given',
-                recommendeeName: recommendationData.recommendeeName || '被推薦人',
-                recommendeeEmail: recommendationData.recommendeeEmail || '',
-                content: recommendationData.content || '',
-                relation: recommendationData.relation || '',
-                highlights: recommendationData.highlights || [],
-                targetUserId: recommendationData.targetUserId || '',
-                status: 'verified',
-                createdAt: new Date() // 🔧 修復：使用普通 Date
-              };
-              
-              const existingRec = recommendations.find(
-                rec => rec.id === recommendationRecord.id || 
-                       (rec.targetUserId === recommendationRecord.targetUserId && 
-                        rec.content === recommendationRecord.content)
-              );
-              
-              if (!existingRec) {
-                recommendations.push(recommendationRecord);
-                console.log(`📝 推薦記錄已添加: ${recommendationRecord.id}`);
+            job.givenCount = Math.max(0, currentGivenCount + increment);
+
+            // 如果是增加計數，且有推薦內容，則加入明細
+            if (increment > 0 && recommendationData) {
+              let recommendations = job.recommendations || [];
+              const recExists = recommendations.some(r => r.id === recommendationData.recommendationId);
+              if (!recExists) {
+                recommendations.push({
+                  id: recommendationData.recommendationId,
+                  type: 'given',
+                  recommendeeName: recommendationData.recommendeeName,
+                  targetUserId: recommendationData.targetUserId,
+                  status: 'verified',
+                  createdAt: new Date()
+                });
               }
+              job.recommendations = recommendations;
             }
-            
-            return {
-              ...job,
-              givenCount: Math.max(0, currentGivenCount + increment),
-              recommendations: recommendations
-            };
+            console.log(`  -> 工作經歷 ${jobId} 的 givenCount 已更新為: ${job.givenCount}`);
           }
           return job;
         });
+
+        if (!jobFound) {
+            console.warn(`⚠️ 在用戶 ${recommenderId} 的資料中找不到 jobId: ${jobId}`);
+        }
+
+        updateData.workExperiences = workExperiences;
       }
-      
-      const updateData = {
-        'recommendationStats.totalGiven': newTotalGiven,
-        workExperiences: workExperiences
-      };
-      
+
+      // 3. 執行包含原子化操作的更新
       transaction.update(userRef, updateData);
-      
-      console.log(`✅ 推薦人統計更新完成: ${recommenderId} -> totalGiven: ${newTotalGiven}`);
     });
-    
+
+    console.log(`✅ 推薦人統計更新完成: ${recommenderId}`);
+
   } catch (error) {
-    console.error(`❌ 更新推薦人統計失敗: ${recommenderId}`, error);
+    console.error(`❌ 更新推薦人統計失敗 (原子化): ${recommenderId}`, error);
     throw error;
   }
 }
@@ -2283,12 +2285,11 @@ async function updateOriginalRecommendation(replierUserId, originalRecId, newRec
   }
 }
 
-// 🎯 處理已註冊用戶的回覆推薦
+// 🎯 處理已註冊用戶的回覆推薦 (最終修正版)
 async function handleRegisteredUserReply(recData, replierUserId, targetUserId, replyRecId) {
   try {
     console.log(`✅ 處理已註冊用戶回覆: ${targetUserId}`);
     
-    // 1. 創建推薦記錄到目標用戶的 recommendations
     const targetRecRef = admin.firestore()
       .collection("users")
       .doc(targetUserId)
@@ -2297,8 +2298,8 @@ async function handleRegisteredUserReply(recData, replierUserId, targetUserId, r
     
     const targetRecData = {
       id: targetRecRef.id,
-      name: recData.replierName,
-      email: recData.replierEmail,
+      name: recData.recommenderName,      // 修正 #1：使用 recommenderName
+      email: recData.recommenderEmail,   // 修正 #2：統一使用 recommenderEmail
       content: recData.content,
       highlights: recData.highlights || [],
       relation: recData.relation || 'colleague',
@@ -2306,13 +2307,11 @@ async function handleRegisteredUserReply(recData, replierUserId, targetUserId, r
       recommenderId: replierUserId,
       replyRecommendationId: replyRecId,
       hasReplied: false,
-      jobId: recData.targetJobId || 'default',
+      jobId: recData.jobId || 'default', // 使用 recData 中的 jobId
       status: 'verified',
       confidence: 1.0,
       verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
       verificationType: 'reply_based',
-      reason: 'reply_to_existing_recommendation',
-      excludeFromStats: false,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       lang: recData.lang || 'zh'
     };
@@ -2320,11 +2319,11 @@ async function handleRegisteredUserReply(recData, replierUserId, targetUserId, r
     await targetRecRef.set(targetRecData);
     console.log(`✅ 推薦記錄已創建到目標用戶: ${targetRecRef.id}`);
     
-    // 2. 更新統計
-    await updateRecommenderStats(replierUserId, 1);
+    // 更新統計 (使用修正後的函數)
+    await updateRecommenderStats(replierUserId, 1, recData.recommenderJobId, recData);
     await updateRecipientStats(targetUserId, 1);
     
-    // 3. 發送 email 通知
+    // 發送 email 通知
     await sendReplyRecommendationEmails(recData, true);
     
     console.log(`✅ 已註冊用戶回覆處理完成`);
@@ -2345,8 +2344,8 @@ async function handleUnregisteredUserReply(recData, replierUserId, replyRecId) {
       type: "reply_recommendation",
       replyRecommendationId: replyRecId,
       recommendationData: {
-        name: recData.replierName,
-        email: recData.replierEmail,
+        name: recData.recommenderName, // 修正：使用正確的欄位名稱
+        email: recData.recommenderEmail, // 修正：統一使用 recommenderEmail 欄位
         content: recData.content,
         highlights: recData.highlights || [],
         relation: recData.relation || 'colleague',
@@ -2373,101 +2372,92 @@ async function handleUnregisteredUserReply(recData, replierUserId, replyRecId) {
   }
 }
 
-// 📧 發送回覆推薦的 email 通知
+// index.js
+
+// 📧 發送回覆推薦的 email 通知 (修正版)
 async function sendReplyRecommendationEmails(recData, isTargetRegistered) {
   try {
     let lang = recData.lang || "zh";
-    
+
     // 語言標準化
     if (lang.startsWith('zh')) lang = 'zh';
     else if (lang.startsWith('en')) lang = 'en';
     else lang = 'zh';
-    
+
     console.log(`📧 發送回覆推薦邀請，語言: ${lang}`);
-    
+
     const messages = i18nMessages.replyRecommendation[lang];
     if (!messages) {
       console.error(`❌ 找不到語言 ${lang} 的翻譯`);
       return;
     }
-    
+
+    // 🔽🔽🔽 【核心修正區域】 🔽🔽🔽
+
     // 1. 發送給目標用戶（已註冊 vs 未註冊）
     if (isTargetRegistered) {
       // 已註冊用戶：回覆通知
-      const subjectToRecipient = messages.subjectToRecipient(recData.replierName);
+      const subjectToRecipient = messages.subjectToRecipient(recData.recommenderName); // 修正: 使用 recommenderName
       const textToRecipient = messages.textToRecipient(
-        recData.replierName,
+        recData.recommenderName, // 修正: 使用 recommenderName
         recData.targetName,
         recData.content,
         recData.originalContent
       );
-      
+
       await sgMail.send({
         to: recData.targetEmail,
-        from: {
-          email: process.env.SENDER_EMAIL,
-          name: process.env.SENDER_NAME
-        },
+        from: { email: process.env.SENDER_EMAIL, name: process.env.SENDER_NAME },
         subject: subjectToRecipient,
         text: textToRecipient,
-        trackingSettings: {
-          clickTracking: { enable: false, enableText: false }
-        }
+        trackingSettings: { clickTracking: { enable: false, enableText: false } }
       });
-      
+
       console.log(`✅ 已註冊用戶回覆通知已發送: ${recData.targetEmail}`);
-      
+
     } else {
       // 未註冊用戶：推薦邀請
-      const subjectToUnregistered = messages.subjectToUnregistered(recData.replierName);
+      const subjectToUnregistered = messages.subjectToUnregistered(recData.recommenderName); // 修正: 使用 recommenderName
       const textToUnregistered = messages.textToUnregistered(
-        recData.replierName,
+        recData.recommenderName, // 修正: 使用 recommenderName
         recData.targetName,
         recData.content,
         recData.targetEmail
       );
-      
+
       await sgMail.send({
         to: recData.targetEmail,
-        from: {
-          email: process.env.SENDER_EMAIL,
-          name: process.env.SENDER_NAME
-        },
+        from: { email: process.env.SENDER_EMAIL, name: process.env.SENDER_NAME },
         subject: subjectToUnregistered,
         text: textToUnregistered,
-        trackingSettings: {
-          clickTracking: { enable: false, enableText: false }
-        }
+        trackingSettings: { clickTracking: { enable: false, enableText: false } }
       });
-      
+
       console.log(`✅ 未註冊用戶推薦邀請已發送: ${recData.targetEmail}`);
     }
-    
+
     // 2. 發送確認信給回覆者
     if (recData.replierEmail) {
       const subjectToReplier = messages.subjectToReplier(recData.targetName);
       const textToReplier = messages.textToReplier(
-        recData.replierName,
+        recData.recommenderName, // 修正: 使用 recommenderName
         recData.targetName,
         isTargetRegistered
       );
-      
+
       await sgMail.send({
         to: recData.replierEmail,
-        from: {
-          email: process.env.SENDER_EMAIL,
-          name: process.env.SENDER_NAME
-        },
+        from: { email: process.env.SENDER_EMAIL, name: process.env.SENDER_NAME },
         subject: subjectToReplier,
         text: textToReplier,
-        trackingSettings: {
-          clickTracking: { enable: false, enableText: false }
-        }
+        trackingSettings: { clickTracking: { enable: false, enableText: false } }
       });
-      
+
       console.log(`✅ 回覆者確認信已發送: ${recData.replierEmail}`);
     }
-    
+
+    // 🔼🔼🔼 【核心修改結束】 🔼🔼🔼
+
   } catch (error) {
     console.error(`❌ 發送回覆推薦 email 失敗`, error);
     throw error;
@@ -2804,3 +2794,45 @@ Team Galaxyz`
     console.error("❌ 發送重複推薦通知失敗:", error);
   }
 }
+
+/**
+ * 🆕 新功能：當推薦被補上 recommenderId 時，更新推薦人的送出統計
+ * 觸發器：當 users/{userId}/recommendations/{recId} 文件被更新時
+ */
+exports.updateStatsOnRecommenderIdAdded = onDocumentUpdated("users/{userId}/recommendations/{recId}", async (event) => {
+  // 1. 取得更新前和更新後的資料
+  const beforeData = event.data.before.data();
+  const afterData = event.data.after.data();
+
+  // 2. 核心條件：只有在「recommenderId 從無到有」時才觸發
+  if (!beforeData.recommenderId && afterData.recommenderId) {
+    const recommenderId = afterData.recommenderId;
+    const recommendeeId = event.params.userId;
+
+    console.log(`📈 偵測到 recommenderId 被補上: ${recommenderId}`);
+    console.log(`   -> 推薦: ${event.params.recId} | 推薦人: ${recommenderId} | 被推薦人: ${recommendeeId}`);
+
+    try {
+      // 3. 為推薦人更新「送出推薦」的統計數據
+      // 使用我們修正後的、原子化的 updateRecommenderStats 函數
+      await updateRecommenderStats(
+        recommenderId, 
+        1, // 增加 1 次
+        afterData.jobId,
+        afterData // 將完整的推薦資料傳入，以便 updateRecommenderStats 建立明細
+      );
+      console.log(`   ✅ 成功為推薦人 ${recommenderId} 更新統計。`);
+
+      // 4. 在推薦記錄上標記統計已更新，避免重複觸發
+      await event.data.after.ref.update({
+        statsUpdated: true,
+        statsUpdatedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+    } catch (error) {
+      console.error(`❌ 更新推薦人統計時發生錯誤 (from updateStatsOnRecommenderIdAdded):`, error);
+    }
+  }
+
+  return null;
+});

@@ -246,7 +246,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     function populateYearMonth() {
       const now = new Date(), thisYear = now.getFullYear();
       let yrs = ['<option value="">--</option>'], mos = ['<option value="">--</option>'];
-      for (let y = thisYear-40; y <= thisYear; y++) yrs.push(`<option>${y}</option>`);
+      for (let y = thisYear; y >= thisYear - 40; y--) {
+        yrs.push(`<option>${y}</option>`);
+      }
       for (let m = 1; m <= 12; m++) {
         const mm = String(m).padStart(2,"0");
         mos.push(`<option value="${mm}">${m}</option>`);
