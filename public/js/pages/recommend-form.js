@@ -572,7 +572,7 @@ async function handleSubmit(e) {
   const lang = localStorage.getItem("lang") || "zh";
   const t = i18n[lang] || i18n.zh || {};
   if (!formData.name || !formData.email || !formData.content || formData.highlights.length === 0) {
-    alert(t.fillAllFields || "請完整填寫姓名、Email、推薦內容與亮點。");
+    alert(t.fillAllFields);
     if (btn) btn.disabled = false;
     return;
   }
@@ -592,7 +592,7 @@ async function handleSubmit(e) {
       const loginUrl = `/pages/login.html?flow=lite_reg&email=${encodeURIComponent(formData.email)}`;
       
       // 3c. 提示使用者，並在新分頁開啟登入頁
-      alert(t.loginToSubmit || "為了確保推薦的真實性，請登入或註冊以完成提交。您的內容已為您保存。");
+      alert(t.loginToSubmit);
       window.open(loginUrl, '_blank');
       
       if (btn) btn.disabled = false; // 解鎖按鈕讓使用者可以回來繼續操作
@@ -614,7 +614,7 @@ async function handleSubmit(e) {
       .get();
 
     if (!existing.empty) {
-      alert(t.alreadyRecommended || "您已經為這個工作經歷提交過推薦了！");
+      alert(t.alreadyRecommended);
       if (btn) btn.disabled = false;
       return;
     }

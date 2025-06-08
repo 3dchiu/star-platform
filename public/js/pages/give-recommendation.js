@@ -164,11 +164,11 @@ if (mode === "reply" && inviteId && originalRecId) {
         recommenderName: inviteData.recommenderName
       });
     } else {
-      showError("找不到原始推薦記錄，無法進行回推薦");
+      showError(t.originalRecNotFound);
       return;
     }
   } else {
-    showError("找不到邀請記錄，無法進行回推薦");
+    showError(t.inviteNotFound);
     return;
   }
       
@@ -963,45 +963,44 @@ async function saveRecommendation(inviteData, formData, t) {
 // 修改 showSuccess 函數
 function showSuccess(t) {
   console.log("🎉 顯示成功訊息");
-  
+
   const container = document.getElementById("formContainer");
   if (container) {
     container.style.display = "none";
   }
-  
+
+  const formT = t.form || {}; // 從 form 物件中取值
+
   const html = [
-    "<div class=\"container\" style=\"text-align: center; padding: 2rem;\">",
-    "<div style=\"background: #f8f9fa; border-radius: 8px; padding: 2rem; max-width: 600px; margin: 0 auto;\">",
-    "<h1 style=\"color: #28a745; margin-bottom: 1.5rem;\">✅ " + (t.recommendationSentTitle || "推薦已送出！") + "</h1>",
-    
-    // 🆕 新增重要說明區塊
-    "<div style=\"background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 1.5rem; margin: 1.5rem 0; text-align: left;\">",
-    "<h3 style=\"color: #0066cc; margin: 0 0 1rem 0; font-size: 1.1rem;\">📋 重要說明：</h3>",
-    "<p style=\"margin: 0 0 1rem 0; line-height: 1.5;\">推薦將在對方註冊並核實身份後，正式納入你的推薦記錄。</p>",
-    "<h3 style=\"color: #0066cc; margin: 1rem 0 1rem 0; font-size: 1.1rem;\">💡 小提醒：</h3>",
-    "<p style=\"margin: 0 0 1rem 0; line-height: 1.5;\">你可以主動傳訊息提醒對方查收 Email，以確保推薦能順利送達！</p>",
-    "<p style=\"margin: 1rem 0 0 0; line-height: 1.5;\">感謝你花時間為合作夥伴寫推薦，讓優秀的人才被看見。</p>",
-    "</div>",
-    
-    // 原有的感謝訊息
-    "<p style=\"font-size: 1.1rem; margin: 1rem 0; color: #333;\">" + (t.recommendationSentMessage || "被推薦人將收到 Email 通知邀請註冊。") + "</p>",
-    
+    `<div class="container" style="text-align: center; padding: 2rem;">`,
+    `<div style="background: #f8f9fa; border-radius: 8px; padding: 2rem; max-width: 600px; margin: 0 auto;">`,
+    `<h1 style="color: #28a745; margin-bottom: 1.5rem;">✅ ${formT.recommendationSentTitle || "推薦已送出！"}</h1>`,
+
+    // 重要說明區塊
+    `<div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 1.5rem; margin: 1.5rem 0; text-align: left;">`,
+    `<h3 style="color: #0066cc; margin: 0 0 1rem 0; font-size: 1.1rem;">${formT.successImportantNote || "重要說明："}</h3>`,
+    `<p style="margin: 0 0 1rem 0; line-height: 1.5;">${formT.successNote1 || "推薦將在對方註冊並核實身份後，正式納入你的推薦記錄。"}</p>`,
+    `<h3 style="color: #0066cc; margin: 1rem 0 1rem 0; font-size: 1.1rem;">${formT.successProTip || "💡 小提醒："}</h3>`,
+    `<p style="margin: 0 0 1rem 0; line-height: 1.5;">${formT.successNote2 || "你可以主動傳訊息提醒對方查收 Email，以確保推薦能順利送達！"}</p>`,
+    `<p style="margin: 1rem 0 0 0; line-height: 1.5;">${formT.successNote3 || "感謝你花時間為合作夥伴寫推薦，讓優秀的人才被看見。"}</p>`,
+    `</div>`,
+
     // 按鈕區域
-    "<div style=\"margin-top: 2rem;\">",
-    "<button onclick=\"location.reload()\" class=\"btn btn-success\" style=\"margin-right: 1rem; padding: 0.75rem 1.5rem;\">",
-    (t.recommendAnother || "推薦其他人"),
-    "</button>",
-    "<button onclick=\"window.location.href='/pages/profile-dashboard.html'\" class=\"btn btn-primary\" style=\"margin-right: 1rem; padding: 0.75rem 1.5rem;\">",
-    (t.backToDashboard || "返回儀表板"),
-    "</button>",
-    "<button onclick=\"window.close()\" class=\"btn btn-secondary\" style=\"padding: 0.75rem 1.5rem;\">",
-    (t.closeWindow || "關閉視窗"),
-    "</button>",
-    "</div>",
-    "</div>",
-    "</div>"
+    `<div style="margin-top: 2rem;">`,
+    `<button onclick="location.reload()" class="btn btn-success" style="margin-right: 1rem; padding: 0.75rem 1.5rem;">`,
+    `${formT.successRecommendAnother || "推薦其他人"}`,
+    `</button>`,
+    `<button onclick="window.location.href='/pages/profile-dashboard.html'" class="btn btn-primary" style="margin-right: 1rem; padding: 0.75rem 1.5rem;">`,
+    `${formT.successBackToDashboard || "返回儀表板"}`,
+    `</button>`,
+    `<button onclick="window.close()" class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">`,
+    `${formT.successCloseWindow || "關閉視窗"}`,
+    `</button>`,
+    `</div>`,
+    `</div>`,
+    `</div>`
   ].join("");
-  
+
   document.body.innerHTML = html;
 }
 // 顯示錯誤

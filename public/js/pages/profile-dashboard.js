@@ -894,7 +894,7 @@ async function handleReplyRecommendation(jobIndex) {
     });
     
     if (availableRecommendations.length === 0) {
-      showToast(tNow.noReplyAvailable || "目前沒有可回覆的推薦");
+      showToast(tNow.noReplyAvailable);
       return;
     }
     
@@ -931,7 +931,7 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
   // 🎯 關鍵驗證：對於已註冊用戶，recommenderId 不能為空
   if (isRegistered && (!recommenderId || recommenderId === '' || recommenderId === 'null')) {
     console.error("❌ 已註冊用戶但 recommenderId 無效:", recommenderId);
-    showToast("推薦人資料有誤，請重新選擇");
+    showToast(dashboardT.recommenderDataError);
     return;
   }
   
@@ -1011,9 +1011,7 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
     
     // 🎯 成功提示並開啟表單
     const tNow = getSafeTranslation(langNow);
-    const message = isRegistered 
-      ? (tNow.openingReplyForm || "正在開啟回推薦表單...")
-      : (tNow.openingUnregisteredReplyForm || "正在開啟表單（對方註冊後可查看推薦）...");
+    const message = isRegistered ? tNow.openingReplyForm : tNow.openingUnregisteredReplyForm;
     
     showToast(message);
     smartOpenRecommendation(targetUrl, '回推薦表單');
@@ -1021,7 +1019,7 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
   } catch (error) {
     console.error("❌ 建立回推薦邀請失敗:", error);
     const tNow = getSafeTranslation(langNow);
-    showToast(tNow.createReplyInviteError || "建立回推薦邀請失敗，請稍後再試");
+    showToast(dashboardT.createInviteError);
   }
 }
 
@@ -1364,7 +1362,7 @@ function debugRecommendationData() {
       try {
         // 🔍 先檢查使用者是否已登入
         if (!auth.currentUser) {
-          showToast("請先登入後再使用此功能");
+          showToast(commonT.loginRequired);
           return;
         }
 
@@ -1395,7 +1393,7 @@ function debugRecommendationData() {
         
         // 顯示成功訊息
         const tNow = getSafeTranslation(langNow);
-        showToast(tNow.recommendOthersSuccess || "正在開啟推薦表單...");
+        showToast(dashboardT.openingRecommendForm);
         
         // 🆕 可以選擇在新視窗開啟或在當前頁面導向
         smartOpenRecommendation(targetUrl, '推薦他人表單');
@@ -1409,12 +1407,12 @@ function debugRecommendationData() {
         const tNow = getSafeTranslation(langNow);
         
         // 🔍 根據不同錯誤類型顯示對應訊息
-        let errorMessage = tNow.recommendOthersError || "建立推薦邀請時發生錯誤，請稍後再試";
+        let errorMessage = dashboardT.createInviteError;
         
         if (err.code === 'permission-denied') {
-          errorMessage = "權限不足，請重新登入後再試";
+          errorMessage = commonT.permissionDenied;
         } else if (err.code === 'unavailable') {
-          errorMessage = "網路連線問題，請檢查網路後再試";
+          errorMessage = commonT.networkError;
         }
         
         showToast(errorMessage);
@@ -1753,14 +1751,14 @@ function recheckQuickStartCard() {
           e.preventDefault();
           // ─── 新增：檢查開始年月必填 ─────────────────────────────
           if (!startY.value || !startM.value) {
-            showToast(t.selectStart || "請選擇開始年月");  // 確保 i18n 有對應的 key，例如 selectStart
+            showToast(dashboardT.selectStart);
             return;
           }
           if (!nameSection.hidden) {
             const nameVal = nameInput.value.trim();
             // 🔍 若為首次填寫，驗證使用者必須輸入姓名
             if (!nameVal) {
-              showToast(t.enterName || "請填寫姓名");
+              showToast(dashboardT.enterName);
               nameInput.focus();
               return;
             }
@@ -1782,7 +1780,7 @@ function recheckQuickStartCard() {
           if (!stillChk.checked) {
             // 1. 確認有選年/月
             if (!endY.value || !endM.value) {
-              showToast(t.selectEnd || "請選擇結束年月");
+              showToast(dashboardT.selectEnd);
               return;
             }
             // 2. 轉成 Date 物件再比大小
@@ -1792,12 +1790,12 @@ function recheckQuickStartCard() {
         
             // ❌ 錯誤：結束日期不能早於開始日期
             if (endObj < startObj) {
-              showToast(t.errEndBeforeStart || "結束日期不可早於開始日期");
+              showToast(dashboardT.errEndBeforeStart);
               return;
             }
             // ❌ 錯誤：結束日期不能超過今天
             if (endObj > today) {
-              showToast(t.errEndAfterToday || "結束日期不可晚於今天");
+              showToast(dashboardT.errEndAfterToday);
               return;
             }
             // 5. 合法才組回字串
@@ -1855,13 +1853,13 @@ function recheckQuickStartCard() {
           if (idx === undefined || (idx !== 0 && !idx)) return;
           
           if (e.target.closest(".del-btn")) {
-            if (confirm(t.deleteConfirm || "刪除後將無法復原，確定刪除此經歷？")) {
+            if (confirm(dashboardT.deleteConfirm)) {
               profile.workExperiences.splice(idx,1);
               saveProfile().then(() => {
                 renderExperienceCardsWithReply();  // ✅ 加上括號
                 renderBasicWithReplyStats();       // ✅ 同時更新統計
               });
-              showToast(t.deleteToast || "已刪除");
+              showToast(commonT.deleted);
             }
           }
           else if (e.target.closest(".edit-btn")) openModalForEdit(idx);
@@ -1967,7 +1965,7 @@ function recheckQuickStartCard() {
           const langNow = localStorage.getItem("lang") || "zh-Hant";
           const message = inviteTextarea.value.trim();
           if (!message) {
-            showToast(t.inviteEmpty || "請先輸入邀請內容");
+            showToast(dashboardT.inviteEmpty);
             return; // ❌ 中止流程
           }
           const style   = currentInviteStyle || "warmth";
@@ -1993,7 +1991,7 @@ function recheckQuickStartCard() {
         
             // 📤 將產生的連結複製到剪貼簿
             await navigator.clipboard.writeText(finalLink);
-            showToast(t.linkCopied || "已複製推薦連結"); // ✅ 成功提示
+            showToast(commonT.linkCopied); // ✅ 成功提示
           } 
           catch (err) {
             console.error("❌ 複製失敗：", err);
@@ -2012,9 +2010,9 @@ function recheckQuickStartCard() {
               btnCopy.onclick = async () => {
                 try {
                   await navigator.clipboard.writeText(copyInput.value);
-                  showToast(t.linkCopied || "已複製推薦連結");
+                  showToast(commonT.linkCopied);
                 } catch {
-                  showToast(t.linkCopyFailed || "複製失敗，請手動複製以下連結：");
+                  showToast(commonT.linkCopyFailed);
                 }
                 copyModal.close();
               };

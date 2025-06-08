@@ -101,22 +101,21 @@ const showRegisterForm = async () => {
     // 模式 3：邀請碼註冊（通過 URL 參數）
     registrationMode = "inviteCode";
     modeDescription = "邀請碼註冊";
-    if (welcomeTitle) welcomeTitle.textContent = "受邀註冊";
+    if (welcomeTitle) welcomeTitle.textContent = loginT.titleInvited;
     
     try {
       const codeDoc = await db.collection("inviteCodes").doc(inviteCode).get();
       if (codeDoc.exists && codeDoc.data().isActive === true) {
         const inviteCodeInput = document.getElementById("inviteCodeInput");
         if (inviteCodeInput) inviteCodeInput.value = inviteCode;
-        if (registerReminder) registerReminder.innerHTML = `<span style="color: green;">✅ 邀請碼有效，歡迎加入！</span>`;
-        console.log("✅ 邀請碼有效");
+        if (registerReminder) registerReminder.innerHTML = `<span style="color: green;">${loginT.reminderInviteCodeValid}</span>`;
       } else {
-        if (registerReminder) registerReminder.innerHTML = `<span style="color: red;">❌ 邀請碼無效或已過期</span>`;
+        if (registerReminder) registerReminder.innerHTML = `<span style="color: red;">${loginT.reminderInviteCodeInvalid}</span>`;
         console.log("❌ 邀請碼無效");
       }
     } catch (err) {
       console.error("❌ 驗證邀請碼錯誤:", err);
-      if (registerReminder) registerReminder.innerHTML = `<span style="color: red;">❌ 系統錯誤，請稍後再試</span>`;
+      if (registerReminder) registerReminder.innerHTML = `<span style="color: red;">${loginT.errorSystem}</span>`;
     }
     
   } else if (urlEmail && isRegister) {
@@ -134,14 +133,14 @@ const showRegisterForm = async () => {
           // 模式 2：推薦他人的被推薦人
           registrationMode = "recommendee";
           modeDescription = "被推薦人註冊";
-          if (welcomeTitle) welcomeTitle.textContent = "完成註冊查看推薦";
-          if (registerReminder) registerReminder.innerHTML = `<span style="color: blue;">📝 有人為你寫了推薦，註冊後即可查看！</span>`;
+          if (welcomeTitle) welcomeTitle.textContent = loginT.titleCompleteToView;
+          if (registerReminder) registerReminder.innerHTML = `<span style="color: blue;">${loginT.reminderHasRecommendation}</span>`;
         } else if (pendingData.fromRecommendation === true) {
           // 模式 1：邀請推薦的推薦人
           registrationMode = "recommender";
           modeDescription = "推薦人註冊";
-          if (welcomeTitle) welcomeTitle.textContent = "註冊管理推薦記錄";
-          if (registerReminder) registerReminder.innerHTML = `<span style="color: green;">✅ 感謝你提供推薦，註冊後可管理你的推薦記錄！</span>`;
+          if (welcomeTitle) welcomeTitle.textContent = loginT.titleManageRecs;
+          if (registerReminder) registerReminder.innerHTML = `<span style="color: green;">${loginT.reminderThanksForRecommending}</span>`;
         } else {
           // 其他類型
           registrationMode = "general";
@@ -166,16 +165,16 @@ const showRegisterForm = async () => {
     } catch (error) {
       console.error("❌ 檢查註冊類型時發生錯誤:", error);
       registrationMode = "error";
-      if (registerReminder) registerReminder.innerHTML = `<span style="color: red;">❌ 系統錯誤，請稍後再試</span>`;
+      if (registerReminder) registerReminder.innerHTML = `<span style="color: red;">${loginT.errorSystem}</span>`;
     }
     
   } else {
     // 🔧 手動點擊註冊（無邀請連結或邀請碼）- 要求填寫邀請碼
     registrationMode = "inviteCodeRequired";
     modeDescription = "邀請碼註冊";
-    if (welcomeTitle) welcomeTitle.textContent = "邀請碼註冊";
+    if (welcomeTitle) welcomeTitle.textContent = loginT.titleDefault; // 或 loginT.titleInviteCodeRequired
     if (registerReminder) {
-      registerReminder.innerHTML = `<span style="color: blue;">📋 請輸入有效的邀請碼以完成註冊。如需邀請碼請聯繫管理員。</span>`;
+      if (registerReminder) { registerReminder.innerHTML = `<span style="color: blue;">${loginT.reminderInviteCodeRequired}</span>`; }
     }
     
     // 🔧 強調邀請碼欄位必填
@@ -687,21 +686,23 @@ function setupRegisterForm() {
 
       } catch (error) {
         console.error("❌ 註冊失敗:", error);
-        
-        let errorMsg = "註冊失敗，請稍後再試。";
+        const loginT = i18n[localStorage.getItem("lang") || "zh-Hant"]?.login || {};
+        let errorMsg = loginT.unknownError || "註冊失敗，請稍後再試。";
         
         switch (error.code) {
           case 'auth/email-already-in-use':
-            errorMsg = "此 Email 已被註冊，請嘗試登入或使用其他 Email。";
+            errorMsg = loginT.errorEmailInUse;
             break;
           case 'auth/invalid-email':
-            errorMsg = "Email 格式不正確。";
+        // 沿用 Firebase 的訊息，因為它通常很準確
+            errorMsg = error.message; 
             break;
           case 'auth/weak-password':
-            errorMsg = "密碼強度不足，請使用至少 6 個字元。";
+            errorMsg = loginT.errorWeakPassword;
             break;
           default:
-            errorMsg = error.message || "註冊失敗，請稍後再試。";
+        // 對於其他未知的 Firebase 錯誤，直接顯示其訊息
+            errorMsg = error.message || loginT.unknownError;
         }
         
         if (errorMessage) {
@@ -711,6 +712,7 @@ function setupRegisterForm() {
         
         if (registerBtn) {
           registerBtn.disabled = false;
+          const commonT = i18n[localStorage.getItem("lang") || "zh-Hant"]?.common || {};
           registerBtn.innerText = "Register";
         }
       }
