@@ -2148,14 +2148,20 @@ function recheckQuickStartCard() {
 
       } catch (authError) {
         console.error("❌ 認證或初始化過程發生錯誤:", authError);
-        const loadingText = document.getElementById("loadingDashboardText");
-        if (loadingText) {
-          loadingText.innerText = "載入失敗，請重新整理頁面";
-        }
-        // 可以考慮自動重新導向登入頁
-        setTimeout(() => {
-          location.href = "/pages/login.html";
-        }, 3000);
+        const loadingEl = document.getElementById("dashboardLoading");
+    if (loadingEl) {
+      // 直接在載入畫面中顯示錯誤訊息和重試按鈕
+      loadingEl.innerHTML = `
+        <div style="text-align: center; color: #dc3545; padding: 20px;">
+          <h2 style="margin-bottom: 1rem;">載入失敗</h2>
+          <p style="margin-bottom: 1.5rem;">無法順利載入您的個人資料，請檢查您的網路連線後再試。</p>
+          <p style="font-size: 0.8rem; color: #6c757d; margin-bottom: 2rem;">錯誤訊息: ${authError.message}</p>
+          <button onclick="location.reload()" class="btn btn-primary">重新整理頁面</button>
+        </div>
+      `;
+      // 確保載入畫面是可見的
+      loadingEl.style.display = "flex";
+      }
       }
     });
 

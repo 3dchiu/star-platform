@@ -457,6 +457,15 @@ async function initialize() {
     await waitForFirebase();
     console.log("✅ Firebase 準備就緒");
     
+    if (auth.currentUser) {
+      console.log(`用戶 ${auth.currentUser.email} 已登入，自動跳轉至儀表板...`);
+      // 如果有 next 參數，則跳轉到 next，否則跳轉到儀表板
+      const params = new URLSearchParams(location.search);
+      const nextUrl = params.get("next") || "/pages/profile-dashboard.html";
+      window.location.href = nextUrl;
+      return; // 【重要】直接退出函數，不執行後續的登入表單邏輯
+    }
+    
     // 如果有 register 參數，調用 showRegisterForm
     if (isRegister) {
       console.log("🎯 URL 參數檢測到 register=1，調用 showRegisterForm");

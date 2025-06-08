@@ -66,9 +66,9 @@ Team Galaxyz`
 你收到一封來自 ${recommenderName} 的推薦信！
 
 **推薦內容預覽：**
-「${content.length > 100 ? content.substring(0, 100) + '...' : content}」
+「${content.length > 60 ? content.substring(0, 60) + '...' : content}」
 
-${content.length > 100 ? '👆 這只是部分內容，完整推薦還有更多精彩內容！' : ''}
+${content.length > 60 ? '👆 這只是部分內容，完整推薦還有更多精彩內容！' : ''}
 
 這封來自 ${recommenderName} 的推薦信，是你職涯中的一顆信任星星 ⭐
 
