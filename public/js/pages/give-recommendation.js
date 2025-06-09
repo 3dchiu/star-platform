@@ -885,15 +885,15 @@ async function saveRecommendation(inviteData, formData, t) {
   console.log("💾 儲存推薦資料");
   console.log("  -> 是否為回覆模式:", inviteData.isReplyMode);
 
-  // 準備共用的資料 payload
+  // 準備共用的資料 payload (這部分保持不變)
   const commonData = {
-    name: formData.name, // 在回覆模式下，這是被回覆者的名字
-    email: formData.email.toLowerCase(), // 被回覆者的 email
+    name: formData.name, 
+    email: formData.email.toLowerCase(),
     content: formData.content,
     highlights: formData.highlights,
     relation: formData.relation,
     status: "pending",
-    recommenderName: inviteData.recommenderName, // 送出回覆的人的名字
+    recommenderName: inviteData.recommenderName,
     recommenderUserId: auth.currentUser.uid,
     recommenderJobId: inviteData.jobId,
     recommenderCompany: inviteData.company || '',
@@ -905,23 +905,31 @@ async function saveRecommendation(inviteData, formData, t) {
   try {
     if (inviteData.isReplyMode) {
       // =================================
-      // 🔥【回覆推薦】寫入路徑
+      // 🔥【回覆推薦】寫入路徑 (已修正)
       // =================================
       console.log("  -> 寫入到使用者推薦子集合...");
 
+      // 1. 先建立不含 targetUserId 的基礎物件
       const replyData = {
         ...commonData,
         type: "reply",
         originalRecommendationId: inviteData.originalRecId,
-        targetUserId: inviteData.targetUserId,
         targetEmail: commonData.email,
         targetName: commonData.name,
         recommenderEmail: auth.currentUser.email 
       };
 
+      // 2. 【核心修改】只有在 inviteData.targetUserId 存在時，才把這個欄位加上去
+      if (inviteData.targetUserId) {
+        replyData.targetUserId = inviteData.targetUserId;
+      }
+      
+      // 現在 replyData 物件對於 Firestore 來說是絕對安全的
+      console.log("💾 準備儲存的最終回覆資料:", replyData);
+
       // 回覆是寫入到自己的 recommendations 子集合中
       const recRef = db.collection("users")
-        .doc(auth.currentUser.uid) // 當前使用者 (回覆者)
+        .doc(auth.currentUser.uid)
         .collection("recommendations")
         .doc();
 
@@ -930,19 +938,19 @@ async function saveRecommendation(inviteData, formData, t) {
 
     } else {
       // =================================
-      // 🔥【推薦好夥伴】寫入路徑 (原邏輯)
+      // 🔥【推薦好夥伴】寫入路徑 (此部分邏輯正確，保持不變)
       // =================================
       console.log("  -> 寫入到 outgoingRecommendations 集合...");
 
       const outgoingData = {
         ...commonData,
         type: "outgoing",
-        recommendeeName: commonData.name, // 被推薦人的名字
+        recommendeeName: commonData.name,
         recommendeeEmail: commonData.email,
         inviteId: inviteData.id,
       };
 
-      delete outgoingData.name;  // 整理欄位，避免混淆
+      delete outgoingData.name;
       delete outgoingData.email;
 
       const recRef = db.collection("outgoingRecommendations").doc();
@@ -952,13 +960,8 @@ async function saveRecommendation(inviteData, formData, t) {
 
   } catch (error) {
     console.error("❌ 儲存推薦失敗:", error);
-    // 拋出錯誤，讓外層的 try/catch 處理
     throw error;
   }
-
-  // 注意：更新原始推薦 hasReplied 的邏輯在後端處理更安全，
-  // 前端可以移除，或作為一個非關鍵的即時反饋。
-  // 為求簡單，暫時移除前端的這部分操作，完全交給後端。
 }
 
 // 修改 showSuccess 函數

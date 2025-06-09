@@ -368,11 +368,9 @@ async function loadAndRender(userId, db, t, loadingEl, highlightRecId) {
   }
 }
 
-// recommend-summary.js
-
 /**
- * 【對應修改版】渲染推薦內容的函式
- * - 修改資料來源為 job.verifiedRecommendations
+ * 【按鈕位置修正版】渲染推薦內容的函式
+ * - 將「展開/收合」按鈕移動到推薦內容的上方。
  */
 async function renderRecommendations(profile) {
   const { t, lang } = await getCurrentT();
@@ -382,111 +380,128 @@ async function renderRecommendations(profile) {
   const selectedRelation = window.relFilterEl?.value || "";
   const selectedHighlight = window.hiFilterEl?.value || "";
   const isFiltering = !!selectedRelation || !!selectedHighlight;
-  
-  const relationNameToValue = {};
-  const relOptions = i18nModule?.i18n[lang]?.recommendSummary?.relationFilterOptions || [];
-  relOptions.forEach(opt => {
-    relationNameToValue[opt.label] = opt.value;
-  });
-  const selectedRelationValue = relationNameToValue[selectedRelation] || selectedRelation;
 
   summaryArea.innerHTML = "";
   const exps = profile.workExperiences || [];
   
-  if (exps.length === 0) {
-    summaryArea.innerHTML = `<p>${t("noExperience")}</p>`;
-    return;
-  }
-
   const grouped = {};
   exps.forEach(job => (grouped[job.company] ||= []).push(job));
 
   let hasMatch = false;
 
   Object.entries(grouped).forEach(([company, jobs]) => {
-    let jobsToShow = jobs;
-    
-    if (isFiltering) {
-      jobsToShow = jobs.filter(job =>
-        // [修改] 使用 verifiedRecommendations
-        (job.verifiedRecommendations || []).some(r =>
-          doesRecommendationMatch(r, selectedRelationValue, selectedHighlight)
-        )
-      );
-    }
-    
-    // [修改] 使用 verifiedRecommendations
-    jobsToShow = jobsToShow.filter(job => (job.verifiedRecommendations || []).length > 0);
-    
+    let jobsToShow = jobs.filter(job => (job.verifiedRecommendations || []).length > 0);
     if (jobsToShow.length === 0) return;
 
     const section = document.createElement("div");
-    if (!onlyShowRecommendations) {
-      section.className = "company-section";
-      section.innerHTML = `<div class="company-name">${company}</div>`;
-    }
+    section.className = "company-section";
+    section.innerHTML = `<div class="company-name">${company}</div>`;
 
     jobsToShow.forEach(job => {
-      const shouldExpand = job.id === jobIdToExpand;
+      hasMatch = true;
+      const card = document.createElement("div");
+      card.className = "job-card";
+      card.dataset.jobid = job.id;
+      
+      // 1. 先產生工作資訊的 HTML
+      card.innerHTML = `
+        <div class="job-title">${job.position}</div>
+        <div class="job-date">${job.startDate} ～ ${job.endDate || t("present")}</div>
+        ${job.description ? `<div class="job-description">${job.description.replace(/\n/g, "<br>")}</div>` : ""}
+      `;
 
-      if (onlyShowRecommendations) {
-        // [修改] 使用 verifiedRecommendations
-        (job.verifiedRecommendations || []).forEach(r => {
-          if (isFiltering && !doesRecommendationMatch(r, selectedRelationValue, selectedHighlight)) return;
-          hasMatch = true; // 有符合的結果
-          
-          const relLabel = t(`relation_${r.relation}`) || r.relation;
-          const badges = renderBadges(r.highlights, t);
-          const recCard = document.createElement("div");
-          recCard.className = "rec-card";
-          recCard.id = `rec-${r.id}`;
-          recCard.innerHTML = `
-            ${r.recommenderId
-              ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
-              : `<span class="name">${r.name}</span>`
-            }
-            <span class="meta">（${relLabel}）</span>
-            ${badges ? `<div class="badge-container">${badges}</div>` : ''}
-            <div>${r.content}</div>
-            <button class="share-rec-btn" data-rec-id="${r.id}">⬆️ 分享</button>
-          `;
-          section.appendChild(recCard);
-        });
-
-      } else {
-        const card = document.createElement("div");
-        card.className = "job-card";
-        card.dataset.jobid = job.id;
+      const recsInJob = job.verifiedRecommendations || [];
+      
+      if (recsInJob.length > 0) {
         
-        let headerHtml = `...`; // headerHtml 邏輯不變
-        card.innerHTML = headerHtml;
+        // --- ▼▼▼ 【位置調整核心】 ▼▼▼ ---
 
-        // [修改] 使用 verifiedRecommendations
-        const recsInJob = job.verifiedRecommendations || [];
-        if (recsInJob.length > 0) {
-          const filteredRecs = isFiltering 
-            ? recsInJob.filter(r => doesRecommendationMatch(r, selectedRelationValue, selectedHighlight))
-            : recsInJob;
+        // 2. 建立一個總容器來包裹按鈕和推薦內容
+        const recSectionWrapper = document.createElement('div');
+        recSectionWrapper.className = 'rec-section-wrapper';
 
-          if (filteredRecs.length > 0) {
-            hasMatch = true; // 有符合的結果
-            const recContainer = document.createElement('div');
-            // ... 後續所有使用 filteredRecs 的渲染邏輯都保持不變 ...
-            // 因為 filteredRecs 已經是從正確的 verifiedRecommendations 來源過濾的
-          }
+        // 3. 如果需要按鈕，就「先」建立按鈕並放入總容器
+        if (recsInJob.length > 1 && !isFiltering) {
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'btn btn-link rec-toggle-btn'; // 您可以沿用現有 class
+            toggleBtn.dataset.expanded = 'false';
+            toggleBtn.textContent = t('showAll', recsInJob.length);
+
+            toggleBtn.addEventListener('click', (e) => {
+                // 為了找到正確的 recContainer，我們從按鈕往上層找
+                const wrapper = e.target.closest('.rec-section-wrapper');
+                const recContainer = wrapper.querySelector('.rec-container');
+                if (!recContainer) return;
+
+                const isExpanded = e.target.dataset.expanded === 'true';
+                if (isExpanded) {
+                    // 收合
+                    recContainer.innerHTML = createRecCardHTML(recsInJob[0]);
+                    e.target.textContent = t('showAll', recsInJob.length);
+                    e.target.dataset.expanded = 'false';
+                } else {
+                    // 展開
+                    recContainer.innerHTML = recsInJob.map(r => createRecCardHTML(r)).join('');
+                    e.target.textContent = t('showLess');
+                    e.target.dataset.expanded = 'true';
+                }
+            });
+            recSectionWrapper.appendChild(toggleBtn);
         }
-        section.appendChild(card);
-      }
-    });
 
+        // 4. 「後」建立推薦內容的容器
+        const recContainer = document.createElement('div');
+        recContainer.className = 'rec-container';
+        // 預設只顯示第一筆
+        recContainer.innerHTML = createRecCardHTML(recsInJob[0]);
+        
+        // 5. 將推薦內容容器也放入總容器
+        recSectionWrapper.appendChild(recContainer);
+        
+        // 6. 最後將整個總容器（按鈕+內容）加入到卡片中
+        card.appendChild(recSectionWrapper);
+        
+        // --- ▲▲▲ 【位置調整結束】 ▲▲▲ ---
+      }
+      section.appendChild(card);
+    });
+    
     if (section.children.length > 0) {
-      summaryArea.appendChild(section);
+        summaryArea.appendChild(section);
     }
   });
 
   if (!hasMatch) {
     summaryArea.innerHTML = `<p>${isFiltering ? t("noFilteredMatch") : t("noVerifiedRecommendations")}</p>`;
   }
+}
+
+/**
+ * 【輔助函式】建立單張推薦卡的 HTML 字串
+ */
+function createRecCardHTML(r) {
+    const t = (key) => (i18n[localStorage.getItem("lang") || "en"]?.recommendSummary || {})[key] || key;
+    
+    const relOptions = i18n[localStorage.getItem("lang") || "en"]?.recommendSummary?.relationFilterOptions || [];
+    const relMatch = relOptions.find(opt => opt.value === r.relation);
+    const relLabel = relMatch?.label || r.relation;
+
+    const badges = renderBadges(r.highlights, t);
+    
+    return `
+      <div class="rec-card" id="rec-${r.id}">
+        <div class="rec-header">
+            ${r.recommenderId
+              ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
+              : `<span class="name">${r.name}</span>`
+            }
+            <span class="meta">（${relLabel}）</span>
+        </div>
+        ${badges ? `<div class="badge-container">${badges}</div>` : ''}
+        <div class="rec-content">${r.content.replace(/\n/g, "<br>")}</div>
+        <button class="share-rec-btn" data-rec-id="${r.id}" title="分享這則推薦">⬆️ 分享</button>
+      </div>
+    `;
 }
 
 // 檢查 DOM 狀態並初始化
