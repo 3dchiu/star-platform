@@ -18,7 +18,7 @@ export const i18n = {
       unknownError: "An unknown error occurred. Please try again later.",
       deleted: "Deleted.",
       linkCopied: "Link copied!",
-      linkCopyFailed: "Failed to copy. Please copy the link manually."
+      linkCopyFailed: "Please copy the link manually."
     },
     // profile-dashboard.html
     onboarding: {
@@ -110,7 +110,7 @@ export const i18n = {
     selectStart: "Select start date",
     selectEnd: "Select end date",
     linkCopied: "Link copied!",
-    linkCopyFailed: "Copy failed, please copy the link below:",
+    linkCopyFailed: "Please copy the link below:",
     copy: "Copy",
     cancel: "Cancel",
     linkCopied: "Link copied!",
@@ -447,7 +447,7 @@ That’s the true reason why I created Galaxyz.`,
       unknownError: "發生未知錯誤，請稍後再試。",
       deleted: "已刪除。",
       linkCopied: "已複製連結！",
-      linkCopyFailed: "複製失敗，請手動複製連結。"
+      linkCopyFailed: "請手動複製連結。"
     },
 
     // profile-dashboard.html
@@ -553,7 +553,7 @@ That’s the true reason why I created Galaxyz.`,
     selectStart: "請選擇開始年月",
     selectEnd: "請選擇結束年月",
     linkCopied: "已複製推薦連結",
-    linkCopyFailed: "複製失敗，請手動複製以下連結：",
+    linkCopyFailed: "請手動複製以下連結：",
     copy: "複製",
     cancel: "取消",
     linkCopied: "連結已複製！",

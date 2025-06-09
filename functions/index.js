@@ -76,6 +76,9 @@ ${recommenderName} 在 ${company} 擔任 ${position} 期間認識了你，現在
 
 💫 想看完整的推薦內容嗎？點擊下方連結，立即建立你的 Galaxyz 職涯頁！
 
+💡【重要提示】
+請優先填寫與 ${recommenderName} 在 <span class="math-inline">\{company\} 共事時期的工作經歷，這樣系統能自動將對方的推薦內容顯示在該段經歷中，幫助你快速完成職涯檔案建立。
+
 👉【立即註冊並查看完整推薦】
 https://galaxyz.ai/pages/login.html?register=1&email=${encodeURIComponent(recommendeeEmail)}
 
@@ -273,6 +276,9 @@ Galaxyz 團隊敬上`,
 
 👉【立即註冊並查看推薦】
 https://galaxyz.ai/pages/login.html?register=1&email=${encodeURIComponent(recipientEmail)}
+
+💡【重要提示】
+請優先填寫與 <span class="math-inline">\{replierName\} 共事時期的工作經歷，這樣系統能自動將這份推薦顯示在對應的經歷中。
 
 Galaxyz｜讓每個人因真實與信任被看見
 

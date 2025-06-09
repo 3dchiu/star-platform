@@ -2026,7 +2026,16 @@ function recheckQuickStartCard() {
             // 如果是「新增經歷」流程，才重置表單
             expForm.reset();
           }
-
+          const hintBox = document.getElementById("onboardingHint");
+          // 只有在「首次建立檔案」時，才顯示這個提示
+          if (isFirst && hintBox) {
+          // 這裡可以寫入我們之前設計好的提示文字
+            hintBox.innerHTML = `💡 請優先填寫與推薦人共事時期的工作經歷，這樣系統能自動將推薦顯示在該經歷中，幫助你快速完成檔案建立。`;
+            hintBox.style.display = 'block'; // 顯示提示區塊
+          } else if (hintBox) {
+          // 確保在其他情況下 (例如點擊「新增經歷」)，提示是隱藏的
+            hintBox.style.display = 'none';
+          }
          // 🔍 如果是第一次填檔案，顯示對應語系文字（姓名欄位／標題等）
           if (isFirst) {
             renderStaticText();
