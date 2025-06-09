@@ -5,6 +5,7 @@ console.log("🚀 recommend-form.js 開始初始化");
 
 // 🔽 Firebase 相關變數
 let app, auth, db;
+let inviteData = null; // 👈 新增此行
 
 // 🔽 等待 Firebase 初始化完成（與 profile-dashboard.js 一致）
 function waitForFirebase() {
@@ -554,94 +555,120 @@ function bindEvents() {
 // 🔽 處理表單提交
 async function handleSubmit(e) {
   e.preventDefault();
-  console.log("📤 處理表單提交...");
+  console.log("📤 [V2] 處理表單提交...");
 
   const btn = document.getElementById("submitBtn");
+  const lang = localStorage.getItem("lang") || "zh";
+  const t = i18n[lang] || i18n.zh || {};
+  
   if (btn) btn.disabled = true;
 
-  // 步驟 1: 無論是否登入，都先從表單收集當前資料
+  // 步驟 1: 收集並驗證表單資料
   const formData = {
     name: document.getElementById("name")?.value.trim() || "",
-    email: document.getElementById("email")?.value.trim() || "",
+    email: document.getElementById("email")?.value.trim().toLowerCase() || "",
     relation: document.getElementById("relation")?.value || "",
     content: document.getElementById("content")?.value.trim() || "",
     highlights: Array.from(document.querySelectorAll('input[name="highlight"]:checked')).map(cb => cb.value)
   };
 
-  // 步驟 2: 驗證表單基本內容是否填寫
-  const lang = localStorage.getItem("lang") || "zh";
-  const t = i18n[lang] || i18n.zh || {};
-  if (!formData.name || !formData.email || !formData.content || formData.highlights.length === 0) {
-    alert(t.fillAllFields);
+  if (!formData.name || !formData.email || !formData.relation || !formData.content || formData.highlights.length === 0) {
+    alert(t.fillAllFields || "請完整填寫所有欄位");
     if (btn) btn.disabled = false;
     return;
   }
   
-  try {
-    // =======================================================
-    // 步驟 3: 檢查使用者登入狀態 (這是我們新增的核心邏輯)
-    // =======================================================
-    if (!auth.currentUser) {
-      console.log("🔐 使用者未登入。");
-      
-      // 3a. 暫存資料到 sessionStorage
-      sessionStorage.setItem('pendingRecommendation', JSON.stringify(formData));
-      console.log("✅ 表單資料已暫存，準備引導登入...");
-      
-      // 3b. 組合帶有特殊參數的 URL 以啟用「輕量化註冊」
-      const loginUrl = `/pages/login.html?flow=lite_reg&email=${encodeURIComponent(formData.email)}`;
-      
-      // 3c. 提示使用者，並在新分頁開啟登入頁
-      alert(t.loginToSubmit);
-      window.open(loginUrl, '_blank');
-      
-      if (btn) btn.disabled = false; // 解鎖按鈕讓使用者可以回來繼續操作
-      return; // 中斷本次提交，等待使用者登入後回來再次點擊
-    }
-
-    // =======================================================
-    // 步驟 4: 如果使用者已登入，執行安全提交流程
-    // =======================================================
-    console.log(`✅ 使用者已登入: ${auth.currentUser.uid}`);
-    console.log(`   - 表單填寫Email: ${formData.email}`);
-    console.log(`   - 實際登入Email: ${auth.currentUser.email}`);
-
-    // 4a. 執行重複提交檢查 (使用登入者的真實Email)
-    const recCollection = db.collection("users").doc(userId).collection("recommendations");
-    const existing = await recCollection
-      .where("email", "==", auth.currentUser.email) // 【安全】用登入者的 Email 檢查
-      .where("jobId", "==", jobId)
-      .get();
-
-    if (!existing.empty) {
-      alert(t.alreadyRecommended);
+  // 步驟 2: 檢查上下文資料是否已載入
+  if (!profileData || !jobData || !inviteData) {
+      console.error("❌ 提交錯誤：頁面核心資料未載入", { hasProfile: !!profileData, hasJob: !!jobData, hasInvite: !!inviteData });
+      alert(t.submitError || "提交失敗，頁面資料不完整，請重新整理。");
       if (btn) btn.disabled = false;
       return;
+  }
+
+  try {
+    // 步驟 3: 檢查是否重複提交（針對同一個邀請）
+    // 根據文件規則，我們在寫入端先做簡易檢查，防止使用者誤觸
+    const q = db.collection("outgoingRecommendations")
+                .where("inviteId", "==", inviteId)
+                .where("email", "==", formData.email);
+    
+    const existingSnap = await q.get();
+
+    if (!existingSnap.empty) {
+        console.warn("⚠️ 偵測到重複提交");
+        alert(t.alreadyRecommended || "您已經為此邀請提交過推薦，請勿重複操作。");
+        // 直接導向感謝頁面，體驗更流暢
+        window.location.href = `thank-you.html?userId=${userId}&recommenderName=${encodeURIComponent(formData.name)}`;
+        return;
     }
 
-    // 4b. 組合最終要儲存的資料
-    // 【安全關鍵】推薦人的姓名和Email，強制使用登入後的 auth.currentUser
-    const dataToSave = {
-      name: auth.currentUser.displayName || formData.name,
-      email: auth.currentUser.email,
-      recommenderId: auth.currentUser.uid,
-      recommenderRegistered: true,
-      relation: formData.relation,
-      content: formData.content,
-      highlights: formData.highlights,
-      jobId: jobId,
-      invitedBy: invitedBy || null,
-      inviteId: inviteId || null,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      status: "pending"
+    // 步驟 4: 準備寫入 `outgoingRecommendations` 的資料
+    // 這個物件結構嚴格遵循 V1 技術文件
+    const outgoingRecommendationData = {
+        // 表單核心資料
+        name: formData.name,
+        email: formData.email,
+        relation: formData.relation,
+        content: formData.content,
+        highlights: formData.highlights,
+        
+        // 關聯與上下文資料
+        inviteId: inviteId,
+        lang: lang,
+        recommenderUserId: auth.currentUser ? auth.currentUser.uid : null,
+        recommendeeName: profileData.name || null,
+        recommendeeEmail: profileData.email || null,
+        type: inviteData.type || 'unknown', // 來自 invite 文件，例如 'outgoing' 或 'inviteFriend'
+
+        // 處理狀態欄位 (由 Cloud Function 更新)
+        processed: false,
+        processing: false,
+        status: 'submitted', // 初始狀態
+
+        // 時間戳
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+
+        // 文件中定義但表單無法提供的欄位，設為 null
+        duplicateOf: null,
+        processedAt: null,
+        processingStartedAt: null,
+        recommenderCompany: null,
+        recommenderJobId: null,
+        recommenderPosition: null,
     };
+    console.log("💾 準備寫入 outgoingRecommendations:", outgoingRecommendationData);
 
-    console.log("💾 準備儲存的最終資料:", dataToSave);
-    await recCollection.add(dataToSave);
+    // 步驟 5: 使用 Batch Write 確保資料寫入的原子性
+    const batch = db.batch();
 
-    console.log("✅ 推薦儲存成功！");
-    // 導向感謝頁面
-    window.location.href = `thank-you.html?userId=${userId}&recommenderName=${encodeURIComponent(dataToSave.name)}`;
+    // 5a. 寫入主要的 outgoingRecommendations
+    const recRef = db.collection("outgoingRecommendations").doc();
+    batch.set(recRef, outgoingRecommendationData);
+
+    // 5b. 根據文件規則：如果邀請類型是 'inviteFriend'，則為推薦人建立一筆 pendingUsers 記錄
+    if (inviteData.type === 'inviteFriend' && !auth.currentUser) {
+        const pendingUserRef = db.collection("pendingUsers").doc(formData.email);
+        const pendingUserData = {
+            email: formData.email,
+            name: formData.name,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            source: 'inviteFriend_recommender', // 標示來源
+            relatedInviteId: inviteId,
+            status: 'pending_registration'
+        };
+        console.log("✍️ 準備寫入 pendingUsers:", pendingUserData);
+        batch.set(pendingUserRef, pendingUserData, { merge: true }); // 使用 merge 以免覆蓋舊資料
+    }
+
+    // 步驟 6: 執行所有寫入操作
+    await batch.commit();
+
+    console.log("✅ 推薦資料批次寫入成功！");
+    
+    // 步驟 7: 導向感謝頁面
+    window.location.href = `thank-you.html?userId=${userId}&recommenderName=${encodeURIComponent(formData.name)}`;
 
   } catch (error) {
     console.error("❌ 提交過程中發生錯誤:", error);

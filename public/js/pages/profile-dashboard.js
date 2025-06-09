@@ -480,137 +480,109 @@ try {
     return [];
   }
 }
-// 2. 推薦統計計算函數
+/**
+ * 計算推薦統計的核心函式
+ * @param {Array} recommendations - 包含所有推薦記錄的陣列
+ * @returns {Object} - 結構化的統計物件
+ */
 function calculateRecommendationStats(recommendations) {
+  // 1. 初始化統計物件結構
   const stats = {
-    totalReceived: 0,        // 只計算驗證通過的推薦
-    totalGiven: 0,           // 只計算驗證通過的推薦
-    canReply: 0,             // 🔧 改為：所有未回覆的推薦都可回覆
-    totalCanReply: 0,        // 🆕 新增：總可回覆數
-    byJob: {}
+    totalReceived: 0,     // 總收到（僅計驗證通過）
+    totalGiven: 0,        // 總送出（僅計驗證通過）
+    totalCanReply: 0,     // 總可回覆數（不論驗證狀態）
+    byJob: {}             // 按工作經歷分類的詳細統計
   };
-  
-  console.log('🔍 開始計算推薦統計（新邏輯：只計算驗證通過）');
-  console.log('📊 總推薦記錄數:', recommendations.length);
-  
-  recommendations.forEach((rec, index) => {
+
+  if (!recommendations || recommendations.length === 0) {
+    return stats;
+  }
+
+  // 2.【效能優化】預先建立一個 Set，存放所有「我已推薦過」的對象 ID 或 Email
+  const recommendedTargets = new Set();
+  recommendations.forEach(rec => {
+    if (rec.type === 'outgoing' || rec.type === 'reply') {
+      if (rec.targetUserId) recommendedTargets.add(rec.targetUserId);
+      if (rec.recommendeeEmail) recommendedTargets.add(rec.recommendeeEmail.toLowerCase());
+      if (rec.targetEmail) recommendedTargets.add(rec.targetEmail.toLowerCase());
+    }
+  });
+
+  // 3. 遍歷所有推薦記錄，進行計算
+  recommendations.forEach(rec => {
     const jobId = rec.matchedJobId || rec.jobId;
-    
+    if (!jobId) return; // 忽略沒有 jobId 的記錄
+
+    // 初始化該工作的統計物件
     if (!stats.byJob[jobId]) {
       stats.byJob[jobId] = {
-        received: 0,           // 只計算驗證通過
-        given: 0,              // 只計算驗證通過
-        canReply: 0,           // 🔧 所有未回覆都可回覆
-        allReceived: 0,        // 🆕 所有收到的推薦數（含未驗證）
-        verified: 0,           // 🆕 驗證通過數
-        pending: 0,            // 🆕 驗證中數
-        failed: 0,             // 🆕 驗證失敗數
+        received: 0,          // 收到（僅計驗證通過）
+        given: 0,             // 送出（僅計驗證通過）
+        canReply: 0,          // 可回覆（不論驗證狀態）
+        allReceived: 0,       // 所有收到的推薦數（含未驗證）
+        verified: 0,          // 細分：驗證通過數
+        pending: 0,           // 細分：驗證中數
+        failed: 0,            // 細分：驗證失敗數
         highlights: {},
         relations: {}
       };
     }
-    
     const jobStats = stats.byJob[jobId];
-    
-    // 🔍 詳細記錄每筆推薦
-    console.log(`📋 記錄 ${index + 1}: ${rec.name}`, {
-      type: rec.type,
-      status: rec.status,
-      confidence: rec.confidence,
-      hasReplied: rec.hasReplied,
-      jobId: rec.jobId
-    });
-    
+
+    // 4. 處理【收到的推薦】
     if (rec.type === 'received') {
-      // 🆕 記錄所有收到的推薦
-      jobStats.allReceived++;
-      
-      // 🎯 核心邏輯：只有驗證通過的才計入主統計
-      const isVerified = rec.status === 'verified' && 
-                        (rec.confidence || 0) > 0 && 
-                        !rec.excludeFromStats;
-      
+      jobStats.allReceived++; // 無論狀態如何，總收到數+1
+
+      // 4a.【邏輯一】判斷是否「驗證通過」
+      const isVerified = rec.status === 'verified' && (rec.confidence || 0) > 0 && !rec.excludeFromStats;
+
       if (isVerified) {
-        // ✅ 驗證通過：計入主統計
+        // 計入「驗證通過」的統計
         stats.totalReceived++;
         jobStats.received++;
         jobStats.verified++;
-        
-        console.log(`✅ 驗證通過推薦: ${rec.name}`);
-        
-        // 統計亮點和關係（只用驗證通過的）
+
+        // 僅計算驗證通過的亮點與關係
         (rec.highlights || []).forEach(h => {
           jobStats.highlights[h] = (jobStats.highlights[h] || 0) + 1;
         });
-        
         const relation = rec.relation || "unknown";
         jobStats.relations[relation] = (jobStats.relations[relation] || 0) + 1;
-        
       } else {
-        // 記錄未驗證推薦的狀態
+        // 歸類到未驗證的細項
         if (rec.status === 'verification_failed') {
           jobStats.failed++;
-          console.log(`❌ 驗證失敗推薦: ${rec.name}`);
         } else {
           jobStats.pending++;
-          console.log(`⏳ 驗證中推薦: ${rec.name}`);
         }
       }
-      
-      // 🔧 修正後的可回覆邏輯：檢查是否已推薦過對方
-        if (!rec.hasReplied) {
-      // ✅ 檢查是否已經推薦過這個人
-          const alreadyRecommended = recommendations.some(myRec => 
-            myRec.type === 'outgoing' && 
-            (myRec.recommendeeEmail === rec.email || myRec.targetUserId === rec.recommenderId)
-          );
-  
-          if (!alreadyRecommended) {
-            stats.canReply++;
-            stats.totalCanReply++;
-            jobStats.canReply++;
-            console.log(`💬 可回覆推薦: ${rec.name} (驗證狀態: ${rec.status})`);
-          } else {
-            console.log(`⏭️ 已推薦過此人，不列入可回覆: ${rec.name}`);
-          }
+
+      // 4b.【邏輯二】判斷是否「可回覆」
+      // 條件：尚未回覆過，且我方未曾推薦過此人
+      if (!rec.hasReplied) {
+        const alreadyRecommended = recommendedTargets.has(rec.recommenderId) || recommendedTargets.has((rec.email || '').toLowerCase());
+        
+        if (!alreadyRecommended) {
+          stats.totalCanReply++;
+          jobStats.canReply++;
         }
       }
-    
-    // 推薦他人統計：也只計算驗證通過的
+    }
+
+    // 5. 處理【送出的推薦】(包含推薦他人和回覆推薦)
     if (rec.type === 'outgoing' || rec.type === 'reply') {
-      const isValidGiven = rec.status === 'verified' || 
-                          rec.status === 'delivered_and_verified' ||
-                          rec.status === 'confirmed';
+      //【邏輯一】判斷是否「驗證通過」
+      const isValidGiven = ['verified', 'delivered_and_verified', 'confirmed'].includes(rec.status);
       
       if (isValidGiven) {
         stats.totalGiven++;
         jobStats.given++;
-        console.log(`✅ 有效推薦他人: ${rec.targetName || '目標用戶'}`);
-      } else {
-        console.log(`⏳ 待驗證推薦他人: ${rec.targetName || '目標用戶'} (狀態: ${rec.status})`);
       }
     }
   });
-  
-  // 🆕 詳細統計報告
-  console.log('📊 統計結果（新邏輯）:', {
-    驗證通過收到: stats.totalReceived,
-    驗證通過推薦: stats.totalGiven,
-    總可回覆: stats.canReply,
-    工作詳情: Object.entries(stats.byJob).map(([jobId, jobStats]) => ({
-      jobId,
-      驗證通過收到: jobStats.received,
-      總收到含未驗證: jobStats.allReceived,
-      可回覆: jobStats.canReply,
-      驗證通過: jobStats.verified,
-      驗證中: jobStats.pending,
-      驗證失敗: jobStats.failed
-    }))
-  });
-  
+
   return stats;
 }
-
 
 // 3. 更新後的 renderBasic 函數
 function renderBasicWithReplyStats() {
@@ -933,7 +905,7 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
   // 🎯 關鍵驗證：對於已註冊用戶，recommenderId 不能為空
   if (isRegistered && (!recommenderId || recommenderId === '' || recommenderId === 'null')) {
     console.error("❌ 已註冊用戶但 recommenderId 無效:", recommenderId);
-    showToast(dashboardT.recommenderDataError);
+    showToast(t.recommenderDataError);
     return;
   }
   
@@ -1021,7 +993,7 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
   } catch (error) {
     console.error("❌ 建立回推薦邀請失敗:", error);
     const tNow = getSafeTranslation(langNow);
-    showToast(dashboardT.createInviteError);
+    showToast(t.createInviteError);
   }
 }
 
@@ -1395,7 +1367,7 @@ function debugRecommendationData() {
         
         // 顯示成功訊息
         const tNow = getSafeTranslation(langNow);
-        showToast(dashboardT.openingRecommendForm);
+        showToast(t.openingRecommendForm);
         
         // 🆕 可以選擇在新視窗開啟或在當前頁面導向
         smartOpenRecommendation(targetUrl, '推薦他人表單');
@@ -1409,7 +1381,7 @@ function debugRecommendationData() {
         const tNow = getSafeTranslation(langNow);
         
         // 🔍 根據不同錯誤類型顯示對應訊息
-        let errorMessage = dashboardT.createInviteError;
+        let errorMessage = t.createInviteError;
         
         if (err.code === 'permission-denied') {
           errorMessage = commonT.permissionDenied;
@@ -1753,14 +1725,14 @@ function recheckQuickStartCard() {
           e.preventDefault();
           // ─── 新增：檢查開始年月必填 ─────────────────────────────
           if (!startY.value || !startM.value) {
-            showToast(dashboardT.selectStart);
+            showToast(t.selectStart);
             return;
           }
           if (!nameSection.hidden) {
             const nameVal = nameInput.value.trim();
             // 🔍 若為首次填寫，驗證使用者必須輸入姓名
             if (!nameVal) {
-              showToast(dashboardT.enterName);
+              showToast(t.enterName);
               nameInput.focus();
               return;
             }
@@ -1782,7 +1754,7 @@ function recheckQuickStartCard() {
           if (!stillChk.checked) {
             // 1. 確認有選年/月
             if (!endY.value || !endM.value) {
-              showToast(dashboardT.selectEnd);
+              showToast(t.selectEnd);
               return;
             }
             // 2. 轉成 Date 物件再比大小
@@ -1792,12 +1764,12 @@ function recheckQuickStartCard() {
         
             // ❌ 錯誤：結束日期不能早於開始日期
             if (endObj < startObj) {
-              showToast(dashboardT.errEndBeforeStart);
+              showToast(t.errEndBeforeStart);
               return;
             }
             // ❌ 錯誤：結束日期不能超過今天
             if (endObj > today) {
-              showToast(dashboardT.errEndAfterToday);
+              showToast(t.errEndAfterToday);
               return;
             }
             // 5. 合法才組回字串
@@ -1855,7 +1827,7 @@ function recheckQuickStartCard() {
           if (idx === undefined || (idx !== 0 && !idx)) return;
           
           if (e.target.closest(".del-btn")) {
-            if (confirm(dashboardT.deleteConfirm)) {
+            if (confirm(t.deleteConfirm)) {
               profile.workExperiences.splice(idx,1);
               saveProfile().then(() => {
                 renderExperienceCardsWithReply();  // ✅ 加上括號
@@ -1967,7 +1939,7 @@ function recheckQuickStartCard() {
           const langNow = localStorage.getItem("lang") || "zh-Hant";
           const message = inviteTextarea.value.trim();
           if (!message) {
-            showToast(dashboardT.inviteEmpty);
+            showToast(t.inviteEmpty);
             return; // ❌ 中止流程
           }
           const style   = currentInviteStyle || "warmth";

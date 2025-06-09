@@ -712,7 +712,7 @@ function setupRegisterForm() {
         
         if (registerBtn) {
           registerBtn.disabled = false;
-          const commonT = i18n[localStorage.getItem("lang") || "zh-Hant"]?.common || {};
+                const commonT = i18n[localStorage.getItem("lang") || "zh-Hant"]?.common || {};
           registerBtn.innerText = "Register";
         }
       }
