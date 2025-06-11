@@ -2367,3 +2367,94 @@ exports.updateStatsOnRecommenderIdAdded = onDocumentUpdated("users/{userId}/reco
   return null;
 });
 
+/**
+ * 【一次性修復腳本 - 智能版】
+ * 職責：手動處理所有因舊邏輯而未完成的「回覆推薦」註冊流程。
+ * 特性：會先檢查推薦是否已存在，若存在則只清理待辦事項，避免重複操作。
+ * @param {object} data - 包含 { replierId, recipientEmail }
+ * @param {object} context - 包含認證資訊
+ */
+exports.fixIncompleteReply = functions.region("asia-east1")
+    .https.onCall(async (data, context) => {
+
+    if (!context.auth || !context.auth.token.admin) {
+        throw new functions.https.HttpsError('permission-denied', '此操作需管理員權限。');
+    }
+
+    const { replierId, recipientEmail } = data;
+    if (!replierId || !recipientEmail) {
+        throw new functions.https.HttpsError('invalid-argument', '必須提供 replierId 和 recipientEmail。');
+    }
+
+    console.log(`[修復腳本 v2] 開始修復流程: 回覆者=${replierId}, 接收者Email=${recipientEmail}`);
+    const db = admin.firestore();
+
+    try {
+        // 1. 找到新註冊的使用者 (接收者)
+        const recipientQuery = await db.collection('users').where('email', '==', recipientEmail.toLowerCase()).limit(1).get();
+        if (recipientQuery.empty) {
+            throw new Error(`找不到 Email 為 ${recipientEmail} 的使用者。`);
+        }
+        const recipientId = recipientQuery.docs[0].id;
+        console.log(`[修復腳本 v2] 找到接收者: ${recipientId}`);
+
+        // 2. 找到當初卡住的那筆 'reply' 推薦記錄
+        const replyQuery = await db.collection('users').doc(replierId).collection('recommendations')
+            .where('type', '==', 'reply')
+            .where('targetEmail', '==', recipientEmail.toLowerCase())
+            .limit(1).get(); // 假設一個 email 只會回覆一次
+
+        if (replyQuery.empty) {
+            console.warn(`[修復腳本 v2] 在 ${replierId} 名下找不到針對 ${recipientEmail} 的回覆推薦，可能已被處理或不存在。將直接進行清理。`);
+        } else {
+            const replyDoc = replyQuery.docs[0];
+            const replyRecId = replyDoc.id;
+            console.log(`[修復腳本 v2] 找到待處理的 reply 記錄: ${replyRecId}`);
+
+            // 3. 【核心修改】在執行操作前，先檢查任務是否已被手動完成
+            const existingRecQuery = await db.collection('users').doc(recipientId).collection('recommendations')
+                .where('originalRecommendationId', '==', replyDoc.data().originalRecommendationId)
+                .limit(1).get();
+
+            if (!existingRecQuery.empty) {
+                // 案例二 (趙耘萱) 的情況：推薦已存在！
+                console.log(`[修復腳本 v2] 檢測到推薦已存在 (ID: ${existingRecQuery.docs[0].id})，任務已被手動完成。`);
+                console.log(`[修復腳本 v2] 將只進行清理工作...`);
+                // 不執行 processReplyRecommendationRegistration，直接跳到最後的清理步驟
+
+            } else {
+                // 案例一 (陳宇凱) 的情況：推薦不存在，執行完整修復流程
+                console.log(`[修復腳本 v2] 推薦不存在，開始執行完整修復流程...`);
+                const fakePendingData = { recommendationData: replyDoc.data() };
+                await processReplyRecommendationRegistration(recipientId, replyRecId, fakePendingData);
+            }
+        }
+        
+        // 4. 【統一清理步驟】無論哪種情況，最後都刪除對應的 pendingUsers
+        console.log(`[修復腳本 v2] 清理 ${recipientEmail} 的所有 reply_recommendation 類型的 pendingUsers...`);
+        const pendingQuery = await db.collection('pendingUsers')
+            .where('email', '==', recipientEmail.toLowerCase())
+            .where('type', '==', 'reply_recommendation')
+            .get();
+
+        if (pendingQuery.empty) {
+            console.log(`[修復腳本 v2] 找不到對應的 pendingUser 記錄可供清理，可能已被刪除。`);
+        } else {
+            const deletePromises = [];
+            pendingQuery.forEach(doc => {
+                console.log(`[修復腳本 v2] 正在刪除 zombie pendingUser: ${doc.id}`);
+                deletePromises.push(doc.ref.delete());
+            });
+            await Promise.all(deletePromises);
+            console.log(`[修復腳本 v2] 成功清理了 ${deletePromises.length} 筆待辦事項。`);
+        }
+        
+        const message = `✅ 修復與清理完成！已處理使用者 ${recipientEmail} 的相關資料。`;
+        console.log(message);
+        return { success: true, message: message };
+
+    } catch (error) {
+        console.error("[修復腳本 v2] ❌ 執行失敗:", error);
+        throw new functions.https.HttpsError('internal', error.message);
+    }
+});

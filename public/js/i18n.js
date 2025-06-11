@@ -127,111 +127,95 @@ export const i18n = {
     inviteEmpty: "Please enter the invitation content first.",
 
     // recommend-form.html
-    loadingMessage: "Loading recommendation form...",
-    identityReminder: `
-    <strong>🌟 Galaxyz is a career network built on authenticity and trust.</strong><br/>
-    Only those who submit a recommendation can create their own profile and join the Galaxyz constellation.<br/><br/>
-    👉 Please enter your real name and personal email so we can invite you afterward.
-    `,
+  identityReminder: "\n    <strong>\ud83c\udf1f Galaxyz is a career network built on authentic collaboration and trust.</strong><br/>\n    Only those who share a collaboration feedback can create their own profile and join the Galaxyz constellation.<br/><br/>\n    \ud83d\udc49 Please enter your real name and personal email so we can invite you afterward.\n    ",
+  ogTitle: "\ud83c\udf1f Please write a collaboration feedback for my career profile!",
+  ogDescription: "I'm building my career profile on Galaxyz and would love your feedback on our collaboration.",
+  recommendingTo: "You are writing a collaboration feedback for <strong>{name}</strong>",
+  recPageTitle: "Collaboration Feedback Form",
+  formTitle: "Collaboration Feedback Form",
+  inviteTitle: "Invitation Message",
+  name: "Your Name",
+  email: "Your Email",
+  relation: "You are the candidate’s",
+  contentLabel: "Collaboration Feedback",
+  hintContent: "Up to 500 characters — please focus on your impressions and highlights.",
+  submitRecommendation: "Submit Collaboration Feedback",
+  relationOptions: [
+    { value: "directManager", label: "I was their direct manager" },
+    { value: "crossDeptManager", label: "I was their cross-team manager" },
+    { value: "sameDeptColleague", label: "I was their teammate (same team)" },
+    { value: "crossDeptColleague", label: "I was their teammate (different team)" },
+    { value: "subordinate", label: "They were my subordinate" },
+    { value: "client", label: "I was their client" },
+    { value: "vendor", label: "I was their vendor / partner" }
+  ],
+  highlightLabel: "Which strengths do you particularly appreciate? (Multiple selections allowed)",
+  hintName: "Please enter your name. Only the person you are recommending can see it.",
+  hintEmail: "Please use your main email so we can invite you to join Galaxyz afterward.",
 
-    ogTitle:       "⭐ Please write a recommendation for my career profile!",
-    ogDescription: "I'm building my career profile on Galaxyz and would love your recommendation on our collaboration.",
-    recommendingTo: "You are writing a recommendation for <strong>{name}</strong>",
-    recPageTitle: "Recommendation Form",
-    jobDescriptionLabel: "Responsibilities",
-    formTitle: "Recommendation Form",
-    inviteTitle: "Invitation Message",
-    name: "Your Name",
-    email: "Your Email",
-    relation: "You are the candidate’s",
-    contentLabel: "Recommendation",
-    hintContent: "Up to 500 characters; please focus on highlights.",
-    submitRecommendation: "Submit Recommendation",
-    relationOptions: [
-      { value: "directManager",       label: "I was their direct manager" },
-      { value: "crossDeptManager",    label: "I was their cross-team manager" },
-      { value: "sameDeptColleague",   label: "I was their teammate (same team)" },
-      { value: "crossDeptColleague",  label: "I was their teammate (different team)" },
-      { value: "subordinate",         label: "They were my subordinate" },
-      { value: "client",              label: "I was their client" },
-      { value: "vendor",              label: "I was their vendor / partner" },
-    ],
-    highlightLabel: "Recommendation Highlights",
-    hintName: "Please enter your name. Only the person you are recommending can see it.",
-    hintEmail: "Use your main email so we can find you when you’re ready to join Galaxyz",
+  highlightOptions: ["hardSkill", "softSkill", "character"],
+  highlightOptionLabels: {
+    hardSkill: "Hard Skills",
+    softSkill: "Soft Skills",
+    character: "Character & Integrity"
+  },
+  hintHighlights: "Select the strengths that best represent this person, or add your own.",
+  highlightOptionCustomLabel: "Other Highlight (optional)",
+  highlightOptionCustomPlaceholder: "Enter a custom highlight",
+  hintCustomHighlight: "Up to 30 characters; optional.",
+  highlightLimitMsg: "You can select up to 3 highlights only.",
+  brandSlogan: "Galaxyz | Where authentic collaboration builds trusted professional connections.",
+  giveRecommendationReminder: "Please ensure your feedback is truthful and based on actual collaboration experience. The recipient will be invited to register and view your feedback.",
+  importantNotice: "\ud83d\udcdc Important Notice",
+  confirmationNotice: "Your feedback will be officially recorded after the recipient registers and verifies their identity.",
+  proTip: "\ud83d\udca1 Pro Tip",
+  reminderMessage: "You can proactively message them to check their email and ensure your feedback reaches them!",
+  fillAllFields: "Please fill in your name, email, feedback content, and highlight.",
+  alreadyRecommended: "You have already submitted collaboration feedback for this work experience!",
+  loginToSubmit: "To ensure authenticity, please log in or register to submit. Your content has been saved for you.",
+  originalRecNotFound: "Original feedback not found. Cannot proceed with reply.",
+  inviteNotFound: "Invitation not found. Cannot proceed with reply.",
+  autofilled: "\u2713 Autofilled",
+  submitError: "Failed to submit collaboration feedback. Please try again later.",
+  recommendationSentTitle: "Collaboration Feedback Sent!",
+  successImportantNote: "Important Note:",
+  successNote1: "Your feedback will be officially recorded after the recipient registers and verifies their identity.",
+  successProTip: "\ud83d\udca1 Pro Tip:",
+  successNote2: "You can proactively message them to check their email and ensure your feedback reaches them!",
+  successNote3: "Thank you for taking the time to share your collaboration feedback and help great talent be recognized!",
+  successRecommendAnother: "Recommend Another",
+  successBackToDashboard: "Back to Dashboard",
+  successCloseWindow: "Close Window",
+  defaultInviteForm: "I'm currently building my professional reputation profile and thought of you as a great collaborator. I'd truly appreciate a few words of feedback on our collaboration. If you are also building your professional network, I'd be happy to write one for you in return!",
+  notFound: "\u26a0\ufe0f User data not found.",
+  notFoundJob: "\u26a0\ufe0f Job experience not found.",
 
-    // ◆ 三個固定亮點 key (dashboard)
-    highlightOptions: ["hardSkill", "softSkill", "character"],
-    highlightOptionLabels: {
-      hardSkill:   "Hard Skills",
-      softSkill:   "Soft Skills",
-      character:   "Character & Integrity"
-    },
-    hintHighlights: "Please select one highlight that best represents this person.",
-    highlightOptionCustomLabel:       "Other Highlight (optional)",
-    highlightOptionCustomPlaceholder: "Enter a custom highlight",
-    hintCustomHighlight:              "Up to 30 characters; optional",
-    highlightLimitMsg:                "You can select up to 3 highlights only",
-    brandSlogan: "Galaxyz | Where everyone is seen through authenticity and trust.",
-    giveRecommendationReminder: "Please ensure your recommendation is truthful and based on actual collaboration experience. The recommendee will receive an email notification inviting them to register and view your recommendation.",
-    mportantNotice: "📋 Important Notice",
-    confirmationNotice: "Your recommendation will be officially recorded after the recipient registers and verifies their identity.",
-    proTip: "💡 Pro Tip",
-    reminderMessage: "You can proactively message them to remind them to check their email and ensure your recommendation reaches them!",
-    fillAllFields: "Please fill in the name, Email, recommendation content, and highlight.",
-    alreadyRecommended: "You have already submitted a recommendation for this work experience!",
-    loginToSubmit: "To ensure authenticity, please log in or register to submit. Your content has been saved for you.",
-    originalRecNotFound: "Original recommendation not found. Cannot proceed with reply.",
-    inviteNotFound: "Invitation not found. Cannot proceed with reply.",
-    autofilled: "✓ Autofilled",
-    submitError: "Failed to submit recommendation. Please try again later.",
-    recommendationSentTitle: "Recommendation Sent!",
-    successImportantNote: "Important Note:",
-    successNote1: "Your recommendation will be officially recorded after the recipient registers and verifies their identity.",
-    successProTip: "💡 Pro Tip:",
-    successNote2: "You can proactively message them to check their email and ensure your recommendation is received!",
-    successNote3: "Thank you for taking the time to write a recommendation and help great talent get seen.",
-    successRecommendAnother: "Recommend Another",
-    successBackToDashboard: "Back to Dashboard",
-    successCloseWindow: "Close Window",
-    // fallback for form invite
-    defaultInviteForm: `I'm currently building my professional network profile and thought of you as a great collaborator. I'd truly appreciate a few words of recommendation from you. If you're also building your career network, I'd be happy to write one for you in return!`,
-    notFound: "⚠️ User data not found.",
-    notFoundJob: "⚠️ Job experience not found.",
+  recommendPartnerTitle: "Proactively Recommend a Colleague",
+  recommendPartnerNote: "Write a collaboration feedback for your colleague from this work experience.",
 
-    // give-recommendation
-    recommendPartnerTitle: "Recommend a Colleague",
-    recommendPartnerNote: "Write a recommendation for your colleague from this work experience",
-    
-    // 工作背景區塊
-    workBackground: "Work Background",
-    company: "Company",
-    position: "Position",
-    recommenderName: "Recommender",
-    
-    // 表單標籤
-    recommendeeName: "Colleague's Name",
-    recommendeeEmail: "Colleague's Email",
-    selectRelation: "Select Relationship",
-    
-    // 表單提示文字
-    hintRecommendeeName: "Enter your colleague's full name",
-    hintRecommendeeEmail: "We'll send them an invitation to view your recommendation",
+  workBackground: "Work Background",
+  company: "Company",
+  position: "Position",
+  recommenderName: "Recommender",
 
-    // 按鈕文字
-    submitRecommendation: "Send Recommendation",
-    submitting: "Sending...",
-    closeWindow: "Close Window",
-    backToDashboard: "Back to Dashboard",
-    
-    // 最終提醒
-    importantNote: "Important Note",
-    giveRecommendationReminder: "Please ensure your recommendation is truthful and based on actual work experience. Your colleague will receive an email invitation to register and view your recommendation.",
-    
-    // 成功訊息
-    recommendationSentTitle: "Recommendation Sent!",
-    recommendationSentMessage: "Your recommendation has been sent successfully. Your colleague will receive an email notification.",
-    thankYouMessage: "Thank you for taking the time to recommend your colleague and help great talent get recognized!",
+  recommendeeName: "Colleague's Name",
+  recommendeeEmail: "Colleague's Email",
+  selectRelation: "Select Relationship",
+
+  hintRecommendeeName: "Enter your colleague's full name.",
+  hintRecommendeeEmail: "We'll send them an invitation to view your feedback.",
+
+  submitRecommendation: "Submit Collaboration Feedback",
+  submitting: "Submitting...",
+  closeWindow: "Close Window",
+  backToDashboard: "Back to Dashboard",
+
+  importantNote: "Important Note",
+  giveRecommendationReminder: "Please ensure your feedback is truthful and based on actual collaboration experience. Your colleague will receive an email invitation to register and view your feedback.",
+
+  recommendationSentTitle: "Collaboration Feedback Sent!",
+  recommendationSentMessage: "Your feedback has been sent successfully. Your colleague will receive an email notification.",
+  thankYouMessage: "Thank you for taking the time to share your collaboration feedback and help great talent be recognized!",
     
     // 錯誤訊息
     errorMissingName: "Please enter the colleague's name",
@@ -314,74 +298,71 @@ export const i18n = {
     },
     // index.html
     home: {
-      heroTitle: `Every star has a story. Together, we form a Galaxy.`,
-      heroSubtitle: `Galaxyz is a career constellation built from real recommendations. \nEach trusted collaboration tells more than a title ever could.`,
-      startButton: "Create My Career Star Map",
-    
-      aboutTitle: "What We Believe",
-      aboutText: `A person’s worth isn’t just defined by job titles on a résumé, but by the people they’ve worked with — and the real impressions left behind.\n\nIn the age of AI, data moves fast, but trust remains rare. Galaxyz stands at this intersection, using authentic recommendations to rebuild proof of value worth being seen.\n\nThat’s why we chose <span class="highlight">galaxyz.ai</span> — a place where trust can be recorded in the age of AI.`,
-      learnMore: "Learn More About Galaxyz",
-    
-      features: {
-        buildProfileTitle: "Build Your Career Profile",
-        buildProfileText: "Share your background, strengths, and work highlights so collaborators can truly see who you are.",
-        inviteRecoTitle: "Invite Real Recommendations",
-        inviteRecoText: "Generate a unique link for each experience and ask coworkers to write honest impressions.",
-        buildTrustTitle: "Create a Trusted Career Constellation",
-        buildTrustText: "Each recommendation forms a star connection. Your reputation grows not just by saying it, but by showing it."
-      },
-    
-      finalCtaHint: "Let trust become your greatest asset — one recommendation at a time.",
-      finalCta: "Start Now"
-    },
+  heroTitle: `Proactively recommend and build your trusted career network`,
+  heroSubtitle: `Galaxyz enables you to proactively write authentic recommendations for your collaborators,\nwhile making your professional value more visible.\nEach trusted connection becomes a shining star in your career constellation.`,
+  startButton: "Start building my trusted network",
+
+  aboutTitle: "What do we believe?",
+  aboutText: `Your value is not just your job title — it's the genuine impact witnessed by those who have worked with you.\n\nIn an AI-driven era, information is abundant but trust is scarce. Galaxyz stands at this crossroads, rebuilding authentic proof of value through proactive recommendations.\n\nThis is why we chose <span class="highlight">galaxyz.ai</span> — to let trust leave a mark in the AI era.`,
+  learnMore: "Learn more about our philosophy",
+
+  features: {
+    buildProfileTitle: "Create your career profile",
+    buildProfileText: "Document your experiences, highlights, and professional story — let your collaborators see the real you.",
+    inviteRecoTitle: "Proactively recommend your collaborators",
+    inviteRecoText: "Share your trust by writing authentic recommendations and build a reputation network that reflects your true value.",
+    buildTrustTitle: "Build a trusted career constellation",
+    buildTrustText: "Each recommendation is a trusted connection — your constellation showcases your influence and professional network."
+  },
+
+  finalCtaHint: "Build your career constellation through proactive recommendations — let trust become your strongest career asset.",
+  finalCta: "Get started now"
+},
+
     
     aboutPage: {
-      heroTitle: "We believe the strongest career asset is trust.",
-      heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> is a constellation built on real recommendations —\nwhere people you've worked with help you shine.",
-      heroButton: "Create My Career Star Map",
-    
-      ourVisionTitle: "What is <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
-      ourVisionContent: "Galaxyz was born from a simple insight: resumes often fail to show a person’s true value.\n\nWe believe a career should not be defined solely by titles or self-promotion,\nbut by the voices of those who have truly worked with you.",
-    
-      ourVisionBullets: [
-        "Build your career profile through real collaboration",
-        "Make recommendations natural, warm, and trustworthy",
-        "Let your reputation be earned through shared experience",
-        "Redefine your value beyond job titles"
-      ],
-    
-      whyStarTitle: "Why the name <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
-      whyStarContent: "Each of us is a star in our own career journey.\nThe people we've worked with form the connections on our constellation.\n\n'Galaxyz' combines 'Galaxy' with 'Z' to represent the unity of Gen X, Y, and Z\n— a galaxy formed through mutual trust and shared stories.",
-      founderNoteTitle: "A Note from the Founder",
-      founderNoteContent: `The birth of Galaxyz.ai began as a journey of genuine collaboration between human and AI.
-This platform is the result of my ongoing exploration, trial, and learning—together with ChatGPT.
-I believe AI isn’t here to replace us, but to support us in discovering and affirming our value.
-My deepest hope is that, on days when you’re feeling lost or low, this space of real, human trust will hold you up—so you can keep going.
-That’s the true reason why I created Galaxyz.`,
+  heroTitle: "We believe trust is the most powerful career asset.",
+  heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> is a career constellation built on authentic recommendations.\nProactively recommend, proactively build your trusted network.",
+  heroButton: "Start building my career constellation",
 
-      howItWorksTitle: "How Does It Work?",
-      howItWorksSteps: [
-        {
-          title: "Add a Work Experience",
-          desc: "Just fill out one experience you want to be recommended for — no full resume or intro needed."
-        },
-        {
-          title: "Generate and Send the Link",
-          desc: "Choose a warm or neutral message, copy your link, and send it to someone you've worked with."
-        },
-        {
-          title: "Collect Recommendations",
-          desc: "Each entry is auto-organized with both private and public views, with anonymized protection."
-        }
-      ],
-    
-      joinUsTitle: "Join Us",
-      joinUsContent: `Build trust through real collaboration, and let every piece of professionalism shine.
-    
-    "You don’t need a promotion to prove your value.\nStart building your Galaxyz constellation — one recommendation at a time."`,
-    
-      joinUsButton: "Start Building",
+  ourVisionTitle: "What is <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
+  ourVisionContent: "Galaxyz was born from a simple yet often overlooked insight:\nMany people's true professional value cannot be fully captured on a resume.\n\nWe believe a career shouldn't be defined solely by titles or self-descriptions —\nbut by the authentic impressions and recommendations from those you've worked with.\nAnd by proactively recommending others, you contribute to a network of trust.",
+
+  ourVisionBullets: [
+    "Build your career profile on authentic collaboration experiences",
+    "Make recommendations natural, warm, and trustworthy",
+    "Earn trust through real experiences, not social likes",
+    "Proactively recommend and grow your trusted network"
+  ],
+
+  whyStarTitle: "Why do we call it <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
+  whyStarContent: "Each of us is a star in our career journey.\nThose who have worked and grown with you are the connection points in your constellation.\n\nGalaxyz combines Galaxy + Z — symbolizing how X, Y, Z generations can together build a constellation of trust.\nEvery story you share lights up your part of the galaxy.",
+
+  founderNoteTitle: "A note from our founder",
+  founderNoteContent: `Galaxyz.ai was born from a journey of genuine collaboration between humans and AI. This platform is the result of my exploration and learning with ChatGPT.\n\nI believe AI should not replace humans, but empower us to better explore and express our value.\n\nOne day, when you're feeling down, I hope this network of authentic trust can lift you up and help you keep moving forward.\nThat is the biggest reason why I created Galaxyz.`,
+
+  howItWorksTitle: "How does it work?",
+  howItWorksSteps: [
+    {
+      title: "Add a work experience",
+      desc: "No need for a full resume — just add a real collaboration experience as the starting point of your trusted network."
     },
+    {
+      title: "Proactively recommend your collaborators",
+      desc: "Write authentic recommendations for people you've worked with — pass on trust and build strong connections in your constellation."
+    },
+    {
+      title: "Collect recommendations and build your trusted constellation",
+      desc: "Your recommendations are automatically organized — the system offers both private and public views, with built-in anonymity protection."
+    }
+  ],
+
+  joinUsTitle: "Let trust start with you",
+  joinUsContent: `Build trust through real collaboration and let your professional value be seen.\n\n“You don't have to wait for a promotion or a job change to prove your value.\nStart by proactively recommending your collaborators — and build your trusted career constellation."`,
+
+  joinUsButton: "Join now",
+},
+
     login: {
       welcomeTitle: "Welcome to Galaxyz ✨",
       noAccountText_en: "Don't have an account? <a href='#' id='showRegister'>Register</a>",
@@ -532,8 +513,8 @@ That’s the true reason why I created Galaxyz.`,
     totalRecommended: "共推薦",
 
     // invitation templates & UI
-    defaultInvite_direct: "我正在建立自己的職涯推薦檔案，想邀請您幫我寫一段我們合作時期的推薦文字。如果您願意，我也很樂意回饋推薦您！",
-    defaultInvite_warmth: "我正在建立自己的職涯人脈檔案，回顧過往的工作歷程，很希望能邀請您寫下幾句對我的合作印象與推薦。如果您未來也想建立自己的職涯人脈網絡，我也很樂意推薦您，共同累積彼此的專業信譽。",
+    defaultInvite_direct: "我正在建立自己的職涯人脈口碑，想邀請您幫我寫一段我們合作時期的真實口碑。如果您願意，我也很樂意回覆推薦您！",
+    defaultInvite_warmth: "我正在建立自己的職涯人脈檔案，回顧過往的工作歷程，很希望能邀請您寫下幾句對我的合作印象與觀察。如果您未來也想建立自己的職涯人脈網絡，我也很樂意推薦您，共同累積彼此的專業信譽。",
     inviteEmpty: "請先輸入邀請內容再儲存與複製。",
     editInviteTitle: "編輯邀請語",
     inviteStyleLabel: "邀請語風格：",
@@ -560,24 +541,24 @@ That’s the true reason why I created Galaxyz.`,
 
     // recommend-form.html
     identityReminder: `
-    <strong>🌟 Galaxyz 是一個建立於真實與信任的人脈推薦網絡。</strong><br/>
-    目前僅開放「曾經完成推薦的使用者」建立個人檔案，成為 Galaxyz 星系的一份子。<br/><br/>
-    👉 請確實填寫您的真實姓名與常用 Email，以便後續邀請您加入我們！
+    <strong>🌟 Galaxyz 是一個建立於真實合作與信任的職場口碑網絡。</strong><br/>
+    只有完成口碑回饋的人，才能建立個人職涯檔案並加入 Galaxyz 星圖。<br/><br/>
+    👉 請填寫您的真實姓名與 Email，以便後續邀請您註冊。
     `,
     loadingMessage: "正在載入推薦表單…",
-    ogTitle:       "⭐ 邀請你為我的職涯檔案撰寫推薦！",
-    ogDescription: "我正在 Galaxyz 建立職涯檔案，想邀請您對我的合作經驗寫幾句推薦。",
-    recommendingTo: "您正在為 <strong>{name}</strong> 撰寫推薦",
-    recPageTitle: "推薦表單",
+    ogTitle: "⭐ 請為我撰寫一段合作口碑！",
+    ogDescription: "我正在 Galaxyz 建立我的職涯口碑檔案，很希望您能留下我們合作的真實回饋。",
+    recommendingTo: "您正在為 <strong>{name}</strong> 撰寫合作口碑",
+    recPageTitle: "合作經驗填寫",
     jobDescriptionLabel: "工作職責",
-    formTitle: "推薦表單",
-    inviteTitle: "邀請內容",
+    formTitle: "合作經驗填寫",
+    inviteTitle: "被推薦人的邀請語",
     name: "您的姓名",
     email: "您的 Email",
-    relation: "你是「被推薦者」的：",
-    contentLabel: "推薦內容",
-    hintContent: "最多 500 字，請聚焦亮點。",
-    submitRecommendation: "送出推薦",
+    relation: "您與被推薦人的關係",
+    contentLabel: "合作印象",
+    hintContent: "最多 500 字，請聚焦您對他的合作印象與亮點。",
+    submitRecommendation: "送出合作口碑",
     relationOptions: [
       { value: "directManager",       label: "我是他的直屬主管" },
       { value: "crossDeptManager",    label: "我是他的跨部門主管" },
@@ -587,7 +568,7 @@ That’s the true reason why I created Galaxyz.`,
       { value: "client",              label: "我是他的客戶" },
       { value: "vendor",              label: "我是供應商或外部合作夥伴" },
     ],
-    highlightLabel: "推薦項目",
+    highlightLabel: "特別欣賞的部分",
     hintName: "請填寫您的姓名，僅被推薦人可看到。",
     hintEmail: "請放心填寫常用Email，僅未來系統核實身份使用，任何人都看不到",
 
@@ -604,14 +585,14 @@ That’s the true reason why I created Galaxyz.`,
     hintCustomHighlight:              "最多 30 字，可留空",
     highlightLimitMsg:                "最多只能選 3 個亮點",
 
-    brandSlogan: "Galaxyz｜讓每個人因真實與信任被看見。",
-    giveRecommendationReminder: "請確保推薦內容真實且基於實際合作經驗。被推薦人將收到 Email 通知，邀請他們註冊查看你的推薦。",
+    brandSlogan: "Galaxyz | 讓真實合作口碑，成為職場最佳資產。。",
+    giveRecommendationReminder: "請確保回饋內容真實且基於實際合作經驗。被推薦人將收到 Email 通知，邀請他們註冊查看你的內容。",
     importantNotice: "📋 重要說明",
-    confirmationNotice: "推薦將在對方註冊並核實身份後，正式納入你的推薦記錄。",
+    confirmationNotice: "被推薦人註冊並完成驗證後，您的合作口碑將正式紀錄。",
     proTip: "💡 小提醒",
-    reminderMessage: "你可以主動傳訊息提醒對方查收 Email，以確保推薦能順利送達！",
+    reminderMessage: "你可以主動傳訊息提醒對方查收 Email，確保您的口碑內容被看到！",
     fillAllFields: "請完整填寫姓名、Email、推薦內容與亮點。",
-    alreadyRecommended: "您已經為這個工作經歷提交過推薦了！",
+    alreadyRecommended: "您已經為這段工作經歷提交過合作口碑！",
     loginToSubmit: "為了確保推薦的真實性，請登入或註冊以完成提交。您的內容已為您保存。",
 
     // fallback for form invite
@@ -748,68 +729,70 @@ That’s the true reason why I created Galaxyz.`,
     },
     // index.html
     home: {
-      heroTitle: `每顆星的故事，成就一整片星空`,
-      heroSubtitle: `Galaxyz 是由真實合作推薦所構成的職涯星圖，\n每一段彼此信任的經驗，都比頭銜更能說明你是誰。`,
-      startButton: "建立我的職涯星圖",
-    
-      aboutTitle: "我們相信什麼？",
-      aboutText: `人的價值，不只是履歷上的職稱，而是那些曾與你共事的人，願意為你留下的那段真實合作印象。\n\n在 AI 時代，資訊越來越多，信任越來越稀薄。Galaxyz 選擇站在這個十字路口，用推薦的方式，重建值得被看見的價值證明。\n\n這也是為什麼，我們選擇 <span class="highlight">galaxyz.ai</span> —— 在 AI 時代，讓信任留下記錄。`,
-      learnMore: "了解我們的理念",
-    
-      features: {
-        buildProfileTitle: "建立個人職涯檔案",
-        buildProfileText: "記錄你的經歷、簡介與職場亮點，讓合作過的夥伴看見你的真實樣貌。",
-        inviteRecoTitle: "邀請真實推薦",
-        inviteRecoText: "針對每段工作經歷，產生推薦連結，邀請共事者留下合作印象。",
-        buildTrustTitle: "打造值得信賴的職涯星圖",
-        buildTrustText: "每則推薦都是一道連結，你的信譽不只靠說，更靠曾經合作過的人證明。"
-      },
-    
-      finalCtaHint: "用推薦打造你的職涯星圖，讓信任成為你最有力的資產。",
-      finalCta: "立即開始"
-    },
+  heroTitle: `主動推薦，累積你的職涯信任網絡`,
+  heroSubtitle: `Galaxyz 讓你主動為合作夥伴撰寫真實推薦，\n也讓你的專業價值被更多人見證。\n每一段信任關係，都是職涯星圖上的一顆亮星。`,
+  startButton: "開始建立我的信任網絡",
+
+  aboutTitle: "我們相信什麼？",
+  aboutText: `人的價值，不只是履歷上的職稱，更是那些曾與你共事的人，願意見證你帶來的真實影響。\n\n在 AI 時代，資訊越來越多，信任卻越來越稀薄。Galaxyz 選擇站在這個十字路口，\n用主動推薦的方式，重建值得被看見的價值證明。\n\n這也是為什麼，我們選擇 <span class="highlight">galaxyz.ai</span> —— 在 AI 時代，讓信任留下記錄。`,
+  learnMore: "了解我們的理念",
+
+  features: {
+    buildProfileTitle: "建立個人職涯檔案",
+    buildProfileText: "記錄你的經歷、簡介與職場亮點，展現你的專業價值。",
+    inviteRecoTitle: "主動推薦合作夥伴",
+    inviteRecoText: "透過主動推薦，把信任傳遞出去，也累積屬於自己的真實信譽。",
+    buildTrustTitle: "打造值得信賴的職涯星圖",
+    buildTrustText: "每則推薦都是一道信任連結，職涯星圖見證你的人脈資產與職場影響力。"
+  },
+
+  finalCtaHint: "用主動推薦，打造你的職涯星圖，讓信任成為你最有力的職涯資產。",
+  finalCta: "立即開始"
+},
+
     aboutPage: {
-      heroTitle: "我們相信職涯中最有力的資產，是信任。",
-      heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> 是一個由真實推薦組成的職涯星圖，\n讓合作過的人為你發光。",
-      heroButton: "開始建立我的職涯星圖",
-    
-      ourVisionTitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> 是什麼？",
-      ourVisionContent: "Galaxyz 的誕生，來自一個簡單卻被忽略的觀察：\n很多人的專業價值，其實在履歷上無法被完整呈現。\n\n我們相信，一個人的職涯，不應只靠頭銜或自我介紹來定義，\n而是來自合作過的人，願意為他留下的印象與推薦。",
-    
-      ourVisionBullets: [
-        "將職涯檔案建立在真實合作經驗上",
-        "讓推薦變得自然、溫暖而可信",
-        "不靠社交按讚，而靠彼此見證",
-        "重新定義你在職場上的價值"
-      ],
-    
-      whyStarTitle: "為什麼我們叫 <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>？",
-      whyStarContent: "每一個人在職涯中都是一顆星，\n那些曾與你同行、合作過的人，正是你星圖上的連結點。\n\nGalaxyz 來自 Galaxy（銀河）＋ Z，象徵 X、Y、Z 世代都能共築信任星圖，\n而每顆星的故事，正成就整個銀河。",
-      founderNoteTitle: "創辦者手記",
-      founderNoteContent: `Galaxyz.ai 的誕生，來自一段人與 AI 真誠合作的旅程。這個平台，是我與 ChatGPT 共同摸索、嘗試與學習的成果。我相信，AI 並非取代人，而是成為支持人探索價值的助力。希望有一天，當你們情緒低落時，都能被這真實溫暖的信任接住。然後繼續前進，這就是我做Galaxyz最大的初衷。`,
-      howItWorksTitle: "如何運作？",
-      howItWorksSteps: [
-        {
-          title: "新增一段工作經歷",
-          desc: "只需填寫一段你想被推薦的經歷，不用一次寫完整份履歷，也不必輸入自我介紹。"
-        },
-        {
-          title: "產生推薦連結並發送",
-          desc: "系統幫你準備好邀請內容（中性版／溫暖版），直接複製連結，發給合作過的人。"
-        },
-        {
-          title: "收集推薦，建立信任星圖",
-          desc: "推薦會自動整理成總表，系統提供私人與公開版本，內容具匿名保護。"
-        }
-      ],
-    
-      joinUsTitle: "邀請一起加入",
-      joinUsContent: `在真實合作中累積信任，讓每一份專業，都有機會被看見。
-    
-    “你不需要等待升遷、換工作，才能證明自己的價值。\n現在就邀請合作過的夥伴，開始打造你的 Galaxyz 星圖。"`,
-    
-      joinUsButton: "立即加入",
+  heroTitle: "我們相信職涯中最有力的資產，是信任。",
+  heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> 是一個由真實合作推薦構成的職涯星圖，\n主動推薦，主動建立信任網絡。",
+  heroButton: "開始打造我的職涯星圖",
+
+  ourVisionTitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> 是什麼？",
+  ourVisionContent: "Galaxyz 的誕生，來自一個簡單卻被忽略的觀察：\n很多人的專業價值，其實在履歷上無法被完整呈現。\n\n我們相信，一個人的職涯，不應只靠頭銜或自我介紹來定義，\n而是來自合作過的人願意留下的真實推薦，\n更進一步，透過主動推薦，把信任傳遞下去。",
+
+  ourVisionBullets: [
+    "將職涯檔案建立在真實合作經驗上",
+    "讓推薦變得自然、溫暖而可信",
+    "不靠社交按讚，而靠彼此見證",
+    "主動推薦，累積專屬信任網絡"
+  ],
+
+  whyStarTitle: "為什麼我們叫 <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>？",
+  whyStarContent: "每一個人在職涯中都是一顆星，\n那些曾與你同行、合作過的人，正是你星圖上的連結點。\n\nGalaxyz 來自 Galaxy（銀河）＋ Z，象徵 X、Y、Z 世代都能共築信任星圖，\n每顆星的故事，成就整個銀河，而你也可以主動點亮更多星辰。",
+
+  founderNoteTitle: "創辦者手記",
+  founderNoteContent: `Galaxyz.ai 的誕生，來自一段人與 AI 真誠合作的旅程。這個平台，是我與 ChatGPT 共同摸索、嘗試與學習的成果。我相信，AI 並非取代人，而是成為支持人探索價值的助力。希望有一天，當你們情緒低落時，都能被這真實溫暖的信任接住。然後繼續前進，這就是我做 Galaxyz 最大的初衷。`,
+
+  howItWorksTitle: "如何運作？",
+  howItWorksSteps: [
+    {
+      title: "新增一段工作經歷",
+      desc: "不需寫履歷，只需新增一段真實合作經歷，作為建立信任網絡的起點。"
     },
+    {
+      title: "主動推薦合作夥伴",
+      desc: "主動為曾合作過的人撰寫推薦，傳遞信任，也為自己的星圖建立更多可信連結。"
+    },
+    {
+      title: "收集推薦，建立信任星圖",
+      desc: "推薦會自動整理成總表，系統提供私人與公開版本，內容具匿名保護。"
+    }
+  ],
+
+  joinUsTitle: "讓信任從你開始傳遞",
+  joinUsContent: `在真實合作中累積信任，讓每一份專業，都有機會被看見。\n\n“你不需要等待升遷、換工作，才能證明自己的價值。\n主動為夥伴寫下一段推薦，也為自己建立更堅實的人脈星圖。"`,
+  
+  joinUsButton: "立即加入",
+},
+
     
     login: {
       welcomeTitle: "歡迎來到 Galaxyz✨ ",

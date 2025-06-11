@@ -66,35 +66,22 @@ async function initializeRecommendationPage() {
   console.log("🚀 推薦合作夥伴頁面初始化");
 
   try {
-    // 等待 Firebase 準備就緒
-    console.log("⏳ 等待 Firebase 準備就緒...");
     await waitForFirebaseReady();
-    
-    // 初始化 Firebase 服務
     db = firebase.firestore();
     auth = firebase.auth();
     console.log("✅ Firebase 服務初始化完成");
 
-    // 多語系設定
     const lang = localStorage.getItem("lang") || "zh";
     const t = i18n[lang] || i18n.zh || {};
-    console.log("✅ 多語系設定完成:", lang);
-
-    // 獲取 URL 參數
+    
     const urlParams = new URLSearchParams(window.location.search);
     const inviteId = urlParams.get("inviteId");
-    const jobId = urlParams.get("jobId");
     const mode = urlParams.get("mode");
-    const originalRecId = urlParams.get("originalRecId");
-    const targetUserId = urlParams.get("targetUserId");
 
-    console.log("📋 URL 參數:", { inviteId, jobId, mode, originalRecId, targetUserId });
+    console.log("📋 URL 參數:", { inviteId, mode });
 
-    // 等待用戶認證 - 增加更長的等待時間
-    console.log("🔐 檢查用戶認證...");
     const user = await waitForAuth();
     if (!user) {
-      console.log("❌ 用戶未登入，重定向");
       window.location.href = '/auth.html';
       return;
     }
@@ -102,102 +89,44 @@ async function initializeRecommendationPage() {
 
     let inviteData;
 
-    // 🆕 處理回推薦模式
-if (mode === "reply" && inviteId && originalRecId) {
-  console.log("🎯 回推薦模式");
-  
-  // 載入邀請資料
-  inviteData = await loadInviteData(inviteId);
-  
-  if (inviteData) {
-    // 載入原始推薦記錄以獲取推薦人資訊
-    const originalRecData = await loadOriginalRecommendation(originalRecId, user.uid);
-    
-    if (originalRecData) {
-      // 🆕 載入正確的工作經歷資料
-      const jobInfo = await loadJobInfo(user.uid, originalRecData.jobId);
-      
-      if (jobInfo) {
-        // 使用真實的工作資料
-        inviteData.company = jobInfo.company;
-        inviteData.position = jobInfo.position;
-        inviteData.jobDescription = jobInfo.description;
-        inviteData.startDate = jobInfo.startDate;
-        inviteData.endDate = jobInfo.endDate;
-        console.log("✅ 工作經歷資料載入完成:", jobInfo);
-      } else {
-        console.warn("⚠️ 無法載入工作經歷，使用邀請中的基本資料");
-      }
-      
-      // 設定回推薦模式
-      inviteData.isReplyMode = true;
-      inviteData.isGivingRecommendation = true;
-      inviteData.originalRecId = originalRecId;
-      
-      // 🎯 關鍵：決定目標用戶資料的優先級
-      const urlParams = new URLSearchParams(window.location.search);
-      const prefillName = urlParams.get('prefillName');
-      const prefillEmail = urlParams.get('prefillEmail');
-      
-      // 使用 URL 預填參數或原始記錄資料
-      inviteData.targetName = prefillName || originalRecData.name;
-      inviteData.targetEmail = prefillEmail || originalRecData.email;
-      inviteData.targetUserId = targetUserId || originalRecData.recommenderId;
-      
-      // 🆕 確保推薦人資訊正確
-      if (!inviteData.recommenderName) {
-        // 從用戶資料中獲取推薦人姓名
-        const userRef = db.collection("users").doc(user.uid);
-        const userSnap = await userRef.get();
-        if (userSnap.exists) {
-          const userData = userSnap.data();
-          inviteData.recommenderName = userData.name || user.displayName || user.email;
+    // --- 【核心修正】回覆推薦模式的資料準備 ---
+    if (mode === "reply" && inviteId) {
+        console.log("🎯 進入回覆推薦模式");
+        
+        inviteData = await loadInviteData(inviteId);
+        if (!inviteData) {
+            showError(t.inviteNotFound || "邀請資料不存在");
+            return;
         }
-      }
-      
-      console.log("✅ 回推薦模式設定完成，目標:", {
-        name: inviteData.targetName,
-        email: inviteData.targetEmail,
-        userId: inviteData.targetUserId,
-        company: inviteData.company,
-        position: inviteData.position,
-        recommenderName: inviteData.recommenderName
-      });
-    } else {
-      showError(t.originalRecNotFound);
-      return;
-    }
-  } else {
-    showError(t.inviteNotFound);
-    return;
-  }
-      
+
+        // 標記為回覆模式，並從邀請中獲取必要資訊
+        inviteData.isReplyMode = true;
+        inviteData.isGivingRecommendation = true;
+        inviteData.originalRecId = inviteData.originalRecommendationId;
+
+        //【重要】被回覆的對象，就是 invite 的建立者
+        inviteData.targetUserId = inviteData.userId; 
+        inviteData.targetName = inviteData.recommenderName; // 在回覆場景，invite 的建立者是我們要回覆的對象
+        
+        //【重要】而回覆的人，是當前登入者
+        inviteData.recommenderUserId = user.uid;
+        inviteData.recommenderName = user.displayName;
+
+        // 從 invite 文件中獲取 targetEmail (被回覆者的 email)
+        if (!inviteData.targetEmail) {
+            console.warn("⚠️ 邀請資料中缺少 targetEmail，這可能發生在舊的邀請資料");
+        }
+        
+        prefillReplyForm(inviteData);
+
     } else if (inviteId) {
-      // 其他邀請模式...
-      console.log("🎯 使用邀請模式，邀請ID:", inviteId);
+      // 推薦好夥伴 (Outgoing) 模式
+      console.log("🎯 進入推薦好夥伴模式，邀請ID:", inviteId);
       inviteData = await loadInviteData(inviteId);
-      
-      if (inviteData) {
-        if (mode === "outgoing" || (inviteData.type && inviteData.type === "outgoing")) {
-          inviteData.isGivingRecommendation = true;
-          console.log("📝 設定為推薦他人模式");
-        } else {
-          inviteData.isGivingRecommendation = false;
-          console.log("📝 設定為邀請推薦模式");
-        }
-      }
-      
-    } else if (mode === "outgoing" && jobId) {
-      // 直接推薦模式...
-      console.log("🎯 使用直接推薦模式，工作ID:", jobId);
-      inviteData = await createDirectInviteData(user, jobId);
       if (inviteData) {
         inviteData.isGivingRecommendation = true;
-        console.log("📝 設定為推薦他人模式");
       }
-      
     } else {
-      console.error("❌ 參數不完整");
       showError("缺少必要參數");
       return;
     }
@@ -206,21 +135,13 @@ if (mode === "reply" && inviteId && originalRecId) {
       showError("無法載入推薦資料，請檢查邀請是否有效");
       return;
     }
-
+    
     console.log("✅ 推薦資料載入成功:", inviteData);
-
-    // 初始化頁面
-    console.log("🎨 初始化頁面內容...");
+    
     setupPageContent(inviteData, t);
     setupFormOptions(t);
     setupFormSubmission(inviteData, t, user);
 
-    // 🆕 回推薦模式：預填表單
-    if (inviteData.isReplyMode) {
-      prefillReplyForm(inviteData);
-    }
-
-    // 顯示表單
     hideLoading();
     console.log("✅ 頁面初始化完成");
 
@@ -885,10 +806,8 @@ async function saveRecommendation(inviteData, formData, t) {
   console.log("💾 儲存推薦資料");
   console.log("  -> 是否為回覆模式:", inviteData.isReplyMode);
 
-  // 準備共用的資料 payload (這部分保持不變)
+  // 準備共用的資料 payload
   const commonData = {
-    name: formData.name, 
-    email: formData.email.toLowerCase(),
     content: formData.content,
     highlights: formData.highlights,
     relation: formData.relation,
@@ -904,54 +823,42 @@ async function saveRecommendation(inviteData, formData, t) {
 
   try {
     if (inviteData.isReplyMode) {
-      // =================================
-      // 🔥【回覆推薦】寫入路徑 (已修正)
-      // =================================
-      console.log("  -> 寫入到使用者推薦子集合...");
+      console.log("  -> 寫入到使用者推薦子集合 (回覆模式)...");
 
-      // 1. 先建立不含 targetUserId 的基礎物件
       const replyData = {
         ...commonData,
+        name: inviteData.targetName, // 被回覆者的名字
+        email: inviteData.targetEmail, // 被回覆者的 email
         type: "reply",
         originalRecommendationId: inviteData.originalRecId,
-        targetEmail: commonData.email,
-        targetName: commonData.name,
+        targetEmail: inviteData.targetEmail,
+        targetName: inviteData.targetName,
         recommenderEmail: auth.currentUser.email 
       };
 
-      // 2. 【核心修改】只有在 inviteData.targetUserId 存在時，才把這個欄位加上去
+      // 【核心修正】只有在 targetUserId 存在時 (對方是已註冊用戶)，才加入此欄位
       if (inviteData.targetUserId) {
         replyData.targetUserId = inviteData.targetUserId;
       }
       
-      // 現在 replyData 物件對於 Firestore 來說是絕對安全的
       console.log("💾 準備儲存的最終回覆資料:", replyData);
-
-      // 回覆是寫入到自己的 recommendations 子集合中
-      const recRef = db.collection("users")
-        .doc(auth.currentUser.uid)
-        .collection("recommendations")
-        .doc();
-
+      
+      const recRef = db.collection("users").doc(auth.currentUser.uid).collection("recommendations").doc();
       await recRef.set(replyData);
       console.log("✅ 回覆推薦儲存完成，ID:", recRef.id);
 
     } else {
-      // =================================
-      // 🔥【推薦好夥伴】寫入路徑 (此部分邏輯正確，保持不變)
-      // =================================
-      console.log("  -> 寫入到 outgoingRecommendations 集合...");
-
+      // 推薦好夥伴模式
+      console.log("  -> 寫入到 outgoingRecommendations 集合 (推薦好夥伴模式)...");
       const outgoingData = {
         ...commonData,
+        name: formData.name, // 來自表單的被推薦人名字
+        email: formData.email, // 來自表單的被推薦人 email
         type: "outgoing",
-        recommendeeName: commonData.name,
-        recommendeeEmail: commonData.email,
+        recommendeeName: formData.name,
+        recommendeeEmail: formData.email,
         inviteId: inviteData.id,
       };
-
-      delete outgoingData.name;
-      delete outgoingData.email;
 
       const recRef = db.collection("outgoingRecommendations").doc();
       await recRef.set(outgoingData);
