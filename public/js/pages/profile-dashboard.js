@@ -593,12 +593,8 @@ function renderBasicWithReplyStats() {
   }
   // 計算總的可回推薦人數
   const totalCanReply = profile.recommendationStats?.canReply || 0;
-  
   const totalReceived = profile.recommendationStats?.totalReceived || 0;
-  // 🎯 從工作經歷直接計算，確保準確性
-const totalGiven = profile.workExperiences.reduce((sum, job) => {
-  return sum + (job.givenCount || 0);
-}, 0);
+  const totalGiven = profile.recommendationStats?.totalGiven || 0;
 
   let recommendationsNote = "";
   if (totalReceived > 0 || totalGiven > 0 || totalCanReply > 0) {

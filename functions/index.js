@@ -5,7 +5,8 @@ const functions = require("firebase-functions");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_KEY);
 const admin = require("firebase-admin");
-
+// 確保在檔案頂部有這一行，從 v2 中導入 onCall
+const { onCall } = require("firebase-functions/v2/https");
 admin.initializeApp();
 
 const VERIFICATION_START_DATE = new Date('2025-06-04T00:00:00Z');
@@ -1943,65 +1944,77 @@ async function sendReplyRecommendationEmails(replyContext) {
 }
 
 // 🆕 處理回覆推薦的註冊確認
+/**
+ * 【最終修正版】處理回覆推薦的註冊確認
+ * - 修正了讀取 recommenderId 時的欄位名稱不一致問題。
+ */
 async function processReplyRecommendationRegistration(newUserId, replyRecId, pendingData) {
   try {
-    console.log(`🎯 開始處理回覆推薦註冊`);
-    console.log(`→ 新用戶 ID: ${newUserId}`);
-    console.log(`→ 回覆推薦 ID: ${replyRecId}`);
+    console.log(`[processReplyReg] 🎯 開始處理回覆推薦註冊: newUserId=${newUserId}, replyRecId=${replyRecId}`);
     
     const recommendationData = pendingData.recommendationData;
-    
     if (!recommendationData) {
-      console.error(`❌ 缺少 recommendationData`);
+      console.error(`[processReplyReg] ❌ 待辦事項缺少 recommendationData，無法處理。`);
       return;
     }
-    
-    // 📝 創建推薦記錄到新註冊使用者的 recommendations 集合
+
+    // 步驟 1：資料歸屬 - 為新用戶建立收到的推薦
     const recRef = admin.firestore()
-      .collection("users")
-      .doc(newUserId)
-      .collection("recommendations")
-      .doc();
+      .collection("users").doc(newUserId)
+      .collection("recommendations").doc();
     
     const finalRecommendationData = {
       ...recommendationData,
+      id: recRef.id,
       type: "received",
       targetUserId: newUserId,
-      status: 'verified', // 回覆推薦通常已驗證
+      status: 'verified',
+      verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+      verificationType: 'reply_based_registration',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      registeredAt: admin.firestore.FieldValue.serverTimestamp()
+      registeredAt: admin.firestore.FieldValue.serverTimestamp(),
+      fullyProcessed: true,
+      statsUpdated: true
     };
     
     await recRef.set(finalRecommendationData);
-    console.log(`✅ 回覆推薦記錄已創建: ${recRef.id}`);
+    console.log(`[processReplyReg] ✅ 已為新用戶 ${newUserId} 創建推薦記錄: ${recRef.id}`);
+
+    // ▼▼▼ 【核心修正】 ▼▼▼
+    // 同時檢查 recommenderId 和 recommenderUserId，確保能抓到正確的回覆者 ID
+    const replierId = recommendationData.recommenderId || recommendationData.recommenderUserId;
     
-    // 📊 更新統計
-    if (recommendationData.recommenderId) {
-      await updateRecommenderStats(recommendationData.recommenderId, 1, recommendationData.jobId);
+    // 步驟 2：更新統計數字
+    if (replierId) {
+      // 使用從 recommendationData 中獲取的 jobId
+      await updateRecommenderStats(replierId, 1, recommendationData.jobId);
       await updateRecipientStats(newUserId, 1);
-      console.log(`📊 回覆推薦統計已更新`);
+      console.log(`[processReplyReg] 📊 雙方統計數字已更新。`);
+    } else {
+      console.warn(`[processReplyReg] ⚠️ 缺少回覆者ID，跳過統計更新。`);
     }
-    // 🔄 更新原始回覆推薦記錄的目標用戶ID
-    if (recommendationData.recommenderId) {
+
+    // 步驟 3：回寫並更新原始的 reply 推薦記錄
+    if (replierId && replyRecId) {
       const originalReplyRef = admin.firestore()
-        .collection("users")
-        .doc(recommendationData.recommenderId)
-        .collection("recommendations")
-        .doc(replyRecId);
+        .collection("users").doc(replierId)
+        .collection("recommendations").doc(replyRecId);
       
       await originalReplyRef.update({
         targetUserId: newUserId,
         status: 'delivered',
-        deliveredAt: admin.firestore.FieldValue.serverTimestamp()
+        deliveredAt: admin.firestore.FieldValue.serverTimestamp(),
+        processed: true
       });
-      
-      console.log(`✅ 原始回覆推薦記錄已更新`);
+      console.log(`[processReplyReg] ✅ 已回寫更新原始 reply 記錄: ${replyRecId}`);
+    } else {
+      console.warn(`[processReplyReg] ⚠️ 缺少回覆者ID或回覆記錄ID，跳過回寫更新。`);
     }
     
-    console.log(`✅ 回覆推薦註冊處理完成`);
-    
+    console.log(`[processReplyReg] 🎉 回覆推薦註冊流程處理完成。`);
+
   } catch (error) {
-    console.error(`❌ 處理回覆推薦註冊失敗:`, error);
+    console.error(`[processReplyReg] ❌ 處理回覆推薦註冊時發生嚴重錯誤:`, error);
   }
 }
 // 🆕 立即驗證推薦函數
@@ -2367,94 +2380,30 @@ exports.updateStatsOnRecommenderIdAdded = onDocumentUpdated("users/{userId}/reco
   return null;
 });
 
-/**
- * 【一次性修復腳本 - 智能版】
- * 職責：手動處理所有因舊邏輯而未完成的「回覆推薦」註冊流程。
- * 特性：會先檢查推薦是否已存在，若存在則只清理待辦事項，避免重複操作。
- * @param {object} data - 包含 { replierId, recipientEmail }
- * @param {object} context - 包含認證資訊
- */
-exports.fixIncompleteReply = functions.region("asia-east1")
-    .https.onCall(async (data, context) => {
 
-    if (!context.auth || !context.auth.token.admin) {
+exports.fixJobIdAttribution = onCall({ region: "asia-east1" }, async (request) => {
+    const { userId, recommendationId, correctJobId } = request.data;
+    if (!request.auth.token.admin) {
         throw new functions.https.HttpsError('permission-denied', '此操作需管理員權限。');
     }
-
-    const { replierId, recipientEmail } = data;
-    if (!replierId || !recipientEmail) {
-        throw new functions.https.HttpsError('invalid-argument', '必須提供 replierId 和 recipientEmail。');
+    if (!userId || !recommendationId || !correctJobId) {
+        throw new functions.https.HttpsError('invalid-argument', '必須提供 userId, recommendationId, 和 correctJobId。');
     }
 
-    console.log(`[修復腳本 v2] 開始修復流程: 回覆者=${replierId}, 接收者Email=${recipientEmail}`);
+    console.log(`[JobID校準] 準備將用戶 ${userId} 的推薦 ${recommendationId} jobId 校準為 ${correctJobId}`);
     const db = admin.firestore();
+    const recRef = db.collection('users').doc(userId).collection('recommendations').doc(recommendationId);
 
     try {
-        // 1. 找到新註冊的使用者 (接收者)
-        const recipientQuery = await db.collection('users').where('email', '==', recipientEmail.toLowerCase()).limit(1).get();
-        if (recipientQuery.empty) {
-            throw new Error(`找不到 Email 為 ${recipientEmail} 的使用者。`);
-        }
-        const recipientId = recipientQuery.docs[0].id;
-        console.log(`[修復腳本 v2] 找到接收者: ${recipientId}`);
-
-        // 2. 找到當初卡住的那筆 'reply' 推薦記錄
-        const replyQuery = await db.collection('users').doc(replierId).collection('recommendations')
-            .where('type', '==', 'reply')
-            .where('targetEmail', '==', recipientEmail.toLowerCase())
-            .limit(1).get(); // 假設一個 email 只會回覆一次
-
-        if (replyQuery.empty) {
-            console.warn(`[修復腳本 v2] 在 ${replierId} 名下找不到針對 ${recipientEmail} 的回覆推薦，可能已被處理或不存在。將直接進行清理。`);
-        } else {
-            const replyDoc = replyQuery.docs[0];
-            const replyRecId = replyDoc.id;
-            console.log(`[修復腳本 v2] 找到待處理的 reply 記錄: ${replyRecId}`);
-
-            // 3. 【核心修改】在執行操作前，先檢查任務是否已被手動完成
-            const existingRecQuery = await db.collection('users').doc(recipientId).collection('recommendations')
-                .where('originalRecommendationId', '==', replyDoc.data().originalRecommendationId)
-                .limit(1).get();
-
-            if (!existingRecQuery.empty) {
-                // 案例二 (趙耘萱) 的情況：推薦已存在！
-                console.log(`[修復腳本 v2] 檢測到推薦已存在 (ID: ${existingRecQuery.docs[0].id})，任務已被手動完成。`);
-                console.log(`[修復腳本 v2] 將只進行清理工作...`);
-                // 不執行 processReplyRecommendationRegistration，直接跳到最後的清理步驟
-
-            } else {
-                // 案例一 (陳宇凱) 的情況：推薦不存在，執行完整修復流程
-                console.log(`[修復腳本 v2] 推薦不存在，開始執行完整修復流程...`);
-                const fakePendingData = { recommendationData: replyDoc.data() };
-                await processReplyRecommendationRegistration(recipientId, replyRecId, fakePendingData);
-            }
-        }
-        
-        // 4. 【統一清理步驟】無論哪種情況，最後都刪除對應的 pendingUsers
-        console.log(`[修復腳本 v2] 清理 ${recipientEmail} 的所有 reply_recommendation 類型的 pendingUsers...`);
-        const pendingQuery = await db.collection('pendingUsers')
-            .where('email', '==', recipientEmail.toLowerCase())
-            .where('type', '==', 'reply_recommendation')
-            .get();
-
-        if (pendingQuery.empty) {
-            console.log(`[修復腳本 v2] 找不到對應的 pendingUser 記錄可供清理，可能已被刪除。`);
-        } else {
-            const deletePromises = [];
-            pendingQuery.forEach(doc => {
-                console.log(`[修復腳本 v2] 正在刪除 zombie pendingUser: ${doc.id}`);
-                deletePromises.push(doc.ref.delete());
-            });
-            await Promise.all(deletePromises);
-            console.log(`[修復腳本 v2] 成功清理了 ${deletePromises.length} 筆待辦事項。`);
-        }
-        
-        const message = `✅ 修復與清理完成！已處理使用者 ${recipientEmail} 的相關資料。`;
+        await recRef.update({
+            jobId: correctJobId
+        });
+        const message = `✅ JobID 校準成功！`;
         console.log(message);
-        return { success: true, message: message };
+        return { success: true, message };
 
     } catch (error) {
-        console.error("[修復腳本 v2] ❌ 執行失敗:", error);
+        console.error("[JobId校準] ❌ 執行失敗:", error);
         throw new functions.https.HttpsError('internal', error.message);
     }
 });

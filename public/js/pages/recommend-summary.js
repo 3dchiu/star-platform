@@ -477,7 +477,8 @@ async function renderRecommendations(profile) {
 }
 
 /**
- * 【輔助函式】建立單張推薦卡的 HTML 字串
+ * 【最終修正版】建立單張推薦卡的 HTML 字串
+ * - 兼容 recommenderId 和 recommenderUserId 兩種欄位，確保超連結能正確產生。
  */
 function createRecCardHTML(r) {
     const t = (key) => (i18n[localStorage.getItem("lang") || "en"]?.recommendSummary || {})[key] || key;
@@ -487,14 +488,21 @@ function createRecCardHTML(r) {
     const relLabel = relMatch?.label || r.relation;
 
     const badges = renderBadges(r.highlights, t);
+
+    // ▼▼▼ 【核心修正】 ▼▼▼
+    // 優先使用 recommenderId，如果沒有，則使用 recommenderUserId
+    const recommenderProfileId = r.recommenderId || r.recommenderUserId;
+
+    // 根據 ID 是否存在，決定要產生超連結還是純文字
+    const nameHTML = recommenderProfileId 
+      ? `<a class="name" href="recommend-summary.html?public=true&userId=${recommenderProfileId}" target="_blank">${r.name}</a>`
+      : `<span class="name">${r.name}</span>`;
+    // ▲▲▲ 【核心修正結束】 ▲▲▲
     
     return `
       <div class="rec-card" id="rec-${r.id}">
         <div class="rec-header">
-            ${r.recommenderId
-              ? `<a class="name" href="recommend-summary.html?public=true&userId=${r.recommenderId}" target="_blank">${r.name}</a>`
-              : `<span class="name">${r.name}</span>`
-            }
+            ${nameHTML}
             <span class="meta">（${relLabel}）</span>
         </div>
         ${badges ? `<div class="badge-container">${badges}</div>` : ''}
