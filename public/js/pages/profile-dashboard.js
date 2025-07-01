@@ -1,4 +1,89 @@
 // public/js/profile-dashboard.js
+
+const LEVEL_MAP = {
+    1: 0, 2: 10, 3: 25, 4: 50, 5: 100,
+    6: 200, 7: 300, 8: 500, 9: 750, 10: 1000
+};
+
+function getLevelInfo(exp) {
+  if (exp >= 1000) return { level: 10, name: "星光領袖", color: "legendary" };
+  if (exp >= 750)  return { level: 9,  name: "職涯任性代言人", color: "diamond" };
+  if (exp >= 500)  return { level: 8,  name: "業界口碑典範", color: "trophy" };
+  if (exp >= 300)  return { level: 7,  name: "影響力連結者", color: "globe" };
+  if (exp >= 200)  return { level: 6,  name: "真誠推薦磁場", color: "sun" };
+  if (exp >= 100)  return { level: 5,  name: "人脈之星", color: "gold" };
+  if (exp >= 50)   return { level: 4,  name: "團隊領航者", color: "rocket" };
+  if (exp >= 25)   return { level: 3,  name: "值得信賴的夥伴", color: "handshake" };
+  if (exp >= 10)   return { level: 2,  name: "穩健合作者", color: "briefcase" };
+  return             { level: 1,  name: "初心之光", color: "gray" };
+}
+
+function getNextLevelThreshold(level) {
+    return LEVEL_MAP[level + 1] ?? Infinity;
+}
+
+// ✅ 【最終修正版】請完整複製並取代舊的 renderUserLevel 函式
+function renderUserLevel(exp) {
+    const container = document.getElementById("userLevelInfo");
+    if (!container) return;
+
+    const currentLevelInfo = getLevelInfo(exp);
+    const currentLevel = currentLevelInfo.level;
+    const currentLevelName = currentLevelInfo.name; // 等級稱號，例如 "初心之光"
+    const currentLevelColor = currentLevelInfo.color;
+
+    const currentLevelExp = LEVEL_MAP[currentLevel];
+    const nextLevelExp = getNextLevelThreshold(currentLevel); 
+
+    let progressPercentage = 0;
+    if (nextLevelExp !== Infinity) {
+        const expInCurrentLevel = exp - currentLevelExp;
+        const expForNextLevel = nextLevelExp - currentLevelExp;
+        progressPercentage = Math.max(0, Math.min(100, Math.floor((expInCurrentLevel / expForNextLevel) * 100)));
+    } else {
+        progressPercentage = 100;
+    }
+
+    const lang = localStorage.getItem("lang") || "zh-Hant";
+    const t = (window.i18n && window.i18n[lang]?.recommendSummary) || {};
+    const expToNextText = nextLevelExp !== Infinity 
+        ? (t.upgradeHint ? t.upgradeHint(nextLevelExp - exp, currentLevel + 1) : `再 ${nextLevelExp - exp} EXP 可升至 Lv.${currentLevel + 1}`)
+        : (t.maxLevelReached || '已達最高等級');
+
+    // 這個版本包含了星星、等級稱號、進度條和 EXP 文字，內容更豐富
+    container.innerHTML = `
+        <div class="level-badge-dashboard level-${currentLevelColor}">
+            <div class="star-icon">★</div>
+            <span class="level-number">${currentLevel}</span>
+        </div>
+        <div class="level-details">
+            <span class="level-name">${currentLevelName}</span>
+            <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: ${progressPercentage}%;"></div>
+            </div>
+            <div class="exp-text">
+                <span class="current-exp">EXP: ${exp} / ${nextLevelExp === Infinity ? 'MAX' : nextLevelExp}</span>
+                <span class="exp-to-next">${expToNextText}</span>
+            </div>
+        </div>
+    `;
+}
+
+// 渲染「基本資訊」卡片
+function renderBasicInfo(profile) {
+    const container = document.getElementById('basicInfo');
+    if (!container) return;
+
+    const lang = localStorage.getItem("lang") || "zh-Hant";
+    const t = (window.i18n && window.i18n[lang]?.profileDashboard) || {};
+    
+    container.innerHTML = `
+        <h1>${profile.name || ""}</h1>
+        ${profile.englishName ? `<p class="english-name">${profile.englishName}</p>` : ""}
+        <p class="experience-count">${(profile.workExperiences || []).length} ${t.workExperiences || 'Work Experiences'}</p>
+    `;
+}
+
 // 🔧 修復：安全的 i18n 引用
 const getSafeI18n = () => window.i18n || {};
 const getSafeTranslation = (lang) => getSafeI18n()[lang] || getSafeI18n()["zh-Hant"] || {};
@@ -764,16 +849,16 @@ function renderExperienceCardsWithReply() {
               `}
             </div>
             <div class="recommendation-actions">
-              <button class="action-btn primary recommend-others-btn" data-idx="${idx}" title="${tNow.recommendOthers || '推薦好夥伴'}">
+              <button class="action-btn primary recommend-others-btn" data-idx="${idx}" title="${tNow.recommendOthers || '推薦好夥伴'} (+10 EXP)">
                 🤝 ${tNow.recommendOthers || '推薦好夥伴'}
               </button>
               ${canReplyCount > 0 ? `
-                <button class="action-btn secondary reply-btn" data-idx="${idx}" title="${tNow.replyRecommend || '回覆'}">
+                <button class="action-btn secondary reply-btn" data-idx="${idx}" title="${tNow.replyRecommend || '回覆'} (+3 EXP)">
                   💬 ${tNow.replyRecommend || '回覆'} (${canReplyCount})
                 </button>
               ` : ''}
-              <button class="action-btn secondary link-btn" data-idx="${idx}" title="${tNow.inviteRecommender || '請朋友推薦'}">
-                📨 ${tNow.inviteRecommender || '請朋友推薦'}
+              <button class="action-btn secondary link-btn" data-idx="${idx}" title="${tNow.inviteRecommender || '請夥伴推薦'} (成功收到推薦 +5 EXP)">
+                📨 ${tNow.inviteRecommender || '請夥伴推薦'}
               </button>
             </div>
           </div>
@@ -799,8 +884,8 @@ function renderExperienceCardsWithReply() {
               <button class="action-btn primary recommend-others-btn" data-idx="${idx}" title="${tNow.recommendOthers || '推薦好夥伴'}">
                 🤝 ${tNow.recommendOthers || '推薦好夥伴'}
               </button>
-              <button class="action-btn secondary link-btn" data-idx="${idx}" title="${tNow.inviteRecommender || '請朋友推薦'}">
-                📨 ${tNow.inviteRecommender || '請朋友推薦'}
+              <button class="action-btn secondary link-btn" data-idx="${idx}" title="${tNow.inviteRecommender || '請夥伴推薦'}">
+                📨 ${tNow.inviteRecommender || '請夥伴推薦'}
               </button>
             </div>
           </div>
@@ -1555,7 +1640,7 @@ function debugRecommendationData() {
           // 🔧 修改：從總統計讀取推薦他人數量
           const jobStats = profile.recommendationStats?.byJob?.[j.id];
           });
-
+        
         // 🔽 初始化畫面顯示（年月下拉、靜態文字、卡片內容）
         populateYearMonth();
         renderStaticText();
@@ -1578,6 +1663,9 @@ function debugRecommendationData() {
         }
 
         // 🆕 載入推薦數據並更新UI
+        const userExp = profile.recommendationStats?.exp || 0;
+        renderUserLevel(userExp);
+
         //renderBasicWithReplyStats();  // 替換 renderBasic()
         renderBio();
         //renderExperienceCardsWithReply();  // 替換 renderExperienceCards()
@@ -1669,7 +1757,8 @@ function recheckQuickStartCard() {
         });
 
         previewBtn.addEventListener("click", () => {
-          const url = `/pages/recommend-summary.html?public=true&userId=${profile.userId}`;
+          const url = `/pages/public-profile.html?userId=${profile.userId}`;
+
           smartOpenRecommendation(url, '公開推薦頁');
         });
 

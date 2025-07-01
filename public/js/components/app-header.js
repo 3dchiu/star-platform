@@ -1,293 +1,179 @@
-// js/components/app-header.js - 統一修復版本
+// public/js/components/app-header.js (最終穩固版，可直接覆蓋)
+
 import { i18n, setLang } from "../i18n.js";
-console.log("app-header.js 啟動");
+console.log("app-header.js (V3 - 最終穩固版) 啟動");
 
-// 全域變數
-let auth;
-let isAuthSetup = false;
+// 主要初始化函數
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log("🚀 Header 初始化開始");
+  try {
+    const headerContainer = document.getElementById("appHeader");
+    if (!headerContainer) {
+      console.warn("⚠️ 找不到 #appHeader 容器，Header 未載入。");
+      return;
+    }
+    const response = await fetch("../partials/header.html");
+    if (!response.ok) throw new Error(`無法載入 header.html: ${response.status}`);
+    headerContainer.innerHTML = await response.text();
+    console.log("✅ Header HTML 已成功插入。");
 
-// 更新登入/登出按鈕文字
-function updateLoginLogoutButtonText(lang) {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  
-  if (loginBtn) {
-    const loginText = i18n[lang]?.header?.login || "登入";
-    loginBtn.innerText = loginText;
+    // 步驟 2：一次性獲取所有 Header 內部元素
+    const elements = {
+        langButton: document.getElementById('langButton'),
+        langMenu: document.getElementById('langMenu'),
+        loginBtn: document.getElementById("loginBtn"),
+        logoutBtn: document.getElementById("logoutBtn"),
+        logoLink: document.querySelector('.brand-link'),
+        headerSearchContainer: document.getElementById("headerSearchContainer"),
+        headerSearchInput: document.getElementById("headerSearchInput"),
+        headerSearchResults: document.getElementById("headerSearchResults")
+    };
+    console.log("✅ Header 內部所有元素已獲取。");
+
+    // 步驟 3：設定語言功能
+    const currentLang = localStorage.getItem("lang") || "zh-Hant";
+    setLang(currentLang);
+    setupLanguageButtons(elements, currentLang);
+
+    // 步驟 4：等待 Firebase 並設定認證與搜尋
+    const firebaseReady = await waitForFirebase();
+    if (firebaseReady) {
+      await setupAuthentication(elements);
+    } else {
+      updateButtonDisplay(null, elements);
+    }
+    console.log("🎉 Header 初始化完成");
+  } catch (error) {
+    console.error("❌ Header 初始化失敗:", error);
   }
-  
-  if (logoutBtn) {
-    const logoutText = i18n[lang]?.header?.logout || "登出";
-    logoutBtn.innerText = logoutText;
-  }
-}
+});
 
-// 設定語言按鈕
-function setupLanguageButtons(currentLang) {
-  const langButton = document.getElementById('langButton');
-  const langMenu = document.getElementById('langMenu');
-  
-  console.log("🔍 語言按鈕設定:", { langButton: !!langButton, langMenu: !!langMenu });
+// --- 輔助函式區 ---
 
-  // 更新語言按鈕文字
-  function updateLangButtonText(lang) {
+function setupLanguageButtons(elements, currentLang) {
+  const { langButton, langMenu } = elements;
+  if (!langButton || !langMenu) return;
+
+  const updateLangButtonText = (lang) => {
     const map = { en: "EN", "zh-Hant": "繁中 ⌄" };
-    if (langButton) langButton.innerText = map[lang] || "EN";
-  }
+    langButton.innerText = map[lang] || "EN";
+  };
+  
+  const updateLoginLogoutButtonText = (lang) => {
+    if(elements.loginBtn) elements.loginBtn.innerText = i18n[lang]?.header?.login || "登入";
+    if(elements.logoutBtn) elements.logoutBtn.innerText = i18n[lang]?.header?.logout || "登出";
+  };
 
-  // 初始顯示
   updateLangButtonText(currentLang);
+  updateLoginLogoutButtonText(currentLang);
 
-  // 當語言切換時更新
   window.addEventListener("langChanged", e => {
     updateLangButtonText(e.detail);
     updateLoginLogoutButtonText(e.detail);
   });
 
-  // 語言選單功能
-  if (langButton && langMenu) {
-    langButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      langMenu.classList.toggle('show');
-      langMenu.classList.toggle('hidden');
-    });
-
-    document.querySelectorAll('.lang-option').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const selectedLang = e.target.dataset.lang;
-        localStorage.setItem('lang', selectedLang);
-        setLang(selectedLang);
-
-        // 通知全站語系已變更
-        window.dispatchEvent(new CustomEvent("langChanged", { detail: selectedLang }));
-
-        // 關閉語言選單
-        langMenu.classList.remove('show');
-        langMenu.classList.add('hidden');
-      });
-    });
-
-    // 點擊其他地方關閉語言選單
-    document.addEventListener('click', (e) => {
-      if (!langButton.contains(e.target) && !langMenu.contains(e.target)) {
-        langMenu.classList.remove('show');
-        langMenu.classList.add('hidden');
-      }
-    });
-  }
-}
-
-// 更新按鈕顯示狀態
-function updateButtonDisplay(user) {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  
-  console.log("🔄 更新按鈕顯示:", {
-    hasUser: !!user,
-    userEmail: user?.email,
-    loginBtn: !!loginBtn,
-    logoutBtn: !!logoutBtn
+  langButton.addEventListener('click', e => {
+    e.stopPropagation();
+    langMenu.classList.toggle('hidden');
   });
-  
-  if (user) {
-    // 用戶已登入：顯示登出按鈕，隱藏登入按鈕
-    if (loginBtn) {
-      loginBtn.style.display = "none";
-      console.log("✅ 隱藏登入按鈕");
-    }
-    if (logoutBtn) {
-      logoutBtn.style.display = "inline-block";
-      console.log("✅ 顯示登出按鈕");
-    }
-  } else {
-    // 用戶未登入：顯示登入按鈕，隱藏登出按鈕
-    if (loginBtn) {
-      loginBtn.style.display = "inline-block";
-      console.log("✅ 顯示登入按鈕");
-    }
-    if (logoutBtn) {
-      logoutBtn.style.display = "none";
-      console.log("✅ 隱藏登出按鈕");
-    }
-  }
-}
 
-// 設定按鈕事件
-function setupButtonEvents() {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  
-  if (!loginBtn || !logoutBtn) {
-    console.error("❌ 找不到登入/登出按鈕");
-    return false;
-  }
-  
-  // 登入按鈕事件
-  loginBtn.onclick = function(e) {
-    e.preventDefault();
-    const next = encodeURIComponent(location.pathname + location.search);
-    location.href = `/pages/login.html?next=${next}`;
-  };
-  
-  // 登出按鈕事件
-  logoutBtn.onclick = function(e) {
-    e.preventDefault();
-    console.log("🚪 用戶點擊登出");
-    
-    if (auth) {
-      auth.signOut()
-        .then(() => {
-          console.log("✅ 登出成功");
-          location.href = "/pages/login.html";
-        })
-        .catch(err => {
-          console.error("❌ 登出失敗:", err);
-          location.href = "/pages/login.html";
-        });
-    } else {
-      console.log("⚠️ Auth 未初始化，直接跳轉登入頁");
-      location.href = "/pages/login.html";
-    }
-  };
-  
-  console.log("✅ 按鈕事件設定完成");
-  return true;
-}
-
-// 設定 Firebase 認證
-async function setupAuthentication() {
-  if (isAuthSetup) {
-    console.log("⚠️ 認證已經設定過，跳過");
-    return;
-  }
-
-  console.log("🔍 開始設定 Firebase 認證");
-  
-  // 檢查 Firebase 是否可用
-  if (typeof firebase === 'undefined') {
-    console.error("❌ Firebase 未載入");
-    return;
-  }
-
-  if (firebase.apps.length === 0) {
-    console.error("❌ Firebase 未初始化");
-    return;
-  }
-
-  try {
-    auth = firebase.auth();
-    console.log("✅ Firebase Auth 已連接");
-    
-    // 設定按鈕事件
-    if (!setupButtonEvents()) {
-      console.error("❌ 按鈕事件設定失敗");
-      return;
-    }
-
-    // 🔥 關鍵：先檢查當前用戶狀態
-    const currentUser = auth.currentUser;
-    console.log("🔍 當前用戶狀態:", currentUser ? `已登入(${currentUser.email})` : "未登入");
-    
-    // 立即更新按鈕狀態
-    updateButtonDisplay(currentUser);
-    
-    // 監聽認證狀態變化
-    auth.onAuthStateChanged(user => {
-      console.log("🔄 認證狀態變化:", user ? `已登入(${user.email})` : "已登出");
-      updateButtonDisplay(user);
+  document.querySelectorAll('.lang-option').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const selectedLang = e.target.dataset.lang;
+      localStorage.setItem('lang', selectedLang);
+      setLang(selectedLang);
+      langMenu.classList.add('hidden');
     });
-    
-    isAuthSetup = true;
-    console.log("✅ 認證設定完成");
-    
-  } catch (error) {
-    console.error("❌ 設定認證功能失敗:", error);
-  }
+  });
+
+  document.addEventListener('click', e => {
+    if (!langButton.contains(e.target) && !langMenu.contains(e.target)) {
+      langMenu.classList.add('hidden');
+    }
+  });
 }
 
-// 顯示登入按鈕（錯誤處理時使用）
-function showLoginButton() {
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  
-  if (loginBtn) {
+function updateButtonDisplay(user, elements) {
+  const { loginBtn, logoutBtn } = elements;
+  if (!loginBtn || !logoutBtn) return;
+  if (user) {
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+  } else {
     loginBtn.style.display = "inline-block";
-    loginBtn.onclick = function() {
-      const next = encodeURIComponent(location.pathname + location.search);
-      location.href = `/pages/login.html?next=${next}`;
-    };
-  }
-  if (logoutBtn) {
     logoutBtn.style.display = "none";
   }
-  
-  console.log("✅ 錯誤處理：顯示登入按鈕");
 }
 
-// 等待 Firebase 準備就緒
+async function setupAuthentication(elements) {
+  try {
+    const auth = firebase.auth();
+    const functions = firebase.functions();
+    const searchProfiles = functions.httpsCallable('searchPublicProfiles');
+    const { headerSearchContainer, headerSearchInput, headerSearchResults, loginBtn, logoutBtn, logoLink } = elements;
+
+    loginBtn.onclick = (e) => { e.preventDefault(); location.href = `/pages/login.html?next=${encodeURIComponent(location.pathname + location.search)}`; };
+    logoutBtn.onclick = (e) => { e.preventDefault(); auth.signOut().then(() => location.href = "/"); };
+
+    auth.onAuthStateChanged(user => {
+      updateButtonDisplay(user, elements);
+      if(logoLink) logoLink.href = user ? '/pages/profile-dashboard.html' : '/';
+
+      if (user && headerSearchContainer && headerSearchInput && headerSearchResults) {
+        headerSearchContainer.style.display = 'block';
+        headerSearchInput.addEventListener('input', () => {
+          const keyword = headerSearchInput.value.trim();
+          if (keyword.length < 1) {
+            headerSearchResults.classList.add('hidden');
+            return;
+          }
+          searchProfiles({ keyword }).then(result => {
+            headerSearchResults.innerHTML = '';
+            const profiles = result.data;
+            if (profiles && profiles.length > 0) {
+              profiles.forEach(p => headerSearchResults.appendChild(createSimpleProfileCard(p)));
+              headerSearchResults.classList.remove('hidden');
+            } else {
+              headerSearchResults.classList.add('hidden');
+            }
+          });
+        });
+        document.addEventListener('click', e => {
+          if (!headerSearchContainer.contains(e.target)) {
+            headerSearchResults.classList.add('hidden');
+          }
+        });
+      } else if (headerSearchContainer) {
+        headerSearchContainer.style.display = 'none';
+      }
+    });
+  } catch (error) {
+    console.error("❌ 設定認證/搜尋功能失敗:", error);
+  }
+}
+
 async function waitForFirebase(maxWaitTime = 10000) {
   const startTime = Date.now();
-  
   while (Date.now() - startTime < maxWaitTime) {
-    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
-      console.log("✅ Firebase 已準備就緒");
-      return true;
-    }
-    
+    if (typeof firebase !== 'undefined' && firebase.apps?.length > 0) return true;
     await new Promise(resolve => setTimeout(resolve, 100));
   }
-  
-  console.log("⏰ Firebase 等待超時");
   return false;
 }
 
-// 主要初始化函數
-document.addEventListener('DOMContentLoaded', async () => {
-  console.log("🚀 Header 初始化開始");
+function createSimpleProfileCard(profile) {
+  const cardLink = document.createElement('a');
+  cardLink.href = `/pages/public-profile.html?userId=${profile.userId}`;
+  // 我們可以使用一個更簡潔的 class 名稱，對應新的單行樣式
+  cardLink.className = 'header-search-result-item';
+
+  // 將姓名和頭銜組合成一行文字
+  const displayText = profile.headline 
+    ? `${profile.name} (${profile.headline})` 
+    : profile.name;
   
-  try {
-    // ❶ 載入 header.html
-    console.log("📤 載入 header.html");
-    const response = await fetch("../../partials/header.html");
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const html = await response.text();
-    const headerContainer = document.getElementById("appHeader");
-    
-    if (headerContainer) {
-      headerContainer.innerHTML = html;
-      console.log("✅ Header 已插入到 appHeader 容器");
-    } else {
-      document.body.insertAdjacentHTML("afterbegin", html);
-      console.log("✅ Header 已插入到 body 開頭");
-    }
-
-    // 等待 DOM 更新
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    // ❷ 設定語言功能
-    const currentLang = localStorage.getItem("lang") || "en";
-    setLang(currentLang);
-    setupLanguageButtons(currentLang);
-    updateLoginLogoutButtonText(currentLang);
-
-    // ❸ 等待 Firebase 並設定認證
-    console.log("⏳ 等待 Firebase 載入...");
-    const firebaseReady = await waitForFirebase();
-    
-    if (firebaseReady) {
-      await setupAuthentication();
-    } else {
-      console.log("⚠️ Firebase 未就緒，使用簡化模式");
-      showLoginButton();
-    }
-    
-    console.log("🎉 Header 初始化完成");
-    
-  } catch (error) {
-    console.error("❌ Header 初始化失敗:", error);
-    showLoginButton();
-  }
-});
+  // 直接設定文字內容，不再需要複雜的 innerHTML
+  cardLink.textContent = displayText;
+  
+  return cardLink;
+}

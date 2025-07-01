@@ -8,7 +8,7 @@
 
   <!-- 全站 CSS（在 public../styles/main.css） -->
   <link rel="stylesheet" href="../styles/main.css" />
-
+  <link rel="stylesheet" href="../styles/level.css" />
   <!-- 🔥 Firebase compat SDK - 嘗試不同版本 -->
  
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -62,18 +62,18 @@
     <ol id="onboardingSteps" class="list-decimal list-inside mb-4"></ol>
   </section>
       <!-- Onboarding 小卡 End -->
+  <div class="profile-top-row">
+        
+        <section id="basicInfo" class="white-card soft-shadow p-6"></section>
+        
+        <section id="userLevelInfo" class="level-container white-card soft-shadow p-6"></section>
 
-    <!-- Basic Info -->
-    <section id="basicInfo" class="white-card soft-shadow"></section>
-    <!-- 🔽 自我介紹區塊（bio），可以按鈕開啟 Modal 編輯 -->
-    <!-- About Me -->
-    <section id="bioSection" class="white-card soft-shadow p-6 mb-6">
-      <h3 class="text-lg font-semibold mb-2" data-i18n="editBio">Edit Bio</h3>
-      <p id="bioText" class="mb-4 text-gray-600"></p>
-      <button id="editBioBtn" class="btn btn-secondary" data-i18n="editBio">
-        Edit Bio
-      </button>
-    </section>
+      </div>
+      <section id="bioSection" class="white-card soft-shadow p-6 mb-6">
+        <h3 class="text-lg font-semibold mb-2" data-i18n="editBio"></h3>
+        <p id="bioText" class="mb-4 text-gray-600"></p>
+        <button id="editBioBtn" class="btn btn-secondary" data-i18n="editBio"></button>
+      </section>
 
     <!-- Work Experiences -->
     <h2 class="mt-8 mb-4 text-xl font-semibold brand-blue-text" data-i18n="workExperiences">

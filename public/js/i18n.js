@@ -2,8 +2,8 @@ export const i18n = {
   en: {
     // header
     login: "Login",
-    logout: "Logout",  
-     // Common Texts
+    logout: "Logout",
+    // Common Texts
     common: {
       submit: "Submit",
       submitting: "Submitting...",
@@ -12,6 +12,13 @@ export const i18n = {
       error: "Error",
       success: "Success",
       loading: "Loading...",
+      save: "Save", // ✨ 集中管理
+      delete: "Delete", // ✨ 集中管理
+      edit: "Edit", // ✨ 集中管理
+      closeWindow: "Close Window", // ✨ 集中管理
+      backToDashboard: "Back to Dashboard", // ✨ 集中管理
+      company: "Company", // ✨ 集中管理
+      position: "Position", // ✨ 集中管理
       loginRequired: "Please log in to use this feature.",
       permissionDenied: "Permission denied. Please try logging in again.",
       networkError: "Network error. Please check your connection and try again.",
@@ -21,211 +28,152 @@ export const i18n = {
       linkCopyFailed: "Please copy the link manually."
     },
     // profile-dashboard.html
-    onboarding: {
-      title: "Build Authentic Professional Network ✨",
-      steps: [
-        "Recommend a great partner who deserves recognition",
-        "Reply with gratitude when you receive recommendations",
-        "Invite friends to build authentic professional profiles together"
-      ]
+    profileDashboard: { // ✨ 建議將 key 改為更明確的名稱
+      onboarding: {
+        title: "Build Your Trust Network & Level Up! ✨",
+        steps: [
+          "**Give** a recommendation to a great partner <span class='exp-badge'>+10 EXP</span>",
+          "**Receive** a verified recommendation from others <span class='exp-badge'>+5 EXP</span>",
+          "**Reply** to a recommendation you received <span class='exp-badge'>+3 EXP</span>"
+        ],
+        footer: "All EXP will be awarded after the recommendation is verified." // <-- ✨ 新增
+      },
+      loadingDashboardMessage: "Loading your profile…",
+      newRecommendation: "🛎️ You've received a new recommendation!",
+      workExperiences: "Work Experiences",
+      addExperience: "+ Add New Experience",
+      addExperienceTitle: "Add Experience",
+      period: "Period",
+      descriptionOptional: "Description (optional)",
+      currentlyWorking: "Currently working",
+      editBio: "Edit Bio",
+      noBio: "(No bio yet)",
+      viewSummaryAll: "View Recommendation Summary",
+      noRecommendationsHint: "Start by recommending amazing partners who deserve to be recognized!\nWhen others recommend you too, you can reply to build meaningful professional connections.",
+      viewPublicSummary: "🌟 View Public Recommendation Page",
+      inviteRecommender: "Ask Friends to Recommend",
+      recommendOthers: "Recommend Great Partners",
+      recommendOthersSuccess: "Opening recommendation form...",
+      recommendOthersError: "Failed to create recommendation invite, please try again",
+      canReply: "can reply to",
+      replyRecommend: "Reply",
+      replyOptions: "Reply Options",
+      replyOptionsDescription: "Choose how you'd like to reply:",
+      selectColleagueToReply: "Select Colleague to Reply",
+      startReply: "Reply with Recommendation",
+      noReplyAvailable: "No recommendations available to reply to",
+      loadReplyOptionsError: "Failed to load reply options, please try again",
+      alreadyRecommendedThem: "You have already recommended them, no need to reply",
+      replySubmittedSuccess: "Reply recommendation submitted!",
+      recommendReply: "Recommendation Reply",
+      recommendReplyDesc: "Share your observations about this colleague",
+      coffeeGratitude: "Coffee Gratitude",
+      coffeeGratitudeDesc: "Send a cup of coffee to express thanks",
+      comingSoon: "Coming Soon",
+      joinWaitlist: "Join Waitlist",
+      received: "Received",
+      recommendations: "recommendations",
+      people: "people",
+      totalRecommended: "Total recommended",
+      defaultInvite_direct: "I'm building my professional career profile and would love to invite you to write a short recommendation about our time working together. If you're open to it, I'd be happy to return the favor!",
+      defaultInvite_warmth: "I'm building my professional network profile, and while reflecting on our past collaborations, I’d love to invite you to share a few words about your impressions of working with me. If you ever want to build your own network, I’d be more than happy to return the recommendation and grow our professional credibility together.",
+      inviteEmpty: "Please enter an invitation message before copying.",
+      editInviteTitle: "Edit Invitation",
+      inviteStyleLabel: "Invitation Style:",
+      styleDirect: "Direct",
+      styleWarmth: "Warmth",
+      previewLinkText: "🔍 Preview Invitation",
+      templateHintPrefix: "Not sure what to write?",
+      insertDirect: "Insert direct version",
+      insertWarmth: "Insert warm version",
+      or: "or",
+      invitePlaceholder: "Type a message you’d like to say to your collaborator…",
+      previewReminder: "⚠️ Remember to click 'Save and Copy' or your message will not be saved.",
+      deleteConfirm: "This action cannot be undone. Are you sure you want to delete this experience?",
+      selectStart: "Please select a start date.",
+      selectEnd: "Please select an end date.",
+      errEndBeforeStart: "End date cannot be earlier than the start date.",
+      errEndAfterToday: "End date cannot be in the future",
+      recommenderDataError: "Recommender data is incorrect. Please select again.",
+      openingReplyForm: "Opening reply form...",
+      openingRecommendForm: "Opening recommendation form...",
+      createInviteError: "Failed to create recommendation invitation. Please try again later.",
+      inviteSaveAndCopy: "Save & Copy",
     },
-    loadingDashboardMessage: "Loading your profile…",
-    newRecommendation: "🛎️ You've received a new recommendation!",
-    workExperiences: "Work Experiences",
-    addExperience: "+ Add New Experience",
-    addExperienceTitle: "Add Experience",
-    company: "Company",
-    position: "Position",
-    period: "Period",
-    descriptionOptional: "Description (optional)",
-    cancelExperience: "Cancel",
-    saveExperience: "Save",
-    currentlyWorking: "Currently working",
-    editBio: "Edit Bio",
-    noBio: "(No bio yet)",
-    viewSummaryAll: "View Recommendation Summary",
-    errEndBeforeStart: "End date cannot be before start date",
-    selectEnd:         "Select end date",
-    errEndAfterToday: "End date cannot be in the future",
-    inviteCancel:       "Cancel",
-    inviteSaveAndCopy:  "Save & Copy",
-    noRecommendationsHint: "Start by recommending amazing partners who deserve to be recognized!\nWhen others recommend you too, you can reply to build meaningful professional connections.",
-    viewPublicSummary: "🌟 View Public Recommendation Page",
-    showAll: (count) => `Show all ${count} recommendations`,
-    showLess: "Show less",
-    save: "Save",
-    inviteRecommender: "Ask Friends to Recommend",
-    recommendOthers: "Recommend Great Partners",
-    replyRecommend: "Reply",
-    edit: "Edit",
-    delete: "Delete",
-    recommendOthersSuccess: "Opening recommendation form...",
-    recommendOthersError: "Failed to create recommendation invite, please try again",
-    // 回覆相關
-    canReply: "can reply to",
-    replyRecommend: "Reply",
-    replyOptions: "Reply Options", 
-    replyOptionsDescription: "Choose how you'd like to reply:",
-    selectColleagueToReply: "Select Colleague to Reply",
-    startReply: "Reply with Recommendation",
-    noReplyAvailable: "No recommendations available to reply to",
-    loadReplyOptionsError: "Failed to load reply options, please try again",
-    alreadyRecommendedThem: "You have already recommended them, no need to reply",
-    replySubmittedSuccess: "Reply recommendation submitted!",
-    
-    // 推薦回覆選項
-    recommendReply: "Recommendation Reply",
-    recommendReplyDesc: "Share your observations about this colleague",
-    
-    // 咖啡感謝選項
-    coffeeGratitude: "Coffee Gratitude",
-    coffeeGratitudeDesc: "Send a cup of coffee to express thanks",
-    comingSoon: "Coming Soon", 
-    joinWaitlist: "Join Waitlist",
-    
-    // 統計文字
-    received: "Received",
-    recommendations: "recommendations",
-    people: "people", 
-    totalRecommended: "Total recommended",
-    // invitation templates & UI
-    defaultInvite_direct: "I'm building my professional career profile and would love to invite you to write a short recommendation about our time working together. If you're open to it, I'd be happy to return the favor!",
-    defaultInvite_warmth: "I'm building my professional network profile, and while reflecting on our past collaborations, I’d love to invite you to share a few words about your impressions of working with me. If you ever want to build your own network, I’d be more than happy to return the recommendation and grow our professional credibility together.",
-    inviteEmpty: "Please enter an invitation message before copying.",
-    editInviteTitle: "Edit Invitation",
-    inviteStyleLabel: "Invitation Style:",
-    styleDirect: "Direct",
-    styleWarmth: "Warmth",
-    previewLinkText: "🔍 Preview Invitation",
-    templateHintPrefix: "Not sure what to write?",
-    insertDirect: "Insert direct version",
-    insertWarmth: "Insert warm version",
-    or: "or",
-    invitePlaceholder: "Type a message you’d like to say to your collaborator…",
-    previewReminder: "⚠️ Remember to click 'Save and Copy' or your message will not be saved.",
-
-    // toast & confirm
-    deleteConfirm: "Delete this experience?",
-    deleteToast: "Deleted",
-    selectStart: "Select start date",
-    selectEnd: "Select end date",
-    linkCopied: "Link copied!",
-    linkCopyFailed: "Please copy the link below:",
-    copy: "Copy",
-    cancel: "Cancel",
-    linkCopied: "Link copied!",
-    noBio: "(No biography yet)",
-    noReplyAvailable: "No recommendations available to reply to at the moment.",
-    recommenderDataError: "Recommender data is incorrect. Please select again.",
-    openingReplyForm: "Opening reply form...",
-    openingRecommendForm: "Opening recommendation form...",
-    createInviteError: "Failed to create recommendation invitation. Please try again later.",
-    selectStart: "Please select a start date.",
-    enterName: "Please enter a name.",
-    errEndBeforeStart: "End date cannot be earlier than the start date.",
-    deleteConfirm: "This action cannot be undone. Are you sure you want to delete this experience?",
-    inviteEmpty: "Please enter the invitation content first.",
-
     // recommend-form.html
-  identityReminder: "\n    <strong>\ud83c\udf1f Galaxyz is a career network built on authentic collaboration and trust.</strong><br/>\n    Only those who share a collaboration feedback can create their own profile and join the Galaxyz constellation.<br/><br/>\n    \ud83d\udc49 Please enter your real name and personal email so we can invite you afterward.\n    ",
-  ogTitle: "\ud83c\udf1f Please write a collaboration feedback for my career profile!",
-  ogDescription: "I'm building my career profile on Galaxyz and would love your feedback on our collaboration.",
-  recommendingTo: "You are writing a collaboration feedback for <strong>{name}</strong>",
-  recPageTitle: "Collaboration Feedback Form",
-  formTitle: "Collaboration Feedback Form",
-  inviteTitle: "Invitation Message",
-  name: "Your Name",
-  email: "Your Email",
-  relation: "You are the candidate’s",
-  contentLabel: "Collaboration Feedback",
-  hintContent: "Up to 500 characters — please focus on your impressions and highlights.",
-  submitRecommendation: "Submit Collaboration Feedback",
-  relationOptions: [
-    { value: "directManager", label: "I was their direct manager" },
-    { value: "crossDeptManager", label: "I was their cross-team manager" },
-    { value: "sameDeptColleague", label: "I was their teammate (same team)" },
-    { value: "crossDeptColleague", label: "I was their teammate (different team)" },
-    { value: "subordinate", label: "They were my subordinate" },
-    { value: "client", label: "I was their client" },
-    { value: "vendor", label: "I was their vendor / partner" }
-  ],
-  highlightLabel: "Which strengths do you particularly appreciate? (Multiple selections allowed)",
-  hintName: "Please enter your name. Only the person you are recommending can see it.",
-  hintEmail: "Please use your main email so we can invite you to join Galaxyz afterward.",
-
-  highlightOptions: ["hardSkill", "softSkill", "character"],
-  highlightOptionLabels: {
-    hardSkill: "Hard Skills",
-    softSkill: "Soft Skills",
-    character: "Character & Integrity"
-  },
-  hintHighlights: "Select the strengths that best represent this person, or add your own.",
-  highlightOptionCustomLabel: "Other Highlight (optional)",
-  highlightOptionCustomPlaceholder: "Enter a custom highlight",
-  hintCustomHighlight: "Up to 30 characters; optional.",
-  highlightLimitMsg: "You can select up to 3 highlights only.",
-  brandSlogan: "Galaxyz | Where authentic collaboration builds trusted professional connections.",
-  giveRecommendationReminder: "Please ensure your feedback is truthful and based on actual collaboration experience. The recipient will be invited to register and view your feedback.",
-  importantNotice: "\ud83d\udcdc Important Notice",
-  confirmationNotice: "Your feedback will be officially recorded after the recipient registers and verifies their identity.",
-  proTip: "\ud83d\udca1 Pro Tip",
-  reminderMessage: "You can proactively message them to check their email and ensure your feedback reaches them!",
-  fillAllFields: "Please fill in your name, email, feedback content, and highlight.",
-  alreadyRecommended: "You have already submitted collaboration feedback for this work experience!",
-  loginToSubmit: "To ensure authenticity, please log in or register to submit. Your content has been saved for you.",
-  originalRecNotFound: "Original feedback not found. Cannot proceed with reply.",
-  inviteNotFound: "Invitation not found. Cannot proceed with reply.",
-  autofilled: "\u2713 Autofilled",
-  submitError: "Failed to submit collaboration feedback. Please try again later.",
-  recommendationSentTitle: "Collaboration Feedback Sent!",
-  successImportantNote: "Important Note:",
-  successNote1: "Your feedback will be officially recorded after the recipient registers and verifies their identity.",
-  successProTip: "\ud83d\udca1 Pro Tip:",
-  successNote2: "You can proactively message them to check their email and ensure your feedback reaches them!",
-  successNote3: "Thank you for taking the time to share your collaboration feedback and help great talent be recognized!",
-  successRecommendAnother: "Recommend Another",
-  successBackToDashboard: "Back to Dashboard",
-  successCloseWindow: "Close Window",
-  defaultInviteForm: "I'm currently building my professional reputation profile and thought of you as a great collaborator. I'd truly appreciate a few words of feedback on our collaboration. If you are also building your professional network, I'd be happy to write one for you in return!",
-  notFound: "\u26a0\ufe0f User data not found.",
-  notFoundJob: "\u26a0\ufe0f Job experience not found.",
-
-  recommendPartnerTitle: "Proactively Recommend a Colleague",
-  recommendPartnerNote: "Write a collaboration feedback for your colleague from this work experience.",
-
-  workBackground: "Work Background",
-  company: "Company",
-  position: "Position",
-  recommenderName: "Recommender",
-
-  recommendeeName: "Colleague's Name",
-  recommendeeEmail: "Colleague's Email",
-  selectRelation: "Select Relationship",
-
-  hintRecommendeeName: "Enter your colleague's full name.",
-  hintRecommendeeEmail: "We'll send them an invitation to view your feedback.",
-
-  submitRecommendation: "Submit Collaboration Feedback",
-  submitting: "Submitting...",
-  closeWindow: "Close Window",
-  backToDashboard: "Back to Dashboard",
-
-  importantNote: "Important Note",
-  giveRecommendationReminder: "Please ensure your feedback is truthful and based on actual collaboration experience. Your colleague will receive an email invitation to register and view your feedback.",
-
-  recommendationSentTitle: "Collaboration Feedback Sent!",
-  recommendationSentMessage: "Your feedback has been sent successfully. Your colleague will receive an email notification.",
-  thankYouMessage: "Thank you for taking the time to share your collaboration feedback and help great talent be recognized!",
-    
-    // 錯誤訊息
-    errorMissingName: "Please enter the colleague's name",
-    errorMissingEmail: "Please enter the colleague's email",
-    errorInvalidEmail: "Please enter a valid email address",
-    errorMissingRelation: "Please select your relationship",
-    errorMissingContent: "Please write your recommendation",
-    errorMissingHighlight: "Please select at least one highlight",
-    submitError: "Failed to send recommendation. Please try again later.",
-
+    recommendForm: { // ✨ 建議將 key 改為更明確的名稱
+      identityReminder: "\n    <strong>\ud83c\udf1f Galaxyz is a career network built on authentic collaboration and trust.</strong><br/>\n    Only those who share a collaboration feedback can create their own profile and join the Galaxyz constellation.<br/><br/>\n    \ud83d\udc49 Please enter your real name and personal email so we can invite you afterward.\n    ",
+      ogTitle: "\ud83c\udf1f Please write a collaboration feedback for my career profile!",
+      ogDescription: "I'm building my career profile on Galaxyz and would love your feedback on our collaboration.",
+      recommendingTo: "You are writing a collaboration feedback for <strong>{name}</strong>",
+      recPageTitle: "Collaboration Feedback Form",
+      formTitle: "Collaboration Feedback Form",
+      inviteTitle: "Invitation Message",
+      name: "Your Name",
+      email: "Your Email",
+      relation: "You are the candidate’s",
+      contentLabel: "Collaboration Feedback",
+      hintContent: "Up to 500 characters — please focus on your impressions and highlights.",
+      relationOptions: [
+        { value: "directManager", label: "I was their direct manager" },
+        { value: "crossDeptManager", label: "I was their cross-team manager" },
+        { value: "sameDeptColleague", label: "I was their teammate (same team)" },
+        { value: "crossDeptColleague", label: "I was their teammate (different team)" },
+        { value: "subordinate", label: "They were my subordinate" },
+        { value: "client", label: "I was their client" },
+        { value: "vendor", label: "I was their vendor / partner" }
+      ],
+      highlightLabel: "Which strengths do you particularly appreciate? (Multiple selections allowed)",
+      hintName: "Please enter your name. Only the person you are recommending can see it.",
+      hintEmail: "Please use your main email so we can invite you to join Galaxyz afterward.",
+      highlightOptions: ["hardSkill", "softSkill", "character"],
+      highlightOptionLabels: {
+        hardSkill: "Hard Skills",
+        softSkill: "Soft Skills",
+        character: "Character & Integrity"
+      },
+      hintHighlights: "Select the strengths that best represent this person, or add your own.",
+      highlightOptionCustomLabel: "Other Highlight (optional)",
+      highlightOptionCustomPlaceholder: "Enter a custom highlight",
+      hintCustomHighlight: "Up to 30 characters; optional.",
+      highlightLimitMsg: "You can select up to 3 highlights only.",
+      brandSlogan: "Galaxyz | Where authentic collaboration builds trusted professional connections.",
+      importantNotice: "\ud83d\udcdc Important Notice",
+      confirmationNotice: "Your feedback will be officially recorded after the recipient registers and verifies their identity.",
+      proTip: "\ud83d\udca1 Pro Tip",
+      reminderMessage: "You can proactively message them to check their email and ensure your feedback reaches them!",
+      fillAllFields: "Please fill in your name, email, feedback content, and highlight.",
+      alreadyRecommended: "You have already submitted collaboration feedback for this work experience!",
+      loginToSubmit: "To ensure authenticity, please log in or register to submit. Your content has been saved for you.",
+      originalRecNotFound: "Original feedback not found. Cannot proceed with reply.",
+      inviteNotFound: "Invitation not found. Cannot proceed with reply.",
+      autofilled: "\u2713 Autofilled",
+      recommendationSentTitle: "Collaboration Feedback Sent!",
+      successImportantNote: "Important Note:",
+      successNote1: "Your feedback will be officially recorded after the recipient registers and verifies their identity.",
+      successProTip: "\ud83d\udca1 Pro Tip:",
+      successNote2: "You can proactively message them to check their email and ensure your feedback reaches them!",
+      successNote3: "Thank you for taking the time to share your collaboration feedback and help great talent be recognized!",
+      successRecommendAnother: "Recommend Another",
+      defaultInviteForm: "I'm currently building my professional reputation profile and thought of you as a great collaborator. I'd truly appreciate a few words of feedback on our collaboration. If you are also building your professional network, I'd be happy to write one for you in return!",
+      notFound: "\u26a0\ufe0f User data not found.",
+      notFoundJob: "\u26a0\ufe0f Job experience not found.",
+      recommendPartnerTitle: "Proactively Recommend a Colleague",
+      recommendPartnerNote: "Write a collaboration feedback for your colleague from this work experience.",
+      workBackground: "Work Background",
+      recommenderName: "Recommender",
+      recommendeeName: "Colleague's Name",
+      recommendeeEmail: "Colleague's Email",
+      selectRelation: "Select Relationship",
+      hintRecommendeeName: "Enter your colleague's full name.",
+      hintRecommendeeEmail: "We'll send them an invitation to view your feedback.",
+      errorMissingName: "Please enter the colleague's name",
+      errorMissingEmail: "Please enter the colleague's email",
+      errorInvalidEmail: "Please enter a valid email address",
+      errorMissingRelation: "Please select your relationship",
+      errorMissingContent: "Please write your recommendation",
+      errorMissingHighlight: "Please select at least one highlight",
+    },
     // thank-you.html
     thankYou: {
       pageTitle: "Galaxyz – Thank You for Your Recommendation",
@@ -241,38 +189,31 @@ export const i18n = {
       warmthStart: "Let me write a recommendation for you ✨",
       networkAlt: "Network of professional recommendations"
     },
-
-    // recommend-summary.html legacy
+    // recommend-summary.html
     recommendSummary: {
-      upgradeHint: (need, next) => `${need} more to reach Lv.${next}`,
-      pageTitle:        "Recommendation Summary",
-      description:      "Overview of your recommendations",
-      summaryFor:       name => `Recommendation Summary for ${name}`,
-      noProfile:        "No profile found. Please create your profile first.",
-      noExperience:     "No work experiences available.",
+      publicProfileTitle: "'s Recommendation Profile", // ✨ 新增
+      noVerifiedRecommendations: "No verified recommendations yet.", // ✨ 新增
+      upgradeHint: (need, next) => `${need} EXP to reach Lv.${next}`, // <-- ✨ 修改
+      maxLevelReached: "Max Level Reached", // <-- ✨ 新增
+      pageTitle: "Recommendation Summary",
+      description: "Overview of your recommendations",
+      summaryFor: name => `Recommendation Summary for ${name}`,
+      noProfile: "No profile found. Please create your profile first.",
+      noExperience: "No work experiences available.",
       noRecommendation: "No recommendations yet.",
-      backToProfile:    "Back to Profile",
+      backToProfile: "Back to Profile",
       highlight_hardSkill: "Hard Skills",
       highlight_softSkill: "Soft Skills",
       highlight_character: "Character & Integrity",
       allHighlights: "All Highlights",
-      relationFilterOptions: [
-        { value: "directManager",      label: "Direct Supervisor" },
-        { value: "crossDeptManager",   label: "Cross-team Supervisor" },
-        { value: "sameDeptColleague",  label: "Teammate (Same Team)" },
+      relationFilterOptions: [ // 🗑️ 移除重複的，只留一組
+        { value: "directManager", label: "Direct Supervisor" },
+        { value: "crossDeptManager", label: "Cross-team Supervisor" },
+        { value: "sameDeptColleague", label: "Teammate (Same Team)" },
         { value: "crossDeptColleague", label: "Teammate (Different Team)" },
-        { value: "subordinate",        label: "Direct Report" },
-        { value: "client",             label: "Client" },
-        { value: "vendor",             label: "Vendor / Partner" }
-      ],
-      relationOptions: [
-        { value: "directManager",      label: "Direct Supervisor" },
-        { value: "crossDeptManager",   label: "Cross-team Supervisor" },
-        { value: "sameDeptColleague",  label: "Teammate (Same Team)" },
-        { value: "crossDeptColleague", label: "Teammate (Different Team)" },
-        { value: "subordinate",        label: "Direct Report" },
-        { value: "client",             label: "Client" },
-        { value: "vendor",             label: "Vendor / Partner" }
+        { value: "subordinate", label: "Direct Report" },
+        { value: "client", label: "Client" },
+        { value: "vendor", label: "Vendor / Partner" }
       ],
       allRelations: "All Relations",
       label_relation: "Relation:",
@@ -283,44 +224,38 @@ export const i18n = {
       exportPDF: "Export PDF",
       anonymousRecommender: "Recommender hidden",
       loadingSummaryMessage: "Loading recommendation summary…",
-      received: "Received",
-      recommendations: "Recommendations",
-      showAllRec: "Show full recommendation",
+      showAllRec: "Show full recommendation", // 🗑️ 移除重複的 received, recommendations, showAll, showLess
       showLessRec: "Collapse recommendation",
       showAll: (count) => `Show all ${count} recommendations`,
       showLess: "Collapse recommendations",
-      received: "Received",
-      recommendations: "recommendations",
       highlights: "Highlight Summary",
       relations: "Relationship Summary",
       present: "Present",
-
+      registerToView: "🌟 Register to view all",
     },
     // index.html
     home: {
-  heroTitle: `Proactively recommend and build your trusted career network`,
-  heroSubtitle: `Galaxyz enables you to proactively write authentic recommendations for your collaborators,\nwhile making your professional value more visible.\nEach trusted connection becomes a shining star in your career constellation.`,
-  startButton: "Start building my trusted network",
+      heroTitle: `Proactively recommend and build your trusted career network`,
+      heroSubtitle: `Galaxyz enables you to proactively write authentic recommendations for your collaborators,\nwhile making your professional value more visible.\nEach trusted connection becomes a shining star in your career constellation.`,
+      startButton: "Start building my trusted network",
+      searchPlaceholder: "Search for talent, skills, or companies...", // ✨ 新增
+      searchButton: "Search", // ✨ 新增
+      aboutTitle: "What do we believe?",
+      aboutText: `Your value is not just your job title — it's the genuine impact witnessed by those who have worked with you.\n\nIn an AI-driven era, information is abundant but trust is scarce. Galaxyz stands at this crossroads, rebuilding authentic proof of value through proactive recommendations.\n\nThis is why we chose <span class="highlight">galaxyz.ai</span> — to let trust leave a mark in the AI era.`,
+      learnMore: "Learn more about our philosophy",
+      features: {
+        buildProfileTitle: "Create your career profile",
+        buildProfileText: "Document your experiences, highlights, and professional story — let your collaborators see the real you.",
+        inviteRecoTitle: "Proactively recommend your collaborators",
+        inviteRecoText: "Share your trust by writing authentic recommendations and build a reputation network that reflects your true value.",
+        buildTrustTitle: "Build a trusted career constellation",
+        buildTrustText: "Each recommendation is a trusted connection — your constellation showcases your influence and professional network."
+      },
+      finalCtaHint: "Build your career constellation through proactive recommendations — let trust become your strongest career asset.",
+      finalCta: "Get started now"
+    },
 
-  aboutTitle: "What do we believe?",
-  aboutText: `Your value is not just your job title — it's the genuine impact witnessed by those who have worked with you.\n\nIn an AI-driven era, information is abundant but trust is scarce. Galaxyz stands at this crossroads, rebuilding authentic proof of value through proactive recommendations.\n\nThis is why we chose <span class="highlight">galaxyz.ai</span> — to let trust leave a mark in the AI era.`,
-  learnMore: "Learn more about our philosophy",
-
-  features: {
-    buildProfileTitle: "Create your career profile",
-    buildProfileText: "Document your experiences, highlights, and professional story — let your collaborators see the real you.",
-    inviteRecoTitle: "Proactively recommend your collaborators",
-    inviteRecoText: "Share your trust by writing authentic recommendations and build a reputation network that reflects your true value.",
-    buildTrustTitle: "Build a trusted career constellation",
-    buildTrustText: "Each recommendation is a trusted connection — your constellation showcases your influence and professional network."
-  },
-
-  finalCtaHint: "Build your career constellation through proactive recommendations — let trust become your strongest career asset.",
-  finalCta: "Get started now"
-},
-
-    
-    aboutPage: {
+  aboutPage: {
   heroTitle: "We believe trust is the most powerful career asset.",
   heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> is a career constellation built on authentic recommendations.\nProactively recommend, proactively build your trusted network.",
   heroButton: "Start building my career constellation",
@@ -433,12 +368,13 @@ export const i18n = {
 
     // profile-dashboard.html
     onboarding: {
-      title: "開始建立職場好人脈 ✨",
+      title: "開始累積經驗值，建立你的信任網絡！ ✨",
       steps: [
-        "推薦一位值得被看見的好夥伴",
-        "當收到推薦時，記得回覆感謝",
-        "邀請朋友一起建立真實的職場檔案"
-      ]
+        "**主動推薦**一位值得被看見的好夥伴 <span class='exp-badge'>+10 EXP</span>",
+        "**收到**一則來自他人的已驗證推薦 <span class='exp-badge'>+5 EXP</span>",
+        "**回覆**一則你收到的推薦以表達感謝 <span class='exp-badge'>+3 EXP</span>"
+      ],
+      footer: "所有經驗值都會在推薦通過驗證後計入。" // <-- ✨ 新增
     },
     loadingDashboardMessage: "正在載入您的個人資料…",
     newRecommendation: "🛎️ 你收到了一則新推薦！",
@@ -465,7 +401,7 @@ export const i18n = {
     showAll: (count) => `展開 ${count} 則推薦`,
     showLess: "收合推薦", 
     save: "儲存",
-    inviteRecommender: "請朋友推薦",
+    inviteRecommender: "請夥伴推薦",
     recommendOthers: "推薦好夥伴",
     replyRecommend: "回覆",
     edit: "編輯",
@@ -677,19 +613,23 @@ export const i18n = {
 
     // recommend-summary.html legacy
     recommendSummary: {
-      upgradeHint: (need, next) => `再收到 ${need} 筆推薦可升 Lv.${next}`,
-      pageTitle:     "推薦總覽",
-      description:   "一覽無遺",
-      summaryFor:    name => `${name} 的推薦總表`,
-      noProfile:     "尚未建立個人檔案。",
-      noExperience:  "尚無任何工作經歷。",
+      publicProfileTitle: "的推薦總覽", // ✨ 新增
+      noVerifiedRecommendations: "尚未收到任何已驗證的推薦。", // ✨ 新增
+      registerToView: "🌟 註冊以查看全部",
+      upgradeHint: (need, next) => `再 ${need} EXP 可升至 Lv.${next}`, // <-- ✨ 修改
+      maxLevelReached: "已達最高等級", // <-- ✨ 新增
+      pageTitle: "推薦總覽",
+      description: "一覽無遺",
+      summaryFor: name => `${name} 的推薦總表`,
+      noProfile: "尚未建立個人檔案。",
+      noExperience: "尚無任何工作經歷。",
       noRecommendation: "尚無任何推薦。",
       backToProfile: "回到個人檔案",
       highlight_hardSkill: "硬實力",
       highlight_softSkill: "軟實力",
       highlight_character: "人品",
       allHighlights: "全部亮點",
-      relationFilterOptions: [
+      relationFilterOptions: [ // 🗑️ 移除重複的
         { value: "directManager", label: "直屬主管" },
         { value: "crossDeptManager", label: "跨部門主管" },
         { value: "sameDeptColleague", label: "同部門同事" },
@@ -697,15 +637,6 @@ export const i18n = {
         { value: "subordinate", label: "部屬" },
         { value: "client", label: "客戶" },
         { value: "vendor", label: "供應商或外部合作夥伴" }
-      ],
-      relationFilterOptions: [
-        { value: "directManager",      label: "直屬主管" },
-        { value: "crossDeptManager",   label: "跨部門主管" },
-        { value: "sameDeptColleague",  label: "同部門同事" },
-        { value: "crossDeptColleague", label: "跨部門同事" },
-        { value: "subordinate",        label: "部屬" },
-        { value: "client",             label: "客戶" },
-        { value: "vendor",             label: "供應商或外部合作夥伴" }
       ],
       allRelations: "全部關係",
       label_relation: "推薦關係：",
@@ -716,16 +647,11 @@ export const i18n = {
       exportPDF: "匯出 PDF",
       anonymousRecommender: "推薦人已隱藏",
       loadingSummaryMessage: "正在載入推薦總表…",
-      received: "收到",
-      recommendations: "則推薦",
-      showAll: (count) => `展開 ${count} 則推薦`,
+      showAll: (count) => `展開 ${count} 則推薦`, // 🗑️ 移除重複的
       showLess: "收合推薦",
-      received: "收到",
-      recommendations: "則推薦",
       highlights: "亮點統計",
       relations: "關係統計",
       present: "目前在職",
-
     },
     // index.html
     home: {

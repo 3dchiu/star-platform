@@ -1,25 +1,23 @@
 <header class="header">
-  <div class="header__inner flex justify-between items-center px-4 py-2">
+  <div class="header__inner">
 
-    <!-- 左邊：Logo -->
-    <a href="/" class="brand-link text-lg font-semibold flex items-center gap-1">
+    <a href="/" class="brand-link">
       🌟 <span class="gala-white">Gala</span><span class="xyz-orange">xyz</span>
     </a>    
 
-    <!-- 右邊：語言選單 + 登入/登出按鈕 -->
+    <div id="headerSearchContainer" class="header-search-container" style="display: none;">
+      <input type="search" id="headerSearchInput" placeholder="搜尋人才..." class="header-search-input">
+      <div id="headerSearchResults" class="header-search-results hidden"></div>
+    </div>
     <div class="btn-group-header">
-      <!-- 語言選單按鈕 -->
-      <div class="lang-switcher relative">
-        <button id="langButton" class="btn btn-secondary min-w-[64px] text-center">
-          EN
-        </button>
-        <div id="langMenu" class="lang-menu hidden absolute right-0 mt-2 bg-white border rounded shadow">
-          <button class="lang-option block w-full text-left px-4 py-2 hover:bg-gray-100" data-lang="en">English</button>
-          <button class="lang-option block w-full text-left px-4 py-2 hover:bg-gray-100" data-lang="zh-Hant">繁體中文</button>
+      <div class="lang-switcher">
+        <button id="langButton" class="btn btn-secondary min-w-[64px] text-center">EN</button>
+        <div id="langMenu" class="lang-menu hidden">
+          <button class="lang-option" data-lang="en">English</button>
+          <button class="lang-option" data-lang="zh-Hant">繁體中文</button>
         </div>
       </div>
 
-      <!-- 登入／登出 - 修改這裡 -->
       <button id="loginBtn" class="btn btn-primary">登入</button>
       <button id="logoutBtn" class="btn btn-secondary" style="display: none;">登出</button>
     </div>

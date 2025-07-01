@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- 1) Firebase Compat -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-  
-  <!-- 🔧 重要：載入 Firebase 初始化腳本 -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-functions-compat.js"></script>
   <script src="./js/firebase-init.js"></script>
 
   <!-- 2) 全站 CSS 與 meta -->
@@ -39,9 +38,14 @@
       
       <h1 class="hero-title" data-i18n="home.heroTitle"></h1>
       <p class="hero-subtitle" data-i18n="home.heroSubtitle"></p>
-      <a href="/pages/login.html" class="hero-cta btn btn-primary" data-i18n="home.startButton"></a>
+      <div class="search-container">
+        <input type="search" id="mainSearchInput" data-i18n-placeholder="home.searchPlaceholder" placeholder="搜尋人才、技能或公司..." class="search-input">
+        <button id="mainSearchButton" class="btn btn-primary" data-i18n="home.searchButton">搜尋</button>
+      </div>
     </section>
-
+    <div id="searchResultsContainer" class="search-results-container"></div>
+    <section id="featuredUsersSection" class="featured-users-section">
+        </section>
     <!-- About Star Section -->
     <section class="about-section">
         <!-- ✨ 星空點點 -->

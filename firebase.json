@@ -2,8 +2,8 @@
   "functions": [
     {
       "source": "functions",
-      "platform": "gcfv2",       
-      "runtime": "nodejs18",      
+      "platform": "gcfv2",
+      "runtime": "nodejs18",
       "ignore": [
         "node_modules",
         ".git",
@@ -12,5 +12,32 @@
         "*.local"
       ]
     }
-  ]  
+  ],
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true,
+    "firestore": {
+      "port": 8080
+    },
+    "auth": {
+      "port": 9099
+    },
+    "hosting": {
+      "port": 5002
+    }
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
 }

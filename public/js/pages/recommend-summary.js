@@ -39,29 +39,6 @@ async function getCurrentT() {
   return { t, lang: currentLang };
 }
 
-// 等級系統
-function getLevelInfo(count) {
-  if (count >= 100) return { level: 10, name: "星光領袖", color: "legendary" };
-  if (count >= 80)  return { level: 9,  name: "職涯任性代言人", color: "diamond" };
-  if (count >= 50)  return { level: 8,  name: "業界口碑典範", color: "trophy" };
-  if (count >= 30)  return { level: 7,  name: "影響力連結者", color: "globe" };
-  if (count >= 20)  return { level: 6,  name: "真誠推薦磁場", color: "sun" };
-  if (count >= 15)  return { level: 5,  name: "人脈之星", color: "gold" };
-  if (count >= 10)  return { level: 4,  name: "團隊領航者", color: "rocket" };
-  if (count >= 7)   return { level: 3,  name: "值得信賴的夥伴", color: "handshake" };
-  if (count >= 4)   return { level: 2,  name: "穩健合作者", color: "briefcase" };
-  return                { level: 1,  name: "初心之光", color: "gray" };
-}
-
-function getNextLevelThreshold(level) {
-  const map = {
-    1: 1, 2: 4, 3: 7, 4: 10, 5: 15,
-    6: 20, 7: 30, 8: 50, 9: 80, 10: 100, 11: 200
-  };
-  if (level <= 1) return map[1];
-  return map[level] ?? Infinity;
-}
-
 // 渲染標籤
 function renderBadges(tags, tFn) {
   return (tags||[])
@@ -276,34 +253,6 @@ async function loadAndRender(userId, db, t, loadingEl, highlightRecId) {
       .sort((a, b) => (b.startDate || "").localeCompare(a.startDate || ""));
     
     console.log("[Summary] ✅ 資料處理完成，準備渲染", profile);
-
-    // 步驟 4: 渲染畫面 (這部分程式碼無需大改，因為它現在接收的是處理好的資料)
-    const userLevelBox = document.getElementById("userLevelInfo");
-    if (userLevelBox) {
-      const info = getLevelInfo(profile._totalRecCount);
-      const nextLevelThreshold = getNextLevelThreshold(info.level + 1);
-      const neededForNext = Math.max(0, nextLevelThreshold - profile._totalRecCount);
-      const neededHint = neededForNext > 0
-        ? t("upgradeHint", neededForNext, info.level + 1) || `再收到 ${neededForNext} 筆推薦可升 Lv.${info.level + 1}`
-        : t("maxLevelReached") || `已達最高等級`;
-      
-      const lowerThreshold = info.level > 1 ? getNextLevelThreshold(info.level) : 0;
-      const upperThreshold = getNextLevelThreshold(info.level + 1);
-      const percent = upperThreshold > lowerThreshold
-        ? Math.round((profile._totalRecCount - lowerThreshold) / (upperThreshold - lowerThreshold) * 100)
-        : 100;
-         
-      userLevelBox.innerHTML = `
-        <div class="level-container" title="${neededHint}">
-          <div class="level-badge">${profile._totalRecCount}</div>
-          <span class="level-text">Lv.${info.level}｜${info.name}</span>
-          <div class="level-progress">
-            <div class="level-bar" style="width:${percent}%; min-width: ${percent > 0 ? 4 : 0}px"></div>
-          </div>
-          <div class="level-hint">${neededHint}</div>
-        </div>
-      `;
-    }
 
     updateRelationFilter(t, currentLang);
     renderRecommendations(profile); // 呼叫已修改的渲染函式

@@ -331,3 +331,86 @@
   z-index: 0;
 }
 
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem; /* 8px */
+  width: 100%;
+  max-width: 600px;
+  margin: 2rem auto 0 auto; /* 上方間距 */
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem; /* 12px 16px */
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  flex-grow: 1;
+}
+
+.search-results-container {
+  max-width: 600px;
+  margin: 1.5rem auto; /* 上下間距 */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* 每個結果之間的間距 */
+}
+
+.result-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.result-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.result-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.result-info h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.result-info p {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.25rem 0 0 0;
+}
+
+/* 精選用戶區塊的標題 */
+.section-title {
+  font-size: 1.5rem; /* 24px */
+  font-weight: 600;
+  margin-bottom: 1rem; /* 16px */
+  text-align: center;
+}
+
+/* ✨【核心】使用 Grid 佈局來實現響應式排版 */
+.featured-users-grid {
+  display: grid;
+  /* * 這行是魔法所在：
+   * - repeat: 重複產生欄位
+   * - auto-fit: 自動判斷一行能塞進幾個
+   * - minmax(280px, 1fr): 每個欄位最小寬度 280px，最大則平分剩餘空間
+  */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem; /* 卡片之間的間距 */
+}

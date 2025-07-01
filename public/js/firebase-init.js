@@ -1,6 +1,5 @@
 console.log("🔥 Firebase 初始化開始");
 
-// 檢查 Firebase 是否已載入
 if (typeof firebase === 'undefined') {
   console.error("❌ Firebase SDK 未載入，請檢查腳本引用");
   throw new Error("Firebase SDK 未載入");
@@ -29,7 +28,23 @@ try {
     app = firebase.initializeApp(firebaseConfig);
     console.log("✅ Firebase App 初始化完成:", app.name);
   }
-  
+
+  // 偵測是否在本地開發環境 (localhost)
+  if (window.location.hostname === "localhost") {
+    console.log("🚀 偵測到本地開發環境，正在連接到 Firebase 模擬器...");
+
+    // 告訴 Firebase Auth 使用模擬器
+    firebase.auth().useEmulator("http://localhost:9099");
+
+    // 告訴 Firestore 使用模擬器
+    firebase.firestore().useEmulator("localhost", 8080);
+    
+    // 告訴 Cloud Functions 使用模擬器
+    firebase.functions().useEmulator("localhost", 5001);
+    
+    console.log("✅ 已成功連接至本地模擬器！");
+  }
+
   // 測試 Firebase 服務
   console.log("🧪 測試 Firebase 服務...");
   

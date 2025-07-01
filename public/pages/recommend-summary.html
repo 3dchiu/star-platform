@@ -55,12 +55,15 @@
   <main class="container summary-container fade-in">
 
     <!-- Header：姓名 + 返回按鈕 同行 -->
-    <header class="flex items-center justify-between mb-2">
-      <!-- 使用者名稱 + 星星區塊（可自適應排版） -->
+     <header class="flex items-center justify-between mb-2">
       <div class="summary-header">
-        <h1 id="userName" class="text-2xl font-semibold brand-blue-text"></h1>
+        <div class="name-line">
+          <h1 id="userName" class="text-2xl font-semibold brand-blue-text"></h1>
+          <span id="publicLevelBadge"></span>
+          </div>
         <div id="publicStars" class="public-stars-row"></div>
       </div>
+    </header>
     
       <!-- 返回按鈕 -->
       <button id="backBtn"
@@ -69,8 +72,6 @@
         回到個人檔案
       </button>
     </header>
-    <!-- 等級顯示區塊（在 userName 下方獨立呈現） -->
-    <div id="userLevelInfo" class="level-container"></div>    
     
     <!-- 自我介紹 (存在才顯示) -->
     <p id="description" class="text-base text-gray-600"></p>
@@ -114,8 +115,7 @@
     <section id="summaryArea"></section>
   </main>  
 
-  <!-- 根據 public 參數動態載入私有/公開版 JS -->
- <script type="module" src="../js/pages/entry-summary.js"></script>
+ <script type="module" src="../js/pages/recommend-summary.js"></script>
 
 </body>
 </html>
