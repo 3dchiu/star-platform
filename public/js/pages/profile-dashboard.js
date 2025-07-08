@@ -99,7 +99,7 @@ let app, auth, db;
  * @returns {boolean} - 總是返回 false 來阻止預設行為
  */
 function smartOpenRecommendation(url, linkType = 'recommendation') {
-  //console.log(`🎯 ${linkType}: 嘗試開新分頁 -> ${url}`);
+  console.log(`🎯 ${linkType}: 嘗試開新分頁 -> ${url}`);
   
   // 理想方案：嘗試開新分頁
   const newWindow = window.open(url, '_blank');
@@ -107,11 +107,11 @@ function smartOpenRecommendation(url, linkType = 'recommendation') {
   // 智能檢查和降級
   setTimeout(() => {
     if (!newWindow || newWindow.closed || newWindow.location.href === 'about:blank') {
-      //console.log(`❌ ${linkType}: 新分頁被阻擋`);
-      //console.log(`🔄 ${linkType}: 降級到同視窗開啟`);
+      console.log(`❌ ${linkType}: 新分頁被阻擋`);
+      console.log(`🔄 ${linkType}: 降級到同視窗開啟`);
       window.location.href = url;
     } else {
-      //console.log(`✅ ${linkType}: 新分頁開啟成功`);
+      console.log(`✅ ${linkType}: 新分頁開啟成功`);
     }
   }, 150);
   
@@ -122,10 +122,10 @@ function smartOpenRecommendation(url, linkType = 'recommendation') {
 // 🔽 等待 Firebase 初始化完成
 function waitForFirebase() {
   return new Promise((resolve, reject) => {
-    //console.log("🔍 檢查 Firebase 狀態...");
-    //console.log("→ window.firebaseReady:", window.firebaseReady);
-    //console.log("→ window.firebaseError:", window.firebaseError);
-    //console.log("→ typeof firebase:", typeof firebase);
+    console.log("🔍 檢查 Firebase 狀態...");
+    console.log("→ window.firebaseReady:", window.firebaseReady);
+    console.log("→ window.firebaseError:", window.firebaseError);
+    console.log("→ typeof firebase:", typeof firebase);
     
     // 檢查 firebase 全域物件是否存在
     if (typeof firebase === 'undefined') {
@@ -140,7 +140,7 @@ function waitForFirebase() {
         app = window.firebaseApp || firebase.app();
         auth = firebase.auth();
         db = firebase.firestore();
-        //console.log("✅ Firebase 已準備就緒");
+        console.log("✅ Firebase 已準備就緒");
         resolve();
       } catch (error) {
         console.error("❌ Firebase 服務初始化失敗:", error);
@@ -160,11 +160,11 @@ function waitForFirebase() {
       app = firebase.app();
       auth = firebase.auth();
       db = firebase.firestore();
-      //console.log("✅ 直接使用現有 Firebase 實例");
+      console.log("✅ 直接使用現有 Firebase 實例");
       resolve();
       return;
     } catch (directInitError) {
-      //console.log("⚠️ 無法直接使用 Firebase，等待初始化事件...");
+      console.log("⚠️ 無法直接使用 Firebase，等待初始化事件...");
     }
     
     // 監聽 Firebase 準備就緒事件
@@ -173,7 +173,7 @@ function waitForFirebase() {
         app = event.detail.app || firebase.app();
         auth = firebase.auth();
         db = firebase.firestore();
-        //console.log("✅ Firebase 初始化完成事件收到");
+        console.log("✅ Firebase 初始化完成事件收到");
         cleanup();
         resolve();
       } catch (error) {
@@ -209,7 +209,7 @@ function waitForFirebase() {
         app = firebase.app();
         auth = firebase.auth();
         db = firebase.firestore();
-        //console.log("✅ 超時後成功獲取 Firebase 實例");
+        console.log("✅ 超時後成功獲取 Firebase 實例");
         resolve();
       } catch (finalError) {
         console.error("❌ 最終嘗試失敗:", finalError);
@@ -221,25 +221,25 @@ function waitForFirebase() {
 
 // 🔽 當頁面載入完成後，等待 Firebase 然後初始化所有元件與邏輯
 document.addEventListener("DOMContentLoaded", async () => {
-  //console.log("🚀 DOMContentLoaded 觸發");
-  //console.log("→ 當前時間:", new Date().toISOString());
-  //console.log("→ document.readyState:", document.readyState);
+  console.log("🚀 DOMContentLoaded 觸發");
+  console.log("→ 當前時間:", new Date().toISOString());
+  console.log("→ document.readyState:", document.readyState);
   
   try {
     // 🕒 顯示載入中遮罩
     document.getElementById("dashboardLoading").style.display = "flex";
     
     // 🔥 等待 Firebase 初始化完成
-    //console.log("⏳ 開始等待 Firebase 初始化...");
+    console.log("⏳ 開始等待 Firebase 初始化...");
     const startTime = Date.now();
     
     await waitForFirebase();
     
     const endTime = Date.now();
-    //console.log(`✅ Firebase 初始化完成，耗時: ${endTime - startTime}ms`);
-    //console.log("→ app:", !!app);
-    //console.log("→ auth:", !!auth); 
-    //console.log("→ db:", !!db);
+    console.log(`✅ Firebase 初始化完成，耗時: ${endTime - startTime}ms`);
+    console.log("→ app:", !!app);
+    console.log("→ auth:", !!auth); 
+    console.log("→ db:", !!db);
 
     // 🆕 添加全域錯誤處理
     window.addEventListener('error', (e) => {
@@ -368,8 +368,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 🔽 儲存使用者個人資料（姓名、簡介、經歷等），寫入 Firestore
     async function saveProfile() {
       console.group("🔍 saveProfile()");
-      //console.log("→ profile.userId =", profile.userId);
-      //console.log("→ profile payload =", profile);
+      console.log("→ profile.userId =", profile.userId);
+      console.log("→ profile payload =", profile);
       if (!profile.userId) {
         console.warn("❌ saveProfile() 中断：profile.userId 为空");
         console.groupEnd();
@@ -392,7 +392,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     
         await ref.set(profile, { merge: true });
-        //console.log("✅ saveProfile() 写入成功");
+        console.log("✅ saveProfile() 写入成功");
       } catch (err) {
         console.error("❌ saveProfile() 写入失败：", err);
       }
@@ -410,7 +410,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         : t.noBio || "（尚未填寫個人簡介）";
     }
     
-    //console.log("合併後的 experiences:", profile.workExperiences);
+    console.log("合併後的 experiences:", profile.workExperiences);
 
     // 🔽 顯示 3 秒後自動消失的提示訊息（toast）
 function showToast(msg) {
@@ -425,7 +425,7 @@ function showToast(msg) {
 // ==================== 回推薦功能函數 ====================
 // 🆕 在 loadUserRecommendations 中添加更完整的統計同步
 async function loadUserRecommendations(userId) {
-  //console.log("📥 載入用戶推薦數據...");
+  console.log("📥 載入用戶推薦數據...");
   
   try {
     const recommendations = [];
@@ -454,13 +454,13 @@ async function loadUserRecommendations(userId) {
       }
     }
     
-    //console.log(`✅ 載入推薦記錄總計: ${recommendations.length} 筆`);
-    //console.log("📊 推薦類型分布:", {
+    console.log(`✅ 載入推薦記錄總計: ${recommendations.length} 筆`);
+    console.log("📊 推薦類型分布:", {
       received: recommendations.filter(r => r.type === 'received').length,
       outgoing: recommendations.filter(r => r.type === 'outgoing').length
     });
     
-    //console.log(`✅ 載入 ${recommendations.length} 筆推薦記錄`);
+    console.log(`✅ 載入 ${recommendations.length} 筆推薦記錄`);
     
     // 2. 計算統計
     const stats = calculateRecommendationStats(recommendations);
@@ -488,7 +488,7 @@ async function loadUserRecommendations(userId) {
   // 🔥 關鍵修復：保存原有的 givenCount
   const originalGivenCount = job.givenCount;
 
-  //console.log(`📊 工作經歷 ${job.company} 映射:`, {
+  console.log(`📊 工作經歷 ${job.company} 映射:`, {
     id: job.id,
     驗證通過收到: jobStats.received,
     總收到: jobStats.allReceived,
@@ -508,11 +508,11 @@ async function loadUserRecommendations(userId) {
   // 🎯 核心修復：絕對保留原始 givenCount
 if (typeof originalGivenCount !== 'undefined' && originalGivenCount !== null) {
   // 完全保持原值不變
-  //console.log(`✅ 保留原始 givenCount: ${originalGivenCount}`);
+  console.log(`✅ 保留原始 givenCount: ${originalGivenCount}`);
 } else {
   // 只有當原本沒有值時才設定為 0
   job.givenCount = 0;
-  //console.log(`🆕 設定初始 givenCount: 0`);
+  console.log(`🆕 設定初始 givenCount: 0`);
 }
 
   // 亮點和關係統計
@@ -530,27 +530,27 @@ if (typeof originalGivenCount !== 'undefined' && originalGivenCount !== null) {
 });
 
 
-    //console.log("✅ 推薦統計映射完成，givenCount 已正確保留");
+    console.log("✅ 推薦統計映射完成，givenCount 已正確保留");
     // 🚀 新增：在數據更新完成後立即調用渲染函數
-//console.log("🔄 觸發 UI 重新渲染...");
+console.log("🔄 觸發 UI 重新渲染...");
 
 try {
   // 確保渲染函數存在且可調用
   if (typeof renderBasicWithReplyStats === 'function') {
     renderBasicWithReplyStats();
-    //console.log("✅ renderBasicWithReplyStats 已調用");
+    console.log("✅ renderBasicWithReplyStats 已調用");
   } else {
     console.warn("⚠️ renderBasicWithReplyStats 函數不存在");
   }
   
   if (typeof renderExperienceCardsWithReply === 'function') {
     renderExperienceCardsWithReply();
-    //console.log("✅ renderExperienceCardsWithReply 已調用");
+    console.log("✅ renderExperienceCardsWithReply 已調用");
   } else {
     console.warn("⚠️ renderExperienceCardsWithReply 函數不存在");
   }
   
-  //console.log("✅ UI 重新渲染完成");
+  console.log("✅ UI 重新渲染完成");
   
   debugRecommendationData();
   
@@ -673,7 +673,7 @@ function calculateRecommendationStats(recommendations) {
 function renderBasicWithReplyStats() {
   // 🔒 安全檢查：確保 profile 和 workExperiences 已載入
   if (!profile || !profile.workExperiences) {
-    //console.log("⏳ Profile 尚未載入完成，跳過渲染");
+    console.log("⏳ Profile 尚未載入完成，跳過渲染");
     return;
   }
   // 計算總的可回推薦人數
@@ -909,8 +909,8 @@ async function handleReplyRecommendation(jobIndex) {
   const job = profile.workExperiences[jobIndex];
   
   try {
-    //console.log("💬 載入回覆選項（新邏輯：包含所有推薦）...");
-    //console.log("🔍 工作經歷:", job.company, job.position);
+    console.log("💬 載入回覆選項（新邏輯：包含所有推薦）...");
+    console.log("🔍 工作經歷:", job.company, job.position);
     
     // 🔧 關鍵修改：顯示所有收到的推薦，不管驗證狀態
     const availableRecommendations = profile.recommendations.filter(rec => {
@@ -918,7 +918,7 @@ async function handleReplyRecommendation(jobIndex) {
       const isReceived = rec.type === 'received';
       const notReplied = !rec.hasReplied;
       
-      //console.log(`🔍 推薦記錄 ${rec.name}:`, {
+      console.log(`🔍 推薦記錄 ${rec.name}:`, {
         jobId: rec.jobId,
         targetJobId: job.id,
         matchesJob: matchesJob,
@@ -935,7 +935,7 @@ async function handleReplyRecommendation(jobIndex) {
       return matchesJob && isReceived && notReplied;
     });
     
-    //console.log("📋 新邏輯過濾結果:", {
+    console.log("📋 新邏輯過濾結果:", {
       總推薦數: profile.recommendations.length,
       該工作推薦數: profile.recommendations.filter(rec => rec.jobId === job.id).length,
       可回覆推薦數: availableRecommendations.length,
@@ -974,7 +974,7 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
   const langNow = localStorage.getItem("lang") || "zh-Hant";
   
   // 🔍 詳細的參數檢查
-  //console.log("🚀 startReplyProcess 參數檢查:", {
+  console.log("🚀 startReplyProcess 參數檢查:", {
     originalRecId: originalRecId,
     recommenderId: recommenderId,
     recommenderName: recommenderName,
@@ -997,7 +997,7 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
       return;
     }
     
-    //console.log("🔍 回覆推薦 Debug:", {
+    console.log("🔍 回覆推薦 Debug:", {
       currentReplyContext: window.currentReplyContext,
       job: window.currentReplyContext?.job,
       company: window.currentReplyContext?.job?.company,
@@ -1024,9 +1024,9 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
     // 🎯 關鍵差異：已註冊用戶添加 targetUserId
     if (isRegistered && recommenderId) {
       inviteData.targetUserId = recommenderId;
-      //console.log("✅ 已註冊用戶，添加 targetUserId:", recommenderId);
+      console.log("✅ 已註冊用戶，添加 targetUserId:", recommenderId);
     } else {
-      //console.log("✅ 未註冊用戶，不添加 targetUserId");
+      console.log("✅ 未註冊用戶，不添加 targetUserId");
     }
     
     const replyInviteRef = await db.collection("invites").add(inviteData);
@@ -1045,14 +1045,14 @@ async function startReplyProcess(originalRecId, recommenderId, recommenderName, 
     // 🎯 根據註冊狀態添加不同參數
     if (isRegistered && recommenderId) {
       targetUrl += `&targetUserId=${recommenderId}`;
-      //console.log("✅ 已註冊用戶 URL，包含 targetUserId");
+      console.log("✅ 已註冊用戶 URL，包含 targetUserId");
     } else {
       targetUrl += `&unregistered=true`;
-      //console.log("✅ 未註冊用戶 URL，包含 unregistered=true");
+      console.log("✅ 未註冊用戶 URL，包含 unregistered=true");
     }
     
-    //console.log("🔗 生成的回推薦表單 URL:", targetUrl);
-    //console.log("📋 關鍵 URL 參數:", {
+    console.log("🔗 生成的回推薦表單 URL:", targetUrl);
+    console.log("📋 關鍵 URL 參數:", {
       inviteId: inviteId,
       mode: "reply",
       targetUserId: isRegistered ? recommenderId : "未設置",
@@ -1099,7 +1099,7 @@ function bindReplyModalEvents() {
         const recommenderEmail = btn.dataset.recommenderEmail;
         const isRegistered = btn.dataset.isRegistered === 'true';
         
-        //console.log("🚀 開始回推薦流程:", {
+        console.log("🚀 開始回推薦流程:", {
           recId,
           recommenderId,
           recommenderName,
@@ -1131,7 +1131,7 @@ function initializeReplyOptionsModal() {
       
       // 推薦回覆選項
       if (e.target.closest('[data-option="recommend"]')) {
-        //console.log("📝 用戶選擇推薦回覆");
+        console.log("📝 用戶選擇推薦回覆");
         
         // 分析事件
         trackEvent('reply_option_selected', { type: 'recommend' });
@@ -1145,7 +1145,7 @@ function initializeReplyOptionsModal() {
       
       // 咖啡感謝選項
       else if (e.target.closest('[data-option="coffee"]')) {
-        //console.log("☕ 用戶點擊咖啡感謝選項");
+        console.log("☕ 用戶點擊咖啡感謝選項");
         
         // 分析事件
         trackEvent('coffee_option_clicked', { 
@@ -1179,7 +1179,7 @@ function showTraditionalReplyModal() {
     
     const currentJobId = context.job.id; // 當前工作經歷ID
     
-    //console.log(`🔍 檢查推薦人 ${rec.name} 在工作「${context.job.company}」的推薦狀態`);
+    console.log(`🔍 檢查推薦人 ${rec.name} 在工作「${context.job.company}」的推薦狀態`);
     
     // 安全檢查：確保 profile.recommendations 存在
     if (!profile.recommendations || !Array.isArray(profile.recommendations)) {
@@ -1219,9 +1219,9 @@ function showTraditionalReplyModal() {
                                         alreadyInCurrentJobRecords;
     
     if (alreadyProcessedInCurrentJob) {
-      //console.log(`⏭️ 在工作「${context.job.company}」已推薦過: ${rec.name}`);
+      console.log(`⏭️ 在工作「${context.job.company}」已推薦過: ${rec.name}`);
     } else {
-      //console.log(`✅ 在工作「${context.job.company}」可推薦: ${rec.name}`);
+      console.log(`✅ 在工作「${context.job.company}」可推薦: ${rec.name}`);
     }
     
     return !alreadyProcessedInCurrentJob;
@@ -1351,7 +1351,7 @@ function initializeWaitlistModal() {
 
 // 11. 分析事件追蹤
 function trackEvent(eventName, properties = {}) {
-  //console.log("📊 追蹤事件:", eventName, properties);
+  console.log("📊 追蹤事件:", eventName, properties);
   
   // 簡單的本地存儲追蹤
   const events = JSON.parse(localStorage.getItem("replyAnalytics") || "[]");
@@ -1372,15 +1372,15 @@ function trackEvent(eventName, properties = {}) {
 
 // 🆕 12. 添加調試函數，幫助檢查數據狀態
 function debugRecommendationData() {
-  //console.log("🔍 === 推薦數據調試 ===");
-  //console.log("Profile:", profile);
-  //console.log("推薦記錄總數:", profile.recommendations?.length || 0);
-  //console.log("工作經歷數:", profile.workExperiences?.length || 0);
+  console.log("🔍 === 推薦數據調試 ===");
+  console.log("Profile:", profile);
+  console.log("推薦記錄總數:", profile.recommendations?.length || 0);
+  console.log("工作經歷數:", profile.workExperiences?.length || 0);
   
   if (profile.recommendations) {
-    //console.log("📊 推薦記錄詳情:");
+    console.log("📊 推薦記錄詳情:");
     profile.recommendations.forEach((rec, index) => {
-      //console.log(`${index + 1}. ${rec.name}:`, {
+      console.log(`${index + 1}. ${rec.name}:`, {
         id: rec.id,
         jobId: rec.jobId,
         type: rec.type,
@@ -1392,12 +1392,12 @@ function debugRecommendationData() {
   }
   
   if (profile.workExperiences) {
-    //console.log("📊 工作經歷詳情:");
+    console.log("📊 工作經歷詳情:");
     profile.workExperiences.forEach((job, index) => {
       const jobRecs = profile.recommendations?.filter(rec => rec.jobId === job.id) || [];
       const canReplyRecs = jobRecs.filter(rec => rec.type === 'received' && !rec.hasReplied);
       
-      //console.log(`${index + 1}. ${job.company} - ${job.position}:`, {
+      console.log(`${index + 1}. ${job.company} - ${job.position}:`, {
         id: job.id,
         推薦總數: jobRecs.length,
         可回覆數: canReplyRecs.length,
@@ -1421,9 +1421,9 @@ function debugRecommendationData() {
           return;
         }
 
-        //console.log("🔍 嘗試建立推薦他人邀請...");
-        //console.log("→ 使用者 ID:", profile.userId);
-        //console.log("→ 工作 ID:", job.id);
+        console.log("🔍 嘗試建立推薦他人邀請...");
+        console.log("→ 使用者 ID:", profile.userId);
+        console.log("→ 工作 ID:", job.id);
         
         // 📥 建立 outgoing 類型的邀請記錄
         const inviteRef = await db.collection("invites").add({
@@ -1441,7 +1441,7 @@ function debugRecommendationData() {
         });
         
         const inviteId = inviteRef.id;
-        //console.log("✅ 成功建立邀請，ID:", inviteId);
+        console.log("✅ 成功建立邀請，ID:", inviteId);
         
         // 🔄 導向推薦表單頁面，使用 outgoing 模式
         const targetUrl = `/pages/recommend-form.html?inviteId=${inviteId}&mode=outgoing`;
@@ -1479,11 +1479,11 @@ function debugRecommendationData() {
       try {
         // 🔍 如果尚未登入，導回登入頁
         if (!user) {
-          //console.log("🔍 使用者未登入，導向登入頁");
+          console.log("🔍 使用者未登入，導向登入頁");
           return location.href = "/pages/login.html";
         }
         
-        //console.log("✅ 使用者已登入:", user.uid);
+        console.log("✅ 使用者已登入:", user.uid);
         profile.userId = user.uid;
         
         // 🏷️ 是否用過 sessionStorage 的預填功能
@@ -1492,18 +1492,18 @@ function debugRecommendationData() {
         // 📤 從 Firestore 讀取使用者的個人資料（users/{userId}）
         const ref = db.collection("users").doc(user.uid);
 
-        //console.log("🔍 開始載入使用者資料...");
+        console.log("🔍 開始載入使用者資料...");
         
         // 🔍 優化：分別載入，避免同時大量查詢
         const snap = await ref.get();
-        //console.log("✅ 使用者基本資料載入完成");
+        console.log("✅ 使用者基本資料載入完成");
         
         // 🔍 延遲載入推薦統計，避免阻塞主要資料
         let recStats = {};
         
         try {
           const recSnap = await db.collection("users").doc(profile.userId).collection("recommendations").get();
-          //console.log("✅ 推薦資料載入完成，數量:", recSnap.size);
+          console.log("✅ 推薦資料載入完成，數量:", recSnap.size);
           
           // 現有的統計邏輯
         recSnap.forEach(doc => {
@@ -1520,7 +1520,7 @@ function debugRecommendationData() {
           recStats[jobId].relations[rel] = (recStats[jobId].relations[rel] || 0) + 1;
         });
 
-          //console.log("✅ 推薦統計載入完成");
+          console.log("✅ 推薦統計載入完成");
           // 🆕 檢查是否有推薦但沒有對應的工作經歷
         const recommendationsWithoutJobs = [];
         recSnap.forEach(doc => {
@@ -1539,7 +1539,7 @@ function debugRecommendationData() {
           }
         });
 
-        //console.log("🔍 找到無對應工作的推薦:", recommendationsWithoutJobs);
+        console.log("🔍 找到無對應工作的推薦:", recommendationsWithoutJobs);
 
         // 🆕 為沒有工作經歷的推薦創建建議的工作經歷
         if (recommendationsWithoutJobs.length > 0) {
@@ -1560,7 +1560,7 @@ function debugRecommendationData() {
     }));
   });
   
-  //console.log("💡 已準備建議的工作經歷供用戶確認");
+  console.log("💡 已準備建議的工作經歷供用戶確認");
 }
           
         } catch (recError) {
@@ -1646,17 +1646,17 @@ function debugRecommendationData() {
         renderStaticText();
 
         // 🆕 安全檢查：確保 profile 數據完整後才載入推薦統計
-        //console.log("🔍 Profile 數據檢查:", {
+        console.log("🔍 Profile 數據檢查:", {
           userId: profile.userId,
           workExperiencesCount: profile.workExperiences.length,
           hasRecommendationStats: !!profile.recommendationStats
         });
 
         // 🚀 正確位置：載入推薦統計數據
-        //console.log("🔄 開始載入推薦統計數據...");
+        console.log("🔄 開始載入推薦統計數據...");
         try {
           await loadUserRecommendations(profile.userId);
-          //console.log("✅ 推薦統計載入完成");
+          console.log("✅ 推薦統計載入完成");
         } catch (loadError) {
           console.warn("⚠️ 載入推薦統計失敗，繼續使用基本數據:", loadError);
           // 不中斷主流程，確保頁面仍可正常使用
@@ -1702,7 +1702,7 @@ function toggleQuickStartCard() {
   card.style.display = shouldShow ? "block" : "none";
   
   // 🔍 Debug 訊息（可選，正式環境可移除）
-  //console.log("📋 QuickStart 小卡狀態:", {
+  console.log("📋 QuickStart 小卡狀態:", {
     hasExp: hasExp,
     hasReco: hasReco,
     shouldShow: shouldShow,
@@ -1769,7 +1769,7 @@ function recheckQuickStartCard() {
         const isNewUser = !profile.name || profile.workExperiences.length === 0;
         const shouldShowModal = !snap.exists || isNewUser;
 
-        //console.log("🔍 新用戶判斷:", {
+        console.log("🔍 新用戶判斷:", {
           snapExists: snap.exists,
           profileName: profile.name,
           workExpLength: profile.workExperiences.length,
@@ -1780,10 +1780,10 @@ function recheckQuickStartCard() {
 
         // 第一次 fill vs 無經歷都要開 Modal
         if (!snap.exists) {
-          //console.log("🆕 全新用戶，開啟填寫 Modal");
+          console.log("🆕 全新用戶，開啟填寫 Modal");
           openModalForAdd(true);
         } else if ((!profile.name || profile.workExperiences.length === 0) && !prefillUsed) {
-          //console.log("🆕 用戶資料不完整，開啟填寫 Modal");
+          console.log("🆕 用戶資料不完整，開啟填寫 Modal");
           openModalForAdd(true);
         }
 
@@ -1883,11 +1883,11 @@ function recheckQuickStartCard() {
               // 🔒 有推薦：只更新允許編輯的欄位（描述、結束日期）
               job.description = payload.description;
               job.endDate = payload.endDate;
-              //console.log(`✅ 已有推薦的工作經歷，僅更新描述和結束日期`);
+              console.log(`✅ 已有推薦的工作經歷，僅更新描述和結束日期`);
             } else {
               // 🔓 無推薦：整筆更新
               Object.assign(job, payload);
-              //console.log(`✅ 無推薦的工作經歷，完整更新`);
+              console.log(`✅ 無推薦的工作經歷，完整更新`);
             }
           }
           // ✅ 儲存成功後更新畫面內容與卡片樣式
@@ -2086,8 +2086,8 @@ function recheckQuickStartCard() {
           editIdx = null;
           // 顯示「姓名」欄位只在首次填檔案時
           nameSection.hidden = !isFirst;
-          //console.log("🎯 openModalForAdd 被調用:", { isFirst, editIdx });
-          //console.log("🎯 nameSection.hidden =", nameSection.hidden);
+          console.log("🎯 openModalForAdd 被調用:", { isFirst, editIdx });
+          console.log("🎯 nameSection.hidden =", nameSection.hidden);
 
           // 🆕 檢查是否有建議的工作經歷
           const suggestedKeys = Object.keys(sessionStorage).filter(key => key.startsWith('suggestedJob_'));
@@ -2097,7 +2097,7 @@ function recheckQuickStartCard() {
             const job = firstSuggested.job;
             const rec = firstSuggested.recommendation;
             
-            //console.log("💡 使用建議的工作經歷:", job);
+            console.log("💡 使用建議的工作經歷:", job);
             
             // 不重置表單，直接預填
             companyInp.value = job.company || "";
@@ -2106,7 +2106,7 @@ function recheckQuickStartCard() {
             // 清除建議（避免重複使用）
             sessionStorage.removeItem(suggestedKeys[0]);
             
-            //console.log("✅ 已預填建議的公司和職位");
+            console.log("✅ 已預填建議的公司和職位");
           } else if (!isFirst) {
             // 如果是「新增經歷」流程，才重置表單
             expForm.reset();

@@ -1,4 +1,4 @@
-//console.log("recommend-summary.js (私人版) 啟動");
+console.log("recommend-summary.js (私人版) 啟動");
 
 // 全域變數
 let onlyShowRecommendations = false;
@@ -74,7 +74,7 @@ function doesRecommendationMatch(r, selectedRelationValue, selectedHighlight) {
 
 // 主要初始化函數
 async function initializeApp() {
-  //console.log("開始初始化應用程式");
+  console.log("開始初始化應用程式");
   
   try {
     const loadingEl = document.getElementById("summaryLoading");
@@ -108,7 +108,7 @@ async function initializeApp() {
     // 使用已初始化的 Firebase 實例
       db = firebase.firestore();
       auth = firebase.auth();
-      //console.log("✅ Firebase 服務已連接");
+      console.log("✅ Firebase 服務已連接");
     } catch (firebaseError) {
       console.error("Firebase 連接失敗:", firebaseError);
       const summaryArea = document.getElementById("summaryArea");
@@ -227,7 +227,7 @@ async function loadAndRender(userId, db, t, loadingEl, highlightRecId) {
     // 步驟 2:【核心修改】信任並使用後端統計資料
     // 直接使用 recommendationStats.totalReceived，不再手動從頭計算
     profile._totalRecCount = profile.recommendationStats?.totalReceived || 0;
-    //console.log(`[Summary] 信任後端統計，已驗證總推薦數: ${profile._totalRecCount}`);
+    console.log(`[Summary] 信任後端統計，已驗證總推薦數: ${profile._totalRecCount}`);
 
     // 步驟 3: 高效地將「已驗證」的推薦分組到對應的工作經歷中
     const jobMap = new Map();
@@ -252,7 +252,7 @@ async function loadAndRender(userId, db, t, loadingEl, highlightRecId) {
     profile.workExperiences = Array.from(jobMap.values())
       .sort((a, b) => (b.startDate || "").localeCompare(a.startDate || ""));
     
-    //console.log("[Summary] ✅ 資料處理完成，準備渲染", profile);
+    console.log("[Summary] ✅ 資料處理完成，準備渲染", profile);
 
     updateRelationFilter(t, currentLang);
     renderRecommendations(profile); // 呼叫已修改的渲染函式

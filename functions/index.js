@@ -2786,9 +2786,8 @@ exports.searchPublicProfiles = onCall({
 /**
  * 手動觸發的 onCall 函式：更新精選用戶列表 (V3 - 最終排序版)
  */
-exports.updateFeaturedUsers = onCall({
-  invoker: "private",
-}, async (request) => {
+exports.updateFeaturedUsers = onCall(
+ async (request) => {
   // ... 權限檢查邏輯保持不變 ...
   if (!process.env.FUNCTIONS_EMULATOR && (!request.auth || request.auth.token.role !== 'admin')) { /* ... */ }
   if (process.env.FUNCTIONS_EMULATOR) { /* ... */ }
@@ -2981,4 +2980,50 @@ exports.onRecommendationVerified = onDocumentUpdated("users/{userId}/recommendat
     }
 
     return null;
+});
+
+// =================================================================
+// 輔助函式：設定使用者為管理員 (一次性使用)
+// =================================================================
+/**
+ * 可呼叫函式：為指定 email 的使用者加上 admin 的 custom claim。
+ * 執行此函式的人，必須已經是專案的擁有者。
+ * @param {object} data - 包含 { email: string } 的物件
+ * @returns {Promise<object>} - 回傳操作結果
+ */
+exports.addAdminRole = onCall(async (request) => {
+  // 1. 權限檢查：確保呼叫此函式的人是登入狀態
+  if (!request.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      '必須登入才能執行此操作。'
+    );
+  }
+
+  // 2. 取得要設為 admin 的使用者 email
+  const email = request.data.email;
+  if (!email || typeof email !== 'string') {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      '必須提供 email。'
+    );
+  }
+
+  try {
+    // 3. 根據 email 找到使用者
+    console.log(`[Admin Setup] 正在尋找使用者: ${email}`);
+    const user = await admin.auth().getUserByEmail(email);
+
+    // 4. 為該使用者設定 custom claim
+    console.log(`[Admin Setup] 找到使用者 ${user.uid}，正在設定 admin 權限...`);
+    await admin.auth().setCustomUserClaims(user.uid, { role: 'admin' });
+
+    const successMessage = `✅ 成功將 ${email} (UID: ${user.uid}) 設為管理員。`;
+    console.log(successMessage);
+    return { success: true, message: successMessage };
+
+  } catch (error) {
+    console.error(`[Admin Setup] ❌ 設定管理員時發生錯誤:`, error);
+    throw new functions.https.HttpsError('internal', '設定管理員時發生錯誤。');
+  }
 });
