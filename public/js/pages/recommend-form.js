@@ -1,7 +1,7 @@
 // public/js/pages/recommend-form.js
 import { i18n, setLang } from "../i18n.js";
 
-console.log("🚀 recommend-form.js 開始初始化");
+//console.log("🚀 recommend-form.js 開始初始化");
 
 // 🔽 Firebase 相關變數
 let app, auth, db;
@@ -10,7 +10,7 @@ let inviteData = null; // 👈 新增此行
 // 🔽 等待 Firebase 初始化完成（與 profile-dashboard.js 一致）
 function waitForFirebase() {
   return new Promise((resolve, reject) => {
-    console.log("🔍 [recommend-form] 檢查 Firebase 狀態...");
+    //console.log("🔍 [recommend-form] 檢查 Firebase 狀態...");
     
     // 檢查 firebase 全域物件是否存在
     if (typeof firebase === 'undefined') {
@@ -25,7 +25,7 @@ function waitForFirebase() {
         app = window.firebaseApp || firebase.app();
         auth = firebase.auth();
         db = firebase.firestore();
-        console.log("✅ [recommend-form] Firebase 已準備就緒");
+        //console.log("✅ [recommend-form] Firebase 已準備就緒");
         resolve();
       } catch (error) {
         console.error("❌ Firebase 服務初始化失敗:", error);
@@ -45,11 +45,11 @@ function waitForFirebase() {
       app = firebase.app();
       auth = firebase.auth();
       db = firebase.firestore();
-      console.log("✅ [recommend-form] 直接使用現有 Firebase 實例");
+      //console.log("✅ [recommend-form] 直接使用現有 Firebase 實例");
       resolve();
       return;
     } catch (directInitError) {
-      console.log("⚠️ 無法直接使用 Firebase，等待初始化事件...");
+      //console.log("⚠️ 無法直接使用 Firebase，等待初始化事件...");
     }
     
     // 監聽事件
@@ -58,7 +58,7 @@ function waitForFirebase() {
         app = event.detail.app || firebase.app();
         auth = firebase.auth();
         db = firebase.firestore();
-        console.log("✅ [recommend-form] Firebase 初始化完成事件收到");
+        //console.log("✅ [recommend-form] Firebase 初始化完成事件收到");
         cleanup();
         resolve();
       } catch (error) {
@@ -92,7 +92,7 @@ function waitForFirebase() {
         app = firebase.app();
         auth = firebase.auth();
         db = firebase.firestore();
-        console.log("✅ 超時後成功獲取 Firebase 實例");
+        //console.log("✅ 超時後成功獲取 Firebase 實例");
         resolve();
       } catch (finalError) {
         console.error("❌ 最終嘗試失敗:", finalError);
@@ -113,17 +113,17 @@ let invitedBy = params.get("invitedBy");
 const inviteId = params.get("inviteId");
 const preview = params.get("preview"); // 🆕 檢查是否為預覽模式
 
-console.log("📋 URL 參數詳細分析:");
-console.log("→ jobId:", jobId);
-console.log("→ userId:", userId);
-console.log("→ urlMessage (原始):", urlMessage);
-console.log("→ urlMessage (解碼):", urlMessage ? decodeURIComponent(urlMessage) : null);
-console.log("→ style:", style);
-console.log("→ forcedLang:", forcedLang);
-console.log("→ invitedBy:", invitedBy);
-console.log("→ inviteId:", inviteId);
-console.log("→ preview:", preview);
-console.log("→ 完整 URL:", window.location.href);
+//console.log("📋 URL 參數詳細分析:");
+//console.log("→ jobId:", jobId);
+//console.log("→ userId:", userId);
+//console.log("→ urlMessage (原始):", urlMessage);
+//console.log("→ urlMessage (解碼):", urlMessage ? decodeURIComponent(urlMessage) : null);
+//console.log("→ style:", style);
+//console.log("→ forcedLang:", forcedLang);
+//console.log("→ invitedBy:", invitedBy);
+//console.log("→ inviteId:", inviteId);
+//console.log("→ preview:", preview);
+//console.log("→ 完整 URL:", window.location.href);
 
 // 語言設定
 if (forcedLang) {
@@ -137,13 +137,13 @@ let jobData = null;
 
 // 🔽 主要初始化函數
 async function initializeForm() {
-  console.log("📱 開始初始化表單");
+  //console.log("📱 開始初始化表單");
   
   try {
     // 等待 Firebase 準備就緒
-    console.log("⏳ 等待 Firebase 初始化...");
+    //console.log("⏳ 等待 Firebase 初始化...");
     await waitForFirebase();
-    console.log("✅ Firebase 服務初始化完成");
+    //console.log("✅ Firebase 服務初始化完成");
     
     // 設定載入狀態
     const loadingText = document.getElementById("loadingText");
@@ -151,10 +151,10 @@ async function initializeForm() {
 
     // 🔍 處理不同的載入模式
     if (inviteId) {
-      console.log("🔍 使用 inviteId 載入資料:", inviteId);
+      //console.log("🔍 使用 inviteId 載入資料:", inviteId);
       await loadDataByInviteId(loadingText);
     } else if (userId && jobId) {
-      console.log("🔍 使用 URL 參數載入資料");
+      //console.log("🔍 使用 URL 參數載入資料");
       await loadDataByUrlParams(loadingText);
     } else {
       throw new Error("缺少必要參數");
@@ -169,7 +169,7 @@ async function initializeForm() {
     
     // 顯示表單
     hideLoading();
-    console.log("✅ 初始化完成");
+    //console.log("✅ 初始化完成");
 
   } catch (error) {
     console.error("❌ 初始化失敗:", error);
@@ -194,7 +194,7 @@ async function loadDataByInviteId(loadingText) {
   }
   
   const inviteData = inviteSnap.data();
-  console.log("📄 邀請資料:", inviteData);
+  //console.log("📄 邀請資料:", inviteData);
   
   userId = inviteData.userId;
   jobId = inviteData.jobId;
@@ -214,11 +214,11 @@ async function loadDataByInviteId(loadingText) {
 
 // 🔽 使用 URL 參數載入資料（預覽模式）
 async function loadDataByUrlParams(loadingText) {
-  console.log("🔍 loadDataByUrlParams 開始執行");
-  console.log("→ userId:", userId);
-  console.log("→ jobId:", jobId);
-  console.log("→ preview:", preview);
-  console.log("→ urlMessage:", urlMessage);
+  //console.log("🔍 loadDataByUrlParams 開始執行");
+  //console.log("→ userId:", userId);
+  //console.log("→ jobId:", jobId);
+  //console.log("→ preview:", preview);
+  //console.log("→ urlMessage:", urlMessage);
   
   // 🔍 檢查必要參數
   if (!userId || !jobId) {
@@ -228,27 +228,27 @@ async function loadDataByUrlParams(loadingText) {
   
   // 🆕 預覽模式的特殊處理
   if (preview === "true" || preview === true) {
-    console.log("👁️ 確認進入預覽模式");
+    //console.log("👁️ 確認進入預覽模式");
     if (loadingText) loadingText.innerText = "載入預覽資料中...";
     
     // 🔍 解碼邀請語
     if (urlMessage) {
       try {
         const decodedMessage = decodeURIComponent(urlMessage);
-        console.log("🔍 邀請語解碼:");
-        console.log("→ 原始:", urlMessage);
-        console.log("→ 解碼後:", decodedMessage);
+        //console.log("🔍 邀請語解碼:");
+        //console.log("→ 原始:", urlMessage);
+        //console.log("→ 解碼後:", decodedMessage);
         
         // 等待 DOM 元素載入
         setTimeout(() => {
           const inviteArea = document.getElementById("inviteContent");
-          console.log("🔍 尋找 inviteContent 元素:", !!inviteArea);
+          //console.log("🔍 尋找 inviteContent 元素:", !!inviteArea);
           
           if (inviteArea) {
             inviteArea.value = decodedMessage;
             userEdited = true;
-            console.log("✅ 邀請語已填入 textarea");
-            console.log("→ textarea.value:", inviteArea.value);
+            //console.log("✅ 邀請語已填入 textarea");
+            //console.log("→ textarea.value:", inviteArea.value);
           } else {
             console.error("❌ 找不到 inviteContent 元素");
             // 嘗試在頁面渲染後再次填入
@@ -256,7 +256,7 @@ async function loadDataByUrlParams(loadingText) {
               const retryInviteArea = document.getElementById("inviteContent");
               if (retryInviteArea) {
                 retryInviteArea.value = decodedMessage;
-                console.log("✅ 延遲填入邀請語成功");
+                //console.log("✅ 延遲填入邀請語成功");
               }
             });
           }
@@ -264,7 +264,7 @@ async function loadDataByUrlParams(loadingText) {
         
       } catch (decodeError) {
         console.error("❌ 邀請語解碼失敗:", decodeError);
-        console.log("→ 嘗試直接使用原始訊息:", urlMessage);
+        //console.log("→ 嘗試直接使用原始訊息:", urlMessage);
         
         // 嘗試直接使用原始訊息
         setTimeout(() => {
@@ -272,7 +272,7 @@ async function loadDataByUrlParams(loadingText) {
           if (inviteArea) {
             inviteArea.value = urlMessage;
             userEdited = true;
-            console.log("✅ 使用原始邀請語填入");
+            //console.log("✅ 使用原始邀請語填入");
           }
         }, 500);
       }
@@ -280,11 +280,11 @@ async function loadDataByUrlParams(loadingText) {
       console.warn("⚠️ 預覽模式但沒有邀請語參數");
     }
   } else {
-    console.log("ℹ️ 非預覽模式或預覽參數不正確");
+    //console.log("ℹ️ 非預覽模式或預覽參數不正確");
   }
   
   // 載入用戶資料
-  console.log("📥 開始載入用戶資料...");
+  //console.log("📥 開始載入用戶資料...");
   await loadUserData(loadingText);
 }
 
@@ -305,7 +305,7 @@ async function loadUserData(loadingText) {
   }
 
   profileData = userSnap.data();
-  console.log("📄 用戶資料載入成功");
+  //console.log("📄 用戶資料載入成功");
 
   // 處理工作經歷
   if (loadingText) loadingText.innerText = "處理工作經歷資料...";
@@ -321,12 +321,12 @@ async function loadUserData(loadingText) {
     throw new Error(`找不到工作經歷: ${jobId}`);
   }
 
-  console.log("📄 工作經歷載入成功:", jobData);
+  //console.log("📄 工作經歷載入成功:", jobData);
 }
 
 // 🔽 渲染頁面
 function renderPage() {
-  console.log("🎨 渲染頁面開始");
+  //console.log("🎨 渲染頁面開始");
   
   const lang = localStorage.getItem("lang") || "zh";
   const t = i18n[lang] || i18n.zh || {};
@@ -348,10 +348,10 @@ function renderPage() {
 
   // 🆕 處理邀請語顯示
   const inviteArea = document.getElementById("inviteContent");
-  console.log("🔍 檢查邀請語處理:");
-  console.log("→ inviteArea 元素:", !!inviteArea);
-  console.log("→ urlMessage:", urlMessage);
-  console.log("→ userEdited:", userEdited);
+  //console.log("🔍 檢查邀請語處理:");
+  //console.log("→ inviteArea 元素:", !!inviteArea);
+  //console.log("→ urlMessage:", urlMessage);
+  //console.log("→ userEdited:", userEdited);
   
   if (inviteArea) {
     // 如果還沒有填入邀請語，現在嘗試填入
@@ -362,22 +362,22 @@ function renderPage() {
         // 嘗試解碼
         try {
           messageToDisplay = decodeURIComponent(urlMessage);
-          console.log("✅ 邀請語解碼成功:", messageToDisplay);
+          //console.log("✅ 邀請語解碼成功:", messageToDisplay);
         } catch (decodeError) {
           console.warn("⚠️ 解碼失敗，使用原始訊息:", urlMessage);
         }
         
         inviteArea.value = messageToDisplay;
         userEdited = true;
-        console.log("✅ 在 renderPage 中成功填入邀請語");
-        console.log("→ 最終顯示的邀請語:", inviteArea.value);
+        //console.log("✅ 在 renderPage 中成功填入邀請語");
+        //console.log("→ 最終顯示的邀請語:", inviteArea.value);
       } catch (error) {
         console.error("❌ 填入邀請語失敗:", error);
       }
     } else if (inviteArea.value) {
-      console.log("ℹ️ 邀請語已存在:", inviteArea.value);
+      //console.log("ℹ️ 邀請語已存在:", inviteArea.value);
     } else {
-      console.log("ℹ️ 沒有邀請語需要顯示");
+      //console.log("ℹ️ 沒有邀請語需要顯示");
     }
   } else {
     console.error("❌ 找不到 inviteContent 元素");
@@ -452,7 +452,7 @@ function renderPage() {
   // 設定亮點選項
   const highlightsContainer = document.getElementById("highlightsContainer");
   if (highlightsContainer) {
-    console.log("🎯 設定亮點選項，當前語言:", lang);
+    //console.log("🎯 設定亮點選項，當前語言:", lang);
     
     const defaultOptionKeys = ["hardSkill", "softSkill", "character"];
     const defaultLabels = {
@@ -519,22 +519,22 @@ function renderPage() {
     finalReminder.innerHTML = reminderText;
   }
 
-  console.log("✅ 頁面渲染完成");
+  //console.log("✅ 頁面渲染完成");
   
   // 🆕 渲染完成後再次檢查邀請語
   setTimeout(() => {
     const finalInviteArea = document.getElementById("inviteContent");
     if (finalInviteArea) {
-      console.log("🔍 渲染完成後邀請語檢查:");
-      console.log("→ textarea.value:", finalInviteArea.value);
-      console.log("→ textarea 是否可見:", finalInviteArea.offsetParent !== null);
+      //console.log("🔍 渲染完成後邀請語檢查:");
+      //console.log("→ textarea.value:", finalInviteArea.value);
+      //console.log("→ textarea 是否可見:", finalInviteArea.offsetParent !== null);
     }
   }, 100);
 }
 
 // 🔽 綁定事件
 function bindEvents() {
-  console.log("🔗 綁定事件");
+  //console.log("🔗 綁定事件");
   
   const form = document.getElementById("recommendForm");
   if (form) {
@@ -547,7 +547,7 @@ function bindEvents() {
   }
 
   window.addEventListener("langChanged", () => {
-    console.log("🌐 語言已變更，重新渲染頁面");
+    //console.log("🌐 語言已變更，重新渲染頁面");
     renderPage();
   });
 }
@@ -555,7 +555,7 @@ function bindEvents() {
 // 🔽 處理表單提交
 async function handleSubmit(e) {
   e.preventDefault();
-  console.log("📤 [V2] 處理表單提交...");
+  //console.log("📤 [V2] 處理表單提交...");
 
   const btn = document.getElementById("submitBtn");
   const lang = localStorage.getItem("lang") || "zh";
@@ -638,7 +638,7 @@ async function handleSubmit(e) {
         recommenderJobId: null,
         recommenderPosition: null,
     };
-    console.log("💾 準備寫入 outgoingRecommendations:", outgoingRecommendationData);
+    //console.log("💾 準備寫入 outgoingRecommendations:", outgoingRecommendationData);
 
     // 步驟 5: 使用 Batch Write 確保資料寫入的原子性
     const batch = db.batch();
@@ -658,14 +658,14 @@ async function handleSubmit(e) {
             relatedInviteId: inviteId,
             status: 'pending_registration'
         };
-        console.log("✍️ 準備寫入 pendingUsers:", pendingUserData);
+        //console.log("✍️ 準備寫入 pendingUsers:", pendingUserData);
         batch.set(pendingUserRef, pendingUserData, { merge: true }); // 使用 merge 以免覆蓋舊資料
     }
 
     // 步驟 6: 執行所有寫入操作
     await batch.commit();
 
-    console.log("✅ 推薦資料批次寫入成功！");
+    //console.log("✅ 推薦資料批次寫入成功！");
     
     // 步驟 7: 導向感謝頁面
     window.location.href = `thank-you.html?userId=${userId}&recommenderName=${encodeURIComponent(formData.name)}`;
@@ -695,7 +695,7 @@ function showError(message) {
 
 // 🔽 隱藏載入畫面
 function hideLoading() {
-  console.log("👁️ 隱藏載入畫面");
+  //console.log("👁️ 隱藏載入畫面");
   
   const loadingMessage = document.getElementById("loadingMessage");
   const formContainer = document.getElementById("formContainer");
@@ -705,13 +705,13 @@ function hideLoading() {
 }
 
 // 🔽 多重初始化觸發機制
-console.log("🔧 設定初始化觸發器");
+//console.log("🔧 設定初始化觸發器");
 
 let initialized = false;
 
 async function safeInitialize() {
   if (initialized) {
-    console.log("⚠️ 已初始化，跳過");
+    //console.log("⚠️ 已初始化，跳過");
     return;
   }
   initialized = true;
@@ -724,19 +724,19 @@ async function safeInitialize() {
 
 // 方式 1: DOMContentLoaded
 if (document.readyState === 'loading') {
-  console.log("⏳ 等待 DOM 載入完成");
+  //console.log("⏳ 等待 DOM 載入完成");
   document.addEventListener("DOMContentLoaded", safeInitialize);
 } else {
-  console.log("✅ DOM 已載入，延遲初始化");
+  //console.log("✅ DOM 已載入，延遲初始化");
   setTimeout(safeInitialize, 100);
 }
 
 // 方式 2: 備用初始化（10秒後）
 setTimeout(function() {
   if (!initialized) {
-    console.log("🔄 備用初始化觸發");
+    //console.log("🔄 備用初始化觸發");
     safeInitialize();
   }
 }, 10000);
 
-console.log("✅ recommend-form.js 載入完成");
+//console.log("✅ recommend-form.js 載入完成");

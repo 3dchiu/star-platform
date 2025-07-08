@@ -1,4 +1,3 @@
-// admin-dashboard.js
 console.log("admin-dashboard.js 啟動");
 
 // 🔽 功能：載入邀請碼清單並顯示到表格中
@@ -131,6 +130,41 @@ function initializeAdminDashboard() {
           alert("❌ 建立邀請碼失敗，請稍後再試！");
         }
       });
+    }
+   
+    // ⚙️ 更新首頁精選用戶功能
+    const updateButton = document.getElementById('update-featured-users-btn');
+    const statusMessage = document.getElementById('status-message');
+
+    if (updateButton && statusMessage) {
+      updateButton.addEventListener('click', () => {
+        updateButton.disabled = true;
+        updateButton.textContent = '更新中，請稍候...';
+        statusMessage.textContent = '正在呼叫雲端函式...';
+        statusMessage.style.color = '#333';
+
+        const functions = firebase.functions();
+        const updateFeaturedUsers = functions.httpsCallable('updateFeaturedUsers');
+
+        updateFeaturedUsers()
+          .then((result) => {
+              console.log('Cloud Function 執行成功:', result);
+              const message = result.data.message || '精選用戶列表已成功更新！';
+              statusMessage.textContent = message;
+              statusMessage.style.color = 'green';
+          })
+          .catch((error) => {
+              console.error('Cloud Function 執行失敗:', error);
+              statusMessage.textContent = `發生錯誤：${error.message}`;
+              statusMessage.style.color = 'red';
+          })
+          .finally(() => {
+              updateButton.disabled = false;
+              updateButton.textContent = '更新首頁英雄榜';
+          });
+      });
+    } else {
+        console.warn("找不到 'update-featured-users-btn' 按鈕或 'status-message' 區塊，請檢查 HTML 檔案。");
     }
 
     // ✅ 成功登入並驗證後，載入邀請碼清單

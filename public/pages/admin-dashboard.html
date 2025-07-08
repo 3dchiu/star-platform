@@ -10,8 +10,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-functions-compat.js"></script>
   
-  <!-- 🔧 重要：載入 Firebase 初始化腳本 -->
   <script src="../js/firebase-init.js"></script>
   
   <!-- 🎨 載入共用樣式 -->
@@ -59,6 +59,20 @@
         </tbody>
       </table>
     </section>
+    <section class="white-card p-4 my-6 shadow-md">
+    <h2 class="text-xl font-semibold mb-4">⚙️ 系統管理</h2>
+    <div id="adminActions">
+      <button id="update-featured-users-btn" class="btn-primary">
+        更新首頁英雄榜
+      </button>
+
+      <p id="status-message" class="text-sm mt-2"></p>
+      
+      <p class="text-sm text-gray-500 mt-2">
+        點擊此按鈕，將會重新計算 EXP 排名並更新首頁的精選用戶列表。
+      </p>
+    </div>
+</section>
   </div>
 
   <!-- 🔗 載入 admin 頁面控制邏輯（建立與顯示邀請碼） -->

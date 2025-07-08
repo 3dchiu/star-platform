@@ -36,7 +36,7 @@ function waitForFirebaseReady() {
         }
         
         // Firebase 準備就緒
-        console.log("✅ Firebase 準備就緒，apps:", apps.length);
+        //console.log("✅ Firebase 準備就緒，apps:", apps.length);
         resolve();
         
       } catch (error) {
@@ -63,13 +63,13 @@ setTimeout(function() {
 }, 500);
 
 async function initializeRecommendationPage() {
-  console.log("🚀 推薦表單頁面初始化 (v2)");
+  //console.log("🚀 推薦表單頁面初始化 (v2)");
 
   try {
     await waitForFirebaseReady();
     db = firebase.firestore();
     auth = firebase.auth();
-    console.log("✅ Firebase 服務初始化完成");
+    //console.log("✅ Firebase 服務初始化完成");
 
     const lang = localStorage.getItem("lang") || "zh";
     const t = i18n[lang]?.form || {}; // 假設 i18n 中有 form 物件
@@ -77,7 +77,7 @@ async function initializeRecommendationPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const inviteId = urlParams.get("inviteId");
     
-    console.log("📋 URL 參數:", { inviteId });
+    //console.log("📋 URL 參數:", { inviteId });
 
     if (!inviteId) {
       throw new Error("缺少 inviteId 參數，無法載入頁面。");
@@ -88,7 +88,7 @@ async function initializeRecommendationPage() {
       window.location.href = '/auth.html';
       return;
     }
-    console.log("✅ 用戶已登入:", user.uid);
+    //console.log("✅ 用戶已登入:", user.uid);
 
     // 【核心邏輯】所有情境都從 inviteId 開始
     const inviteData = await loadInviteData(inviteId);
@@ -99,13 +99,13 @@ async function initializeRecommendationPage() {
 
     // 根據邀請類型，決定是「推薦他人」還是「回覆推薦」
     if (inviteData.type === 'reply') {
-        console.log("🎯 進入回覆推薦模式");
+        //console.log("🎯 進入回覆推薦模式");
         inviteData.isReplyMode = true;
         inviteData.isGivingRecommendation = true;
         // targetUserId 和 targetEmail 等資訊已在 inviteData 中
         prefillReplyForm(inviteData);
     } else if (inviteData.type === 'outgoing') {
-        console.log("🎯 進入推薦好夥伴模式");
+        //console.log("🎯 進入推薦好夥伴模式");
         inviteData.isReplyMode = false;
         inviteData.isGivingRecommendation = true;
     } else {
@@ -113,14 +113,14 @@ async function initializeRecommendationPage() {
         console.warn("未知的邀請類型:", inviteData.type);
     }
     
-    console.log("✅ 推薦資料載入成功:", inviteData);
+    //console.log("✅ 推薦資料載入成功:", inviteData);
     
     setupPageContent(inviteData, t);
     setupFormOptions(t);
     setupFormSubmission(inviteData, t, user);
 
     hideLoading();
-    console.log("✅ 頁面初始化完成");
+    //console.log("✅ 頁面初始化完成");
 
   } catch (error) {
     console.error("❌ 初始化失敗:", error);
@@ -132,7 +132,7 @@ async function initializeRecommendationPage() {
 // 🆕 新增：載入原始推薦記錄
 async function loadOriginalRecommendation(originalRecId, userId) {
   try {
-    console.log("📥 載入原始推薦記錄:", originalRecId, "用戶:", userId);
+    //console.log("📥 載入原始推薦記錄:", originalRecId, "用戶:", userId);
     
     // 在用戶的推薦集合中查找
     const recRef = db.collection("users").doc(userId).collection("recommendations").doc(originalRecId);
@@ -144,7 +144,7 @@ async function loadOriginalRecommendation(originalRecId, userId) {
     }
     
     const recData = recSnap.data();
-    console.log("📄 原始推薦記錄:", recData);
+    //console.log("📄 原始推薦記錄:", recData);
     
     // 🔍 驗證必要欄位
     if (!recData.name || !recData.email) {
@@ -165,7 +165,7 @@ async function loadOriginalRecommendation(originalRecId, userId) {
 
 async function loadJobInfo(userId, jobId) {
   try {
-    console.log("📥 載入工作經歷資料:", { userId, jobId });
+    //console.log("📥 載入工作經歷資料:", { userId, jobId });
     
     // 先從 users/{userId} 下的 workExperiences 陣列中尋找
     const userRef = db.collection("users").doc(userId);
@@ -179,7 +179,7 @@ async function loadJobInfo(userId, jobId) {
       const jobData = workExperiences.find(job => job.id === jobId);
       
       if (jobData) {
-        console.log("✅ 從 workExperiences 陣列找到工作資料:", jobData);
+        //console.log("✅ 從 workExperiences 陣列找到工作資料:", jobData);
         return {
           company: jobData.company,
           position: jobData.position,
@@ -196,7 +196,7 @@ async function loadJobInfo(userId, jobId) {
     
     if (jobSnap.exists) {
       const jobData = jobSnap.data();
-      console.log("✅ 從 jobs 子集合找到工作資料:", jobData);
+      //console.log("✅ 從 jobs 子集合找到工作資料:", jobData);
       return jobData;
     }
     
@@ -211,7 +211,7 @@ async function loadJobInfo(userId, jobId) {
 
 // 🆕 新增：預填回推薦表單
 function prefillReplyForm(inviteData) {
-  console.log("📝 預填回推薦表單:", inviteData);
+  //console.log("📝 預填回推薦表單:", inviteData);
   
   // 🔧 使用 MutationObserver 確保 DOM 元素存在
   function waitForElement(selector, timeout = 5000) {
@@ -253,7 +253,7 @@ function prefillReplyForm(inviteData) {
       nameInput.value = inviteData.targetName;
       nameInput.readOnly = true;
       nameInput.style.backgroundColor = '#f5f5f5';
-      console.log("✅ 預填姓名:", inviteData.targetName);
+      //console.log("✅ 預填姓名:", inviteData.targetName);
     }
     
     // 預填Email
@@ -261,7 +261,7 @@ function prefillReplyForm(inviteData) {
       emailInput.value = inviteData.targetEmail;
       emailInput.readOnly = true;
       emailInput.style.backgroundColor = '#f5f5f5';
-      console.log("✅ 預填Email:", inviteData.targetEmail);
+      //console.log("✅ 預填Email:", inviteData.targetEmail);
     }
     
     // 🆕 添加視覺提示
@@ -302,7 +302,7 @@ function waitForAuth() {
   return new Promise((resolve) => {
     // 增加超時時間到 15 秒
     const timeout = setTimeout(() => {
-      console.log("⏰ 認證檢查超時");
+      //console.log("⏰ 認證檢查超時");
       resolve(null);
     }, 15000);
 
@@ -328,7 +328,7 @@ function waitForAuth() {
 // 載入邀請資料
 async function loadInviteData(inviteId) {
   try {
-    console.log("📥 載入邀請資料:", inviteId);
+    //console.log("📥 載入邀請資料:", inviteId);
     
     const inviteRef = db.collection("invites").doc(inviteId);
     const inviteSnap = await inviteRef.get();
@@ -339,7 +339,7 @@ async function loadInviteData(inviteId) {
     }
     
     const inviteData = inviteSnap.data();
-    console.log("📄 邀請資料:", inviteData);
+    //console.log("📄 邀請資料:", inviteData);
     
     // 🔧 修復：允許多種邀請類型
     const allowedTypes = ["outgoing", "reply", undefined]; // 🆕 允許 reply 類型
@@ -362,7 +362,7 @@ async function loadInviteData(inviteId) {
 // 創建直接邀請資料
 async function createDirectInviteData(user, jobId) {
   try {
-    console.log("🏗️ 創建直接邀請資料:", { userId: user.uid, jobId });
+    //console.log("🏗️ 創建直接邀請資料:", { userId: user.uid, jobId });
     
     // 載入工作經歷
     const jobRef = db.collection("users").doc(user.uid).collection("jobs").doc(jobId);
@@ -374,7 +374,7 @@ async function createDirectInviteData(user, jobId) {
     }
     
     const jobData = jobSnap.data();
-    console.log("📄 工作經歷資料:", jobData);
+    //console.log("📄 工作經歷資料:", jobData);
     
     // 載入用戶資料
     const userRef = db.collection("users").doc(user.uid);
@@ -400,14 +400,14 @@ async function createDirectInviteData(user, jobId) {
 // 設定頁面內容
 // 🆕 修改 setupPageContent 函數
 function setupPageContent(inviteData, t) {
-  console.log("🎨 設定頁面內容");
-  console.log("📋 邀請資料:", inviteData);
+  //console.log("🎨 設定頁面內容");
+  //console.log("📋 邀請資料:", inviteData);
   
   const isGivingRecommendation = inviteData.isGivingRecommendation;
   const isReplyMode = inviteData.isReplyMode;
   
-  console.log("🔍 是否為推薦他人模式:", isGivingRecommendation);
-  console.log("🔍 是否為回推薦模式:", isReplyMode);
+  //console.log("🔍 是否為推薦他人模式:", isGivingRecommendation);
+  //console.log("🔍 是否為回推薦模式:", isReplyMode);
   
   // 🎯 關鍵修復：回推薦模式強制使用推薦他人的標題
   const formTitle = document.getElementById("formTitle");
@@ -478,7 +478,7 @@ if (jobInfo) {
     "</div>"
   ].join("");
   
-  console.log("✅ 工作背景資訊已更新:", {
+  //console.log("✅ 工作背景資訊已更新:", {
     company: company,
     position: position,
     recommenderName: recommenderName,
@@ -514,7 +514,7 @@ if (jobInfo) {
 
 // 🆕 修改表單標籤更新邏輯
 function updateFormLabels(t, isGivingRecommendation, isReplyMode = false) {
-  console.log("🏷️ 更新表單標籤，推薦他人模式:", isGivingRecommendation, "回推薦模式:", isReplyMode);
+  //console.log("🏷️ 更新表單標籤，推薦他人模式:", isGivingRecommendation, "回推薦模式:", isReplyMode);
   
   // 🎯 回推薦模式和推薦他人模式都使用「被推薦人」標籤
   if (isReplyMode || isGivingRecommendation) {
@@ -537,7 +537,7 @@ function updateFormLabels(t, isGivingRecommendation, isReplyMode = false) {
       const element = document.getElementById(item.id);
       if (element) {
         element.textContent = item.text;
-        console.log("✅ 更新標籤:", item.id, "->", item.text);
+        //console.log("✅ 更新標籤:", item.id, "->", item.text);
       }
     });
     
@@ -570,7 +570,7 @@ function updateFormLabels(t, isGivingRecommendation, isReplyMode = false) {
 
 // 設定表單選項
 function setupFormOptions(t) {
-  console.log("⚙️ 設定表單選項");
+  //console.log("⚙️ 設定表單選項");
   
   // 關係選項
   const relationSelect = document.getElementById("relation");
@@ -594,7 +594,7 @@ function setupFormOptions(t) {
       relationSelect.appendChild(optionElement);
     });
     
-    console.log("✅ 關係選項設定完成，共", relationOptions.length, "個選項");
+    //console.log("✅ 關係選項設定完成，共", relationOptions.length, "個選項");
   }
   
   // 亮點選項 - 支援多語系
@@ -616,7 +616,7 @@ function setupFormOptions(t) {
     
     // 獲取當前語言
     const currentLang = localStorage.getItem("lang") || "zh";
-    console.log("🌐 當前語言:", currentLang);
+    //console.log("🌐 當前語言:", currentLang);
     
     let highlightOptions;
     
@@ -626,22 +626,22 @@ function setupFormOptions(t) {
       if (t.highlightOptions[0] && typeof t.highlightOptions[0] === 'object' && 
           t.highlightOptions[0].value && t.highlightOptions[0].label) {
         highlightOptions = t.highlightOptions;
-        console.log("📝 使用 i18n 亮點選項");
+        //console.log("📝 使用 i18n 亮點選項");
       } else {
-        console.log("⚠️ i18n 亮點選項格式不正確，使用預設選項");
+        //console.log("⚠️ i18n 亮點選項格式不正確，使用預設選項");
         highlightOptions = defaultHighlightOptions[currentLang] || defaultHighlightOptions.zh;
       }
     } else {
       // 使用預設選項
-      console.log("📝 i18n 中無亮點選項，使用預設選項");
+      //console.log("📝 i18n 中無亮點選項，使用預設選項");
       highlightOptions = defaultHighlightOptions[currentLang] || defaultHighlightOptions.zh;
     }
     
-    console.log("🎯 最終使用的亮點選項:", highlightOptions);
+    //console.log("🎯 最終使用的亮點選項:", highlightOptions);
     
     let htmlContent = "";
     highlightOptions.forEach(function(option, index) {
-      console.log("🏷️ 處理第", index + 1, "個選項:", option);
+      //console.log("🏷️ 處理第", index + 1, "個選項:", option);
       
       if (typeof option === 'object' && option.value && option.label) {
         htmlContent += [
@@ -650,14 +650,14 @@ function setupFormOptions(t) {
           "<span class=\"option-text\">" + option.label + "</span>",
           "</label>"
         ].join("");
-        console.log("✅ 成功添加選項:", option.value, "-", option.label);
+        //console.log("✅ 成功添加選項:", option.value, "-", option.label);
       } else {
         console.error("❌ 選項格式錯誤:", option);
       }
     });
     
     highlightsContainer.innerHTML = htmlContent;
-    console.log("✅ 亮點選項 HTML 設定完成");
+    //console.log("✅ 亮點選項 HTML 設定完成");
   } else {
     console.error("❌ 找不到 highlightsContainer 元素");
   }
@@ -665,7 +665,7 @@ function setupFormOptions(t) {
 
 // 設定表單提交
 function setupFormSubmission(inviteData, t, user) {
-  console.log("📝 設定表單提交");
+  //console.log("📝 設定表單提交");
   
   const form = document.getElementById("recommendForm");
   const submitBtn = document.getElementById("submitBtn");
@@ -679,11 +679,11 @@ function setupFormSubmission(inviteData, t, user) {
   
   form.addEventListener("submit", async function(e) {
     e.preventDefault();
-    console.log("📤 表單提交");
+    //console.log("📤 表單提交");
     
     // 防止重複提交
     if (submitBtn.disabled) {
-      console.log("⏸️ 避免重複提交");
+      //console.log("⏸️ 避免重複提交");
       return;
     }
     
@@ -693,11 +693,11 @@ function setupFormSubmission(inviteData, t, user) {
       
       // 收集表單資料
       const formData = getFormData();
-      console.log("📋 表單資料:", formData);
+      //console.log("📋 表單資料:", formData);
       
       // 驗證資料
       if (!validateData(formData, t)) {
-        console.log("❌ 資料驗證失敗");
+        //console.log("❌ 資料驗證失敗");
         return;
       }
       
@@ -717,7 +717,7 @@ function setupFormSubmission(inviteData, t, user) {
     }
   });
   
-  console.log("✅ 表單提交設定完成");
+  //console.log("✅ 表單提交設定完成");
 }
 
 // 收集表單資料
@@ -780,8 +780,8 @@ function validateData(data, t) {
 // js/pages/give-recommendation.js
 
 async function saveRecommendation(inviteData, formData, t) {
-  console.log("💾 儲存推薦資料");
-  console.log("  -> 是否為回覆模式:", inviteData.isReplyMode);
+  //console.log("💾 儲存推薦資料");
+  //console.log("  -> 是否為回覆模式:", inviteData.isReplyMode);
 
   // 準備共用的資料 payload
   const commonData = {
@@ -802,7 +802,7 @@ async function saveRecommendation(inviteData, formData, t) {
   try {
     if (inviteData.isReplyMode) {
       // --- 回覆推薦的寫入路徑 ---
-      console.log("  -> 寫入到使用者推薦子集合 (回覆模式)...");
+      //console.log("  -> 寫入到使用者推薦子集合 (回覆模式)...");
       
       const replyData = {
         ...commonData,
@@ -819,15 +819,15 @@ async function saveRecommendation(inviteData, formData, t) {
         replyData.targetUserId = inviteData.targetUserId;
       }
       
-      console.log("💾 準備儲存的最終回覆資料:", replyData);
+      //console.log("💾 準備儲存的最終回覆資料:", replyData);
       
       const recRef = db.collection("users").doc(auth.currentUser.uid).collection("recommendations").doc();
       await recRef.set(replyData);
-      console.log("✅ 回覆推薦儲存完成，ID:", recRef.id);
+      //console.log("✅ 回覆推薦儲存完成，ID:", recRef.id);
 
     } else {
       // --- 推薦好夥伴的寫入路徑 ---
-      console.log("  -> 寫入到 outgoingRecommendations 集合 (推薦好夥伴模式)...");
+      //console.log("  -> 寫入到 outgoingRecommendations 集合 (推薦好夥伴模式)...");
       const outgoingData = {
         ...commonData,
         name: formData.name,
@@ -840,7 +840,7 @@ async function saveRecommendation(inviteData, formData, t) {
 
       const recRef = db.collection("outgoingRecommendations").doc();
       await recRef.set(outgoingData);
-      console.log("✅ 推薦好夥伴儲存完成，ID:", recRef.id);
+      //console.log("✅ 推薦好夥伴儲存完成，ID:", recRef.id);
     }
 
   } catch (error) {
@@ -851,7 +851,7 @@ async function saveRecommendation(inviteData, formData, t) {
 
 // 修改 showSuccess 函數
 function showSuccess(t) {
-  console.log("🎉 顯示成功訊息");
+  //console.log("🎉 顯示成功訊息");
 
   const container = document.getElementById("formContainer");
   if (container) {
@@ -923,30 +923,30 @@ function hideLoading() {
     form.style.display = "block";
   }
   
-  console.log("👁️ 載入畫面已隱藏，表單已顯示");
+  //console.log("👁️ 載入畫面已隱藏，表單已顯示");
 }
 // 🆕 調試函數
 function debugReplyMode() {
-  console.log("🔍 回推薦模式調試資訊:");
+  //console.log("🔍 回推薦模式調試資訊:");
   
   const urlParams = new URLSearchParams(window.location.search);
-  console.log("URL 參數:", {
+  //console.log("URL 參數:", {
     inviteId: urlParams.get("inviteId"),
     mode: urlParams.get("mode"),
     originalRecId: urlParams.get("originalRecId"),
     targetUserId: urlParams.get("targetUserId")
   });
   
-  console.log("表單元素檢查:");
-  console.log("- name input:", document.getElementById("name"));
-  console.log("- email input:", document.getElementById("email"));
-  console.log("- formTitle:", document.getElementById("formTitle"));
-  console.log("- recommendNote:", document.getElementById("recommendNote"));
+  //console.log("表單元素檢查:");
+  //console.log("- name input:", document.getElementById("name"));
+  //console.log("- email input:", document.getElementById("email"));
+  //console.log("- formTitle:", document.getElementById("formTitle"));
+  //console.log("- recommendNote:", document.getElementById("recommendNote"));
 }
 // 🆕 調試函數：檢查工作資料載入狀態
 function debugJobInfo(inviteData) {
-  console.log("🔍 === 工作資料調試 ===");
-  console.log("邀請資料中的工作資訊:", {
+  //console.log("🔍 === 工作資料調試 ===");
+  //console.log("邀請資料中的工作資訊:", {
     company: inviteData.company,
     position: inviteData.position,
     jobId: inviteData.jobId,
@@ -954,13 +954,13 @@ function debugJobInfo(inviteData) {
     recommenderUserId: inviteData.recommenderUserId
   });
   
-  console.log("DOM 中的工作背景顯示:");
+  //console.log("DOM 中的工作背景顯示:");
   const jobInfoElement = document.getElementById("jobInfo");
   if (jobInfoElement) {
-    console.log("- jobInfo HTML:", jobInfoElement.innerHTML);
+    //console.log("- jobInfo HTML:", jobInfoElement.innerHTML);
   } else {
-    console.log("- jobInfo 元素不存在");
+    //console.log("- jobInfo 元素不存在");
   }
 }
 
-console.log("✅ give-recommendation.js 載入完成");
+//console.log("✅ give-recommendation.js 載入完成");

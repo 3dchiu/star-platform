@@ -1,7 +1,7 @@
 // js/pages/index.js - 【最終合併版】
 
 import { setLang } from "../i18n.js";
-console.log("index.js (合併版) 啟動");
+//console.log("index.js (合併版) 啟動");
 
 // 初始化語言
 const lang = localStorage.getItem("lang") || "en";
@@ -16,17 +16,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   
   const auth = firebase.auth();
-  console.log("✅ Firebase 服務已連接");
+  //console.log("✅ Firebase 服務已連接");
 
   // 根據登入狀態，決定頁面行為
   auth.onAuthStateChanged(user => {
     if (user) {
       // --- 邏輯一：如果使用者已登入 ---
-      console.log("👤 使用者已登入，正在跳轉至儀表板...");
+      //console.log("👤 使用者已登入，正在跳轉至儀表板...");
       window.location.href = "./pages/profile-dashboard.html";
     } else {
       // --- 邏輯二：如果使用者未登入，就初始化首頁的搜尋功能 ---
-      console.log("👋 訪客模式，初始化搜尋功能...");
+      //console.log("👋 訪客模式，初始化搜尋功能...");
       initializeSearch(firebase);
       loadAndDisplayFeaturedUsers();
     }
@@ -143,7 +143,7 @@ async function loadAndDisplayFeaturedUsers() {
       container.appendChild(cardsContainer);
 
     } else {
-      console.log("📝 在 system/featuredUsers 中找不到精選用戶資料。");
+      //console.log("📝 在 system/featuredUsers 中找不到精選用戶資料。");
     }
   } catch (error) {
     console.error("❌ 載入精選用戶時發生錯誤:", error);

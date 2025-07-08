@@ -19,7 +19,7 @@ function waitForFirebase() {
         try {
             auth = firebase.auth();
             db = firebase.firestore();
-            console.log("✅ Firebase compat 服務初始化完成");
+            //console.log("✅ Firebase compat 服務初始化完成");
             resolve();
         } catch (e) {
             reject(new Error("Firebase 服務初始化失敗: " + e.message));
@@ -75,7 +75,7 @@ function setupEventListeners(t) {
     if (resetPasswordBtn) {
         resetPasswordBtn.addEventListener("click", (e) => handlePasswordReset(e, t));
     }
-    console.log("✅ 所有事件監聽器已綁定。");
+    //console.log("✅ 所有事件監聽器已綁定。");
 }
 
 
@@ -84,7 +84,7 @@ function setupEventListeners(t) {
  */
 async function handleLogin(e, t) {
     e.preventDefault();
-    console.log("📤 嘗試登入...");
+    //console.log("📤 嘗試登入...");
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
     const errorMessage = document.getElementById("error-message");
@@ -106,7 +106,7 @@ async function handleLogin(e, t) {
  */
 async function handleRegister(e, t) {
     e.preventDefault();
-    console.log("📝 開始註冊流程");
+    //console.log("📝 開始註冊流程");
     
     const errorMessage = document.getElementById("error-message");
     const email = document.getElementById("registerEmail").value.trim();
@@ -148,11 +148,11 @@ async function handleRegister(e, t) {
     try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const uid = userCredential.user.uid;
-        console.log("✅ Firebase 帳號創建成功:", uid);
+        //console.log("✅ Firebase 帳號創建成功:", uid);
 
         const userData = createUserData(uid, email, inviteCodeInput, window.currentRegistrationMode);
         await db.collection("users").doc(uid).set(userData, { merge: true });
-        console.log("✅ 用戶資料寫入成功");
+        //console.log("✅ 用戶資料寫入成功");
         
         // 【保留】處理 pendingData
         await processPendingData(uid, email, window.currentRegistrationMode);
@@ -194,7 +194,7 @@ async function handlePasswordReset(e, t) {
  * 顯示註冊表單 (保留您完整的模式判斷邏輯)
  */
 async function showRegisterForm(t) {
-    console.log("🎯 顯示註冊表單");
+    //console.log("🎯 顯示註冊表單");
 
     const loginT = t || {}; // 確保 t.login 存在
     const registerSection = document.getElementById("registerSection");
@@ -240,7 +240,7 @@ async function showRegisterForm(t) {
     }
     
     window.currentRegistrationMode = registrationMode;
-    console.log(`✅ 註冊模式確定: ${registrationMode}`);
+    //console.log(`✅ 註冊模式確定: ${registrationMode}`);
 }
 
 
@@ -248,13 +248,13 @@ async function showRegisterForm(t) {
  * 處理待處理資料 (保留您的函式)
  */
 async function processPendingData(userId, email, registrationMode) {
-    console.log("🔄 處理 pending 資料...", { userId, email });
+    //console.log("🔄 處理 pending 資料...", { userId, email });
     const pendingSnap = await db.collection("pendingUsers").where("email", "==", email).get();
     if (pendingSnap.empty) return;
 
     for (const pendingDoc of pendingSnap.docs) {
         // ... 您原有的處理 pendingUsers 的邏輯 ...
-        console.log("處理 pending 記錄:", pendingDoc.id);
+        //console.log("處理 pending 記錄:", pendingDoc.id);
         await pendingDoc.ref.delete();
     }
 }
@@ -298,7 +298,7 @@ function updateUIText(t) {
  * 最終的初始化函式
  */
 async function initialize() {
-    console.log("🚀 login.js 初始化開始...");
+    //console.log("🚀 login.js 初始化開始...");
     try {
         await waitForFirebase();
 
@@ -306,7 +306,7 @@ async function initialize() {
         auth.onAuthStateChanged(user => {
             if (user) {
                 // 使用者已登入或剛完成登入/註冊
-                console.log(`用戶 ${user.email} 已認證，跳轉至儀表板...`);
+                //console.log(`用戶 ${user.email} 已認證，跳轉至儀表板...`);
                 const nextUrl = params.get("next") || "/pages/profile-dashboard.html";
                 // 為了避免在後台分頁中意外跳轉，可以加上一個檢查
                 if (document.visibilityState === 'visible') {
@@ -314,7 +314,7 @@ async function initialize() {
                 }
             } else {
                 // 使用者未登入
-                console.log("👤 用戶未登入，顯示登入表單。");
+                //console.log("👤 用戶未登入，顯示登入表單。");
                 document.body.style.display = 'block'; // 顯示頁面內容
             }
         });

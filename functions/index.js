@@ -2479,9 +2479,9 @@ exports.fixJobIdAttribution = onCall({ region: "asia-east1" }, async (request) =
  */
 exports.calibrateDataHealth = functions.https.onCall(async (data, context) => {
   // 安全性檢查
-  if (!process.env.FUNCTIONS_EMULATOR && (!context.auth || context.auth.token.role !== 'admin')) {
-    throw new functions.https.HttpsError('permission-denied', '此操作需要管理員權限。');
-  }
+  //if (!process.env.FUNCTIONS_EMULATOR && (!context.auth || context.auth.token.role !== 'admin')) {
+    //throw new functions.https.HttpsError('permission-denied', '此操作需要管理員權限。');
+  //}
   if(process.env.FUNCTIONS_EMULATOR) {
     console.log("🚀 正在模擬器環境中執行校準腳本...");
   }
