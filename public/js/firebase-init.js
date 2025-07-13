@@ -30,35 +30,37 @@ try {
   }
 
   // 偵測是否在本地開發環境 (localhost)
-  if (window.location.hostname === "localhost") {
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
     console.log("🚀 偵測到本地開發環境，正在連接到 Firebase 模擬器...");
-
-    // 告訴 Firebase Auth 使用模擬器
-    firebase.auth().useEmulator("http://localhost:9099");
-
-    // 告訴 Firestore 使用模擬器
-    firebase.firestore().useEmulator("localhost", 8080);
     
-    // 告訴 Cloud Functions 使用模擬器
-    firebase.functions().useEmulator("localhost", 5001);
-    
-    console.log("✅ 已成功連接至本地模擬器！");
+    try {
+      // 🔧 修正：確保模擬器按正確順序連接
+      
+      // 1. 先連接 Auth 模擬器
+      const auth = firebase.auth();
+      auth.useEmulator("http://localhost:9099");
+      console.log("✅ Auth 模擬器已連接");
+      
+      // 2. 再連接 Firestore 模擬器
+      const firestore = firebase.firestore();
+      firestore.useEmulator("localhost", 8080);
+      console.log("✅ Firestore 模擬器已連接");
+      
+      // 3. 最後連接 Functions 模擬器
+      const functions = firebase.functions();
+      functions.useEmulator("localhost", 5001);
+      console.log("✅ Functions 模擬器已連接");
+      
+      console.log("✅ 已成功連接至所有本地模擬器！");
+      
+    } catch (emulatorError) {
+      console.error("❌ 模擬器連接失敗:", emulatorError);
+      // 不要拋出錯誤，繼續執行
+    }
   }
 
-  // 測試 Firebase 服務
-  console.log("🧪 測試 Firebase 服務...");
-  
-  try {
-    const auth = firebase.auth();
-    const firestore = firebase.firestore();
-    console.log("✅ Auth 服務可用:", !!auth);
-    console.log("✅ Firestore 服務可用:", !!firestore);
-
-    
-  } catch (serviceError) {
-    console.error("❌ Firebase 服務初始化失敗:", serviceError);
-    throw serviceError;
-  }
+  // 🔧 新增：創建 Promise 供 profile-dashboard.js 使用
+  window.firebasePromise = Promise.resolve(app);
   
   // 設定全域標記
   window.firebaseReady = true;
@@ -69,13 +71,14 @@ try {
   window.dispatchEvent(readyEvent);
   
   console.log("🎉 Firebase 完全初始化成功");
-  
+
 } catch (error) {
   console.error("❌ Firebase 初始化失敗:", error);
   
   // 設定錯誤標記
   window.firebaseError = error;
   window.firebaseReady = false;
+  window.firebasePromise = Promise.reject(error);
   
   // 觸發錯誤事件
   const errorEvent = new CustomEvent('firebaseError', { detail: { error } });

@@ -1,20 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-functions-compat.js"></script>
+  
+  <!-- Firebase 初始化 -->
   <script src="./js/firebase-init.js"></script>
+  
+  <!-- 🔧 修正：i18n 必須在 header 之前載入 -->
+  <script type="module" src="./js/i18n.js"></script>
 
-  <!-- 2) 全站 CSS 與 meta -->
+  <!-- CSS 與 meta -->
   <link rel="stylesheet" href="./styles/main.css">
   <link rel="stylesheet" href="./styles/homepage.css">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Galaxyz｜信任，是最好的職涯推薦</title>
-  <!-- ✅ 分享預覽用 Open Graph 標籤（LINE、FB、LinkedIn 共用） -->
+  <!-- Open Graph 標籤 -->
   <meta property="og:title" content="Galaxyz — 建立值得信賴的人脈推薦網絡" />
   <meta property="og:description" content="Every star has a story. Together, we form a Galaxy." />
   <meta property="og:image" content="https://galaxyz.ai/img/preview-banner.png" />
@@ -22,11 +28,9 @@
   <meta property="og:image:height" content="768" />
   <meta property="og:url" content="https://galaxyz.ai/" />
   <meta property="og:type" content="website" />
-  <!-- 3) 多語支援 -->
-  <script type="module" src="./js/i18n.js"></script>
 </head>
 <body>
-  <!-- 5) Header 自動插入 -->
+  <!-- Header 自動插入 -->
   <div id="appHeader"></div>
 
   <main class="home-container fade-in">
@@ -39,22 +43,29 @@
       <h1 class="hero-title" data-i18n="home.heroTitle"></h1>
       <p class="hero-subtitle" data-i18n="home.heroSubtitle"></p>
       <div class="search-container">
-        <input type="search" id="mainSearchInput" data-i18n-placeholder="home.searchPlaceholder" placeholder="搜尋人才、技能或公司..." class="search-input">
+        <!-- 🔧 修正：只使用 i18n，移除硬編碼 placeholder -->
+        <input type="search" 
+               id="mainSearchInput" 
+               data-i18n-placeholder="home.searchPlaceholder" 
+               class="search-input">
         <button id="mainSearchButton" class="btn btn-primary" data-i18n="home.searchButton">搜尋</button>
       </div>
     </section>
+    
     <div id="searchResultsContainer" class="search-results-container"></div>
+    
     <section id="featuredUsersSection" class="featured-users-section">
-        </section>
+    </section>
+    
     <!-- About Star Section -->
     <section class="about-section">
-        <!-- ✨ 星空點點 -->
-        <div class="demo-star" style="top: 6%; left: 8%;  width: 3px; height: 3px;"></div>   <!-- 左上1 -->
-        <div class="demo-star" style="top: 12%; left: 16%; width: 2px; height: 2px;"></div>  <!-- 左上2 -->
-        <div class="demo-star" style="top: 18%; left: 10%; width: 4px; height: 4px;"></div>  <!-- 左上3 -->
-        <div class="demo-star" style="top: 10%; left: 85%; width: 3px; height: 3px;"></div>  <!-- 右上1 -->      
-        <div class="demo-star" style="top: 75%; left: 70%; width: 2.5px; height: 2.5px;"></div> <!-- 右下1 -->
-        <div class="demo-star" style="top: 88%; left: 90%; width: 3.5px; height: 3.5px;"></div> <!-- 右下2 -->
+        <!-- 星空點點 -->
+        <div class="demo-star" style="top: 6%; left: 8%;  width: 3px; height: 3px;"></div>
+        <div class="demo-star" style="top: 12%; left: 16%; width: 2px; height: 2px;"></div>
+        <div class="demo-star" style="top: 18%; left: 10%; width: 4px; height: 4px;"></div>
+        <div class="demo-star" style="top: 10%; left: 85%; width: 3px; height: 3px;"></div>
+        <div class="demo-star" style="top: 75%; left: 70%; width: 2.5px; height: 2.5px;"></div>
+        <div class="demo-star" style="top: 88%; left: 90%; width: 3.5px; height: 3.5px;"></div>
       
       <div class="icon-wrapper">
         <svg class="inline-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
@@ -66,41 +77,57 @@
       <a href="/pages/about.html" class="btn btn-secondary mt-4" data-i18n="home.learnMore"></a>
     </section>    
 
-    <!-- Features Section (圖文版) -->
-<section class="features-section">
-  <div class="feature-block">
-    <img src="./img/feature-profile.png" alt="建立職涯檔案插圖" class="feature-image" />
-    <div class="feature-text">
-      <h3 data-i18n="home.features.buildProfileTitle"></h3>
-      <p data-i18n="home.features.buildProfileText"></p>
-    </div>
-  </div>
-  <div class="feature-block">
-    <img src="./img/feature-invite.png" alt="邀請真實推薦插圖" class="feature-image" />
-    <div class="feature-text">
-      <h3 data-i18n="home.features.inviteRecoTitle"></h3>
-      <p data-i18n="home.features.inviteRecoText"></p>
-    </div>
-  </div>
-  <div class="feature-block">
-    <img src="./img/feature-network.png" alt="建立信賴星圖插圖" class="feature-image" />
-    <div class="feature-text">
-      <h3 data-i18n="home.features.buildTrustTitle"></h3>
-      <p data-i18n="home.features.buildTrustText"></p>
-    </div>
-  </div>
-</section>
+    <!-- Features Section -->
+    <section class="features-section">
+      <div class="feature-block">
+        <img src="./img/feature-profile.png" alt="建立職涯檔案插圖" class="feature-image" />
+        <div class="feature-text">
+          <h3 data-i18n="home.features.buildProfileTitle"></h3>
+          <p data-i18n="home.features.buildProfileText"></p>
+        </div>
+      </div>
+      <div class="feature-block">
+        <img src="./img/feature-invite.png" alt="邀請真實推薦插圖" class="feature-image" />
+        <div class="feature-text">
+          <h3 data-i18n="home.features.inviteRecoTitle"></h3>
+          <p data-i18n="home.features.inviteRecoText"></p>
+        </div>
+      </div>
+      <div class="feature-block">
+        <img src="./img/feature-network.png" alt="建立信賴星圖插圖" class="feature-image" />
+        <div class="feature-text">
+          <h3 data-i18n="home.features.buildTrustTitle"></h3>
+          <p data-i18n="home.features.buildTrustText"></p>
+        </div>
+      </div>
+    </section>
 
     <!-- Final Call to Action -->
-  <section class="final-cta">
-    <p class="final-cta-hint" data-i18n="home.finalCtaHint"></p>
-    <a href="/pages/login.html" class="btn btn-primary" data-i18n="home.finalCta"></a>
-  </section>
+    <section class="final-cta">
+      <p class="final-cta-hint" data-i18n="home.finalCtaHint"></p>
+      <a href="/pages/login.html" class="btn btn-primary" data-i18n="home.finalCta"></a>
+    </section>
   </main>
 
-  <!-- 6) Header Script -->
+  <!-- 🔧 修正：腳本載入順序很重要 -->
+  <!-- 1. 先載入 Header 組件 -->
   <script type="module" src="./js/components/app-header.js"></script>
-  <!-- 加在 app-header.js 後面 -->
-<script type="module" src="./js/pages/index.js"></script>
+  <!-- 2. 再載入首頁邏輯 -->
+  <script type="module" src="./js/pages/index.js"></script>
+  
+  <!-- 🔧 新增：確保語言初始化完成的備用腳本 -->
+  <script>
+    // 確保語言系統正確初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 給一點時間讓模組載入完成
+      setTimeout(function() {
+        if (typeof window.setLang === 'function') {
+          const currentLang = localStorage.getItem('lang') || 'en';
+          console.log('🔧 備用語言初始化:', currentLang);
+          window.setLang(currentLang);
+        }
+      }, 50);
+    });
+  </script>
 </body>
 </html>

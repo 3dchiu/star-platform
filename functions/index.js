@@ -2593,32 +2593,19 @@ exports.calibrateDataHealth = functions.https.onCall(async (data, context) => {
  * 主函式：監聽 users 文件的更新，同步到 publicProfiles 集合。
  */
 exports.syncPublicProfileOnUpdate = onDocumentUpdated("users/{userId}", async (event) => {
-  const beforeData = event.data.before.data();
   const afterData = event.data.after.data();
   const userId = event.params.userId;
   const publicProfileRef = admin.firestore().collection("publicProfiles").doc(userId);
 
-  // --- 邏輯分支 ---
+  console.log(`[Public Sync] [強制公開模式] 偵測到用戶 ${userId} 資料更新，一律同步至公開 Profile。`);
 
-  // 1. 當使用者決定公開 Profile (或更新已公開的 Profile)
-  if (afterData.isPublicProfile === true) {
-    console.log(`[Public Sync] 👤 用戶 ${userId} 決定公開或更新 Profile，正在產生資料...`);
-    try {
-      const publicData = await generatePublicProfileData(userId, afterData);
-      await publicProfileRef.set(publicData, { merge: true }); // 使用 merge:true 避免覆蓋正在進行的更新
-      console.log(`[Public Sync] ✅ 已成功為 ${userId} 建立/更新公開 Profile。`);
-    } catch (error) {
-      console.error(`[Public Sync] ❌ 為 ${userId} 產生公開 Profile 時發生錯誤:`, error);
-    }
-    return;
-  }
-
-  // 2. 當使用者決定關閉 Profile (從公開變為私密)
-  if (beforeData.isPublicProfile === true && afterData.isPublicProfile === false) {
-    console.log(`[Public Sync] 🙈 用戶 ${userId} 決定關閉 Profile，正在刪除公開資料...`);
-    await publicProfileRef.delete();
-    console.log(`[Public Sync] ✅ 已成功刪除 ${userId} 的公開 Profile。`);
-    return;
+  try {
+    // ✨ 無論 isPublicProfile 為何，一律呼叫 generatePublicProfileData 產生最新資料
+    const publicData = await generatePublicProfileData(userId, afterData);
+    await publicProfileRef.set(publicData, { merge: true });
+    console.log(`[Public Sync] [強制公開模式] ✅ 已成功為 ${userId} 建立/更新公開 Profile。`);
+  } catch (error) {
+    console.error(`[Public Sync] [強制公開模式] ❌ 為 ${userId} 產生公開 Profile 時發生錯誤:`, error);
   }
 });
 
@@ -2647,8 +2634,12 @@ async function generatePublicProfileData(userId, userData) {
     isPublic: true,
     stats: {
       totalReceived: userData.recommendationStats?.totalReceived || 0,
+      exp: userData.recommendationStats?.exp || 0 // ✨【新增】從 recommendationStats 讀取 exp 欄位
     },
-    lastUpdated: FieldValue.serverTimestamp() // 確保頂部已 import { FieldValue }
+    settings: {
+      showLevelOnPublicProfile: true // ✨【新增】直接設定為 true，強制顯示等級徽章
+    },
+    lastUpdated: FieldValue.serverTimestamp()
   };
 
   // --- ▼▼▼ 【最終版關鍵字生成邏輯】 ▼▼▼ ---
@@ -2796,7 +2787,7 @@ exports.updateFeaturedUsers = onCall(
 
   try {
     const db = admin.firestore();
-    const MAX_HEROES = 5;
+    const MAX_HEROES = 3;
 
     // 1. 同時查詢 isFeatured 和 Top EXP 的用戶
     const featuredQuery = db.collection('users').where('isFeatured', '==', true).get();
@@ -2837,15 +2828,19 @@ exports.updateFeaturedUsers = onCall(
     const featuredUsersData = [];
     publicProfileSnaps.forEach(docSnap => {
       if (docSnap.exists) {
-        // ✨【核心修正 2】將 EXP 也加入到要儲存的資料中，雖然前端目前沒用到，但未來可能有用
         const publicData = docSnap.data();
         const correspondingUser = sortedUsers.find(u => u.id === publicData.userId);
+        
+        // ✨✨✨【這就是您要新增的程式碼】✨✨✨
+        // 檢查 headline 是否存在且不為空字串，如果不存在，就給一個預設的優雅文字。
+        const userHeadline = publicData.headline ? publicData.headline : "探索這位夥伴的專業旅程";
+
         featuredUsersData.push({
           userId: publicData.userId,
           name: publicData.name,
-          headline: publicData.headline,
+          headline: userHeadline, // ✅ 使用我們剛剛處理過的 userHeadline 變數
           photoURL: publicData.photoURL,
-          exp: correspondingUser?.exp || 0 
+          exp: correspondingUser?.exp || 0
         });
       }
     });

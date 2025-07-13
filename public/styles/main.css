@@ -113,11 +113,17 @@
    display: none !important;
  }
 
- .lang-menu {
-  display: none;
+ /* 語言切換器容器 */
+.lang-switcher {
+  position: relative;
+  display: inline-block;
+}
+
+/* 新的語言選單樣式 */
+.lang-menu {
   position: absolute;
-  top: 100%;         /* 從地球正下方開始 */
-  right: 0;          /* 往右對齊地球 */
+  top: 100%;
+  right: 0;
   margin-top: 8px;
   background: white;
   border: 1px solid var(--color-border);
@@ -125,26 +131,31 @@
   overflow: hidden;
   min-width: 120px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
- }
-
- .lang-menu.show {
-  display: block;
+  z-index: 10001; /* 提高層級 */
+  display: block; /* 預設顯示，用 hidden class 控制 */
 }
 
- .lang-menu .lang-option {
-   width: 100%;
-   padding: 8px 12px;
-   text-align: left;
-   background: white;
-   border: none;
-   font-size: 14px;
- }
+/* 使用 hidden class 控制顯示/隱藏 */
+.lang-menu.hidden {
+  display: none !important;
+}
 
- .lang-menu .lang-option:hover {
-   background-color: #f0f0f0;
- }
+/* 語言選項樣式 */
+.lang-menu .lang-option {
+  width: 100%;
+  padding: 8px 12px;
+  text-align: left;
+  background: white;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: #333;
+}
 
+.lang-menu .lang-option:hover {
+  background-color: #f0f0f0;
+}
 
  /* ==========================================================================
     5. Buttons
@@ -642,12 +653,28 @@ input, select, textarea {
    }
  }
  
-  .summary-container > header {
+
+/* 姓名與徽章的容器 */
+.profile-summary-header .name-line {
     display: flex;
-    align-items: center;       /* 垂直置中 */
-    justify-content: space-between; /* 左右兩端對齊 */
-    margin-bottom: 1.5rem;     /* 和下方內容的間距 */
-  }
+    align-items: center; /* 讓姓名和徽章垂直置中對齊 */
+    gap: 0.75rem;      /* 姓名和徽章之間的間距 */
+    flex-wrap: wrap;     /* 當空間不足時允許換行 */
+}
+
+/* 姓名本身的樣式 */
+.profile-summary-header #userName {
+    font-size: 1.75rem; /* 28px */
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* 個人標題 (Headline) 的樣式 */
+.profile-summary-header #profile-headline {
+    font-size: 1.125rem; /* 18px */
+    color: var(--gray-600, #6b7280);
+    margin-top: 0.5rem; /* 8px，與上方姓名的間距 */
+}
   /* ✅ 自適應的 Summary Header（使用者名稱 + 星星） */
   .summary-header {
     display: flex;
@@ -1894,4 +1921,17 @@ text-decoration: underline;
     /* ✅ 在窄螢幕時，改為只有一個欄位，卡片就會自動垂直堆疊 */
     grid-template-columns: 1fr; 
   }
+}
+
+/* 卡片標題，例如「關於我」 */
+.bio-card .card-title {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+    color: #111827;
+}
+
+/* 自我介紹內文 */
+.bio-card #profile-bio {
+    color: #374151;
+    line-height: 1.7; /* 增加行高，更易閱讀 */
 }

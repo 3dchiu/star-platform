@@ -1,7 +1,6 @@
-// js/pages/give-recommendation.js - 修復版本
-import { i18n } from "../i18n.js";
+// js/pages/give-recommendation.js - i18n 完整修正版本 (Firebase Compat)
 
-// 使用 compat 版本的 Firebase
+// 使用 compat 版本的 Firebase - 全域變數
 let db, auth;
 
 // 修改初始化邏輯，確保 Firebase 完全載入
@@ -71,8 +70,9 @@ async function initializeRecommendationPage() {
     auth = firebase.auth();
     console.log("✅ Firebase 服務初始化完成");
 
-    const lang = localStorage.getItem("lang") || "zh";
-    const t = i18n[lang]?.form || {}; // 假設 i18n 中有 form 物件
+    // 使用全域的翻譯函數
+    const lang = window.getCurrentLang();
+    console.log("🌍 當前語言:", lang);
     
     const urlParams = new URLSearchParams(window.location.search);
     const inviteId = urlParams.get("inviteId");
@@ -93,7 +93,7 @@ async function initializeRecommendationPage() {
     // 【核心邏輯】所有情境都從 inviteId 開始
     const inviteData = await loadInviteData(inviteId);
     if (!inviteData) {
-      showError(t.inviteNotFound || "邀請資料不存在或已失效。");
+      showError(window.t("recommendForm.inviteNotFound"));
       return;
     }
 
@@ -115,16 +115,16 @@ async function initializeRecommendationPage() {
     
     console.log("✅ 推薦資料載入成功:", inviteData);
     
-    setupPageContent(inviteData, t);
-    setupFormOptions(t);
-    setupFormSubmission(inviteData, t, user);
+    setupPageContent(inviteData);
+    setupFormOptions();
+    setupFormSubmission(inviteData, user);
 
     hideLoading();
     console.log("✅ 頁面初始化完成");
 
   } catch (error) {
     console.error("❌ 初始化失敗:", error);
-    showError("頁面載入失敗：" + error.message);
+    showError(window.t("common.loadingError") + ": " + error.message);
     hideLoading();
   }
 }
@@ -269,11 +269,11 @@ function prefillReplyForm(inviteData) {
     const emailLabel = document.querySelector('label[for="email"]');
     
     if (nameLabel) {
-      nameLabel.innerHTML += ' <span style="color: #28a745;">✓ 已自動填入</span>';
+      nameLabel.innerHTML += ' <span style="color: #28a745;">' + window.t("recommendForm.autofilled") + '</span>';
     }
     
     if (emailLabel) {
-      emailLabel.innerHTML += ' <span style="color: #28a745;">✓ 已自動填入</span>';
+      emailLabel.innerHTML += ' <span style="color: #28a745;">' + window.t("recommendForm.autofilled") + '</span>';
     }
     
   }).catch(error => {
@@ -321,9 +321,6 @@ function waitForAuth() {
     });
   });
 }
-
-// 其餘函數保持不變...
-// [載入邀請資料、創建直接邀請資料等函數保持原樣]
 
 // 載入邀請資料
 async function loadInviteData(inviteId) {
@@ -398,8 +395,7 @@ async function createDirectInviteData(user, jobId) {
 }
 
 // 設定頁面內容
-// 🆕 修改 setupPageContent 函數
-function setupPageContent(inviteData, t) {
+function setupPageContent(inviteData) {
   console.log("🎨 設定頁面內容");
   console.log("📋 邀請資料:", inviteData);
   
@@ -416,22 +412,22 @@ function setupPageContent(inviteData, t) {
   if (formTitle) {
     if (isReplyMode) {
       // 回推薦模式使用「推薦合作夥伴」標題
-      formTitle.textContent = "推薦合作夥伴";
+      formTitle.textContent = window.t("recommendForm.recommendPartnerTitle");
     } else if (isGivingRecommendation) {
-      formTitle.textContent = t.recommendPartnerTitle || "推薦合作夥伴";
+      formTitle.textContent = window.t("recommendForm.recommendPartnerTitle");
     } else {
-      formTitle.textContent = t.formTitle || "推薦表單";
+      formTitle.textContent = window.t("recommendForm.formTitle");
     }
   }
   
   if (recommendNote) {
     if (isReplyMode) {
       // 回推薦模式的特殊說明
-      recommendNote.textContent = "感謝對方為你寫推薦，現在為此工作期間合作的夥伴寫下推薦";
+      recommendNote.textContent = window.t("recommendForm.replyRecommendNote");
     } else if (isGivingRecommendation) {
-      recommendNote.textContent = t.recommendPartnerNote || "為你在此工作期間合作的夥伴寫下推薦";
+      recommendNote.textContent = window.t("recommendForm.recommendPartnerNote");
     } else {
-      recommendNote.textContent = t.recommendNote || "請填寫推薦內容";
+      recommendNote.textContent = window.t("recommendForm.recommendingTo");
     }
   }
 
@@ -445,67 +441,67 @@ function setupPageContent(inviteData, t) {
   
   // 設定工作背景資訊
   const jobInfo = document.getElementById("jobInfo");
-if (jobInfo) {
-  let titleText = "工作背景";
-  if (isReplyMode) {
-    titleText = "回推薦背景";
-  }
-  
-  // 🔧 修正：使用真實的工作資料，移除寫死的預設值
-  const company = inviteData.company || "公司名稱";
-  const position = inviteData.position || "職位";
-  const recommenderName = inviteData.recommenderName || "推薦人";
-  
-  // 🆕 格式化工作期間
-  let workPeriod = "";
-  if (inviteData.startDate) {
-    workPeriod = inviteData.startDate;
-    if (inviteData.endDate) {
-      workPeriod += " ～ " + inviteData.endDate;
-    } else {
-      workPeriod += " ～ 目前在職";
+  if (jobInfo) {
+    let titleText = window.t("recommendForm.workBackground");
+    if (isReplyMode) {
+      titleText = window.t("recommendForm.replyBackground");
     }
+    
+    // 🔧 修正：使用真實的工作資料，移除寫死的預設值
+    const company = inviteData.company || window.t("common.company");
+    const position = inviteData.position || window.t("common.position");
+    const recommenderName = inviteData.recommenderName || window.t("recommendForm.recommenderName");
+    
+    // 🆕 格式化工作期間
+    let workPeriod = "";
+    if (inviteData.startDate) {
+      workPeriod = inviteData.startDate;
+      if (inviteData.endDate) {
+        workPeriod += " ～ " + inviteData.endDate;
+      } else {
+        workPeriod += " ～ " + window.t("recommendSummary.present");
+      }
+    }
+    
+    jobInfo.innerHTML = [
+      "<h3>" + titleText + "</h3>",
+      "<div class=\"job-details\">",
+      "<p><strong>" + window.t("common.company") + ":</strong> " + company + "</p>",
+      "<p><strong>" + window.t("common.position") + ":</strong> " + position + "</p>",
+      workPeriod ? "<p><strong>" + window.t("profileDashboard.period") + ":</strong> " + workPeriod + "</p>" : "",
+      "<p><strong>" + window.t("recommendForm.recommenderName") + ":</strong> " + recommenderName + "</p>",
+      inviteData.jobDescription ? "<p><strong>" + window.t("profileDashboard.descriptionOptional") + ":</strong> " + inviteData.jobDescription + "</p>" : "",
+      "</div>"
+    ].join("");
+    
+    console.log("✅ 工作背景資訊已更新:", {
+      company: company,
+      position: position,
+      recommenderName: recommenderName,
+      workPeriod: workPeriod
+    });
   }
-  
-  jobInfo.innerHTML = [
-    "<h3>" + titleText + "</h3>",
-    "<div class=\"job-details\">",
-    "<p><strong>公司:</strong> " + company + "</p>",
-    "<p><strong>職位:</strong> " + position + "</p>",
-    workPeriod ? "<p><strong>任職期間:</strong> " + workPeriod + "</p>" : "",
-    "<p><strong>推薦人:</strong> " + recommenderName + "</p>",
-    inviteData.jobDescription ? "<p><strong>工作描述:</strong> " + inviteData.jobDescription + "</p>" : "",
-    "</div>"
-  ].join("");
-  
-  console.log("✅ 工作背景資訊已更新:", {
-    company: company,
-    position: position,
-    recommenderName: recommenderName,
-    workPeriod: workPeriod
-  });
-}
   
   // 更新表單標籤 - 回推薦模式強制使用「被推薦人」標籤
-  updateFormLabels(t, isReplyMode || isGivingRecommendation, isReplyMode);
+  updateFormLabels(isReplyMode || isGivingRecommendation, isReplyMode);
   
   // 設定提醒
   const finalReminder = document.getElementById("finalReminder");
   if (finalReminder) {
     if (isGivingRecommendation) {
       finalReminder.innerHTML = [
-        "<p><strong>" + (t.importantNote || "重要提醒") + ":</strong></p>",
-        "<p>" + (t.giveRecommendationReminder || "請確保推薦內容真實且基於實際合作經驗。被推薦人將收到 Email 通知，邀請他們註冊查看你的推薦。") + "</p>",
+        "<p><strong>" + window.t("recommendForm.importantNotice") + ":</strong></p>",
+        "<p>" + window.t("recommendForm.giveRecommendationReminder") + "</p>",
         "<p style=\"color: #666; font-size: 0.9em; margin-top: 15px; font-weight: 500;\">",
-        "<strong>" + (t.brandSlogan || "Galaxyz｜讓每個人因真實與信任被看見。") + "</strong>",
+        "<strong>" + window.t("recommendForm.brandSlogan") + "</strong>",
         "</p>"
       ].join("");
     } else {
       finalReminder.innerHTML = [
-        "<p><strong>" + (t.importantNote || "重要提醒") + ":</strong></p>",
-        "<p>" + (t.recommendationReminder || "請確保推薦內容真實且基於實際工作經驗。") + "</p>",
+        "<p><strong>" + window.t("recommendForm.importantNotice") + ":</strong></p>",
+        "<p>" + window.t("recommendForm.confirmationNotice") + "</p>",
         "<p style=\"color: #666; font-size: 0.9em; margin-top: 15px; font-weight: 500;\">",
-        "<strong>" + (t.brandSlogan || "Galaxyz｜讓每個人因真實與信任被看見。") + "</strong>",
+        "<strong>" + window.t("recommendForm.brandSlogan") + "</strong>",
         "</p>"
       ].join("");
     }
@@ -513,24 +509,24 @@ if (jobInfo) {
 }
 
 // 🆕 修改表單標籤更新邏輯
-function updateFormLabels(t, isGivingRecommendation, isReplyMode = false) {
+function updateFormLabels(isGivingRecommendation, isReplyMode = false) {
   console.log("🏷️ 更新表單標籤，推薦他人模式:", isGivingRecommendation, "回推薦模式:", isReplyMode);
   
   // 🎯 回推薦模式和推薦他人模式都使用「被推薦人」標籤
   if (isReplyMode || isGivingRecommendation) {
     const elements = [
-      { id: "labelName", text: "被推薦人姓名" },
-      { id: "labelEmail", text: "被推薦人 Email" }
+      { id: "labelName", text: window.t("recommendForm.recommendeeName") },
+      { id: "labelEmail", text: window.t("recommendForm.recommendeeEmail") }
     ];
     
     let nameHintText, emailHintText;
     
     if (isReplyMode) {
-      nameHintText = "填寫要回推薦的同事姓名";
-      emailHintText = "系統將通知對方查看你的推薦";
+      nameHintText = window.t("recommendForm.hintReplyName");
+      emailHintText = window.t("recommendForm.hintReplyEmail");
     } else {
-      nameHintText = "請填寫被推薦人的真實姓名";
-      emailHintText = "系統將發送通知邀請對方註冊";
+      nameHintText = window.t("recommendForm.hintRecommendeeName");
+      emailHintText = window.t("recommendForm.hintRecommendeeEmail");
     }
     
     elements.forEach(function(item) {
@@ -542,8 +538,8 @@ function updateFormLabels(t, isGivingRecommendation, isReplyMode = false) {
     });
     
     // 更新提示文字
-    const nameHint = document.querySelector('small[data-i18n="hintName"]');
-    const emailHint = document.querySelector('small[data-i18n="hintEmail"]');
+    const nameHint = document.querySelector('small[data-i18n="recommendForm.hintName"]');
+    const emailHint = document.querySelector('small[data-i18n="recommendForm.hintEmail"]');
     
     if (nameHint) {
       nameHint.textContent = nameHintText;
@@ -555,8 +551,8 @@ function updateFormLabels(t, isGivingRecommendation, isReplyMode = false) {
   } else {
     // 邀請推薦模式使用「您的」標籤
     const elements = [
-      { id: "labelName", text: t.yourName || "您的姓名" },
-      { id: "labelEmail", text: t.yourEmail || "您的 Email" }
+      { id: "labelName", text: window.t("recommendForm.name") },
+      { id: "labelEmail", text: window.t("recommendForm.email") }
     ];
     
     elements.forEach(function(item) {
@@ -569,23 +565,24 @@ function updateFormLabels(t, isGivingRecommendation, isReplyMode = false) {
 }
 
 // 設定表單選項
-function setupFormOptions(t) {
+function setupFormOptions() {
   console.log("⚙️ 設定表單選項");
   
   // 關係選項
   const relationSelect = document.getElementById("relation");
   if (relationSelect) {
-    const relationOptions = t.relationOptions || [
-      { value: "directManager", label: "我是他/她的直接主管" },
-      { value: "crossDeptManager", label: "我是他/她的跨部門主管" },
-      { value: "sameDeptColleague", label: "我是他/她的同部門同事" },
-      { value: "crossDeptColleague", label: "我是他/她的跨部門同事" },
-      { value: "subordinate", label: "他/她是我的下屬" },
-      { value: "client", label: "我是他/她的客戶" },
-      { value: "vendor", label: "我是他/她的廠商/合作夥伴" }
+    // 使用 relationLabels 物件訪問翻譯
+    const relationOptions = [
+      { value: "directManager", label: window.t("recommendForm.relationLabels.directManager") },
+      { value: "crossDeptManager", label: window.t("recommendForm.relationLabels.crossDeptManager") },
+      { value: "sameDeptColleague", label: window.t("recommendForm.relationLabels.sameDeptColleague") },
+      { value: "crossDeptColleague", label: window.t("recommendForm.relationLabels.crossDeptColleague") },
+      { value: "subordinate", label: window.t("recommendForm.relationLabels.subordinate") },
+      { value: "client", label: window.t("recommendForm.relationLabels.client") },
+      { value: "vendor", label: window.t("recommendForm.relationLabels.vendor") }
     ];
     
-    relationSelect.innerHTML = "<option value=\"\">" + (t.selectRelation || "請選擇關係") + "</option>";
+    relationSelect.innerHTML = "<option value=\"\">" + window.t("recommendForm.selectRelation") + "</option>";
     
     relationOptions.forEach(function(option) {
       const optionElement = document.createElement("option");
@@ -597,47 +594,16 @@ function setupFormOptions(t) {
     console.log("✅ 關係選項設定完成，共", relationOptions.length, "個選項");
   }
   
-  // 亮點選項 - 支援多語系
+  // 亮點選項
   const highlightsContainer = document.getElementById("highlightsContainer");
   if (highlightsContainer) {
-    // 預設選項（作為備用）
-    const defaultHighlightOptions = {
-      zh: [
-        { value: "hardSkill", label: "硬實力" },
-        { value: "softSkill", label: "軟實力" },
-        { value: "character", label: "人品" }
-      ],
-      en: [
-        { value: "hardSkill", label: "Hard Skills" },
-        { value: "softSkill", label: "Soft Skills" },
-        { value: "character", label: "Character" }
-      ]
-    };
+    const highlightOptions = [
+      { value: "hardSkill", label: window.t("recommendForm.highlightOptionLabels.hardSkill") },
+      { value: "softSkill", label: window.t("recommendForm.highlightOptionLabels.softSkill") },
+      { value: "character", label: window.t("recommendForm.highlightOptionLabels.character") }
+    ];
     
-    // 獲取當前語言
-    const currentLang = localStorage.getItem("lang") || "zh";
-    console.log("🌐 當前語言:", currentLang);
-    
-    let highlightOptions;
-    
-    // 優先使用 i18n 的選項
-    if (t.highlightOptions && Array.isArray(t.highlightOptions) && t.highlightOptions.length > 0) {
-      // 檢查 i18n 選項格式是否正確
-      if (t.highlightOptions[0] && typeof t.highlightOptions[0] === 'object' && 
-          t.highlightOptions[0].value && t.highlightOptions[0].label) {
-        highlightOptions = t.highlightOptions;
-        console.log("📝 使用 i18n 亮點選項");
-      } else {
-        console.log("⚠️ i18n 亮點選項格式不正確，使用預設選項");
-        highlightOptions = defaultHighlightOptions[currentLang] || defaultHighlightOptions.zh;
-      }
-    } else {
-      // 使用預設選項
-      console.log("📝 i18n 中無亮點選項，使用預設選項");
-      highlightOptions = defaultHighlightOptions[currentLang] || defaultHighlightOptions.zh;
-    }
-    
-    console.log("🎯 最終使用的亮點選項:", highlightOptions);
+    console.log("🎯 使用的亮點選項:", highlightOptions);
     
     let htmlContent = "";
     highlightOptions.forEach(function(option, index) {
@@ -664,7 +630,7 @@ function setupFormOptions(t) {
 }
 
 // 設定表單提交
-function setupFormSubmission(inviteData, t, user) {
+function setupFormSubmission(inviteData, user) {
   console.log("📝 設定表單提交");
   
   const form = document.getElementById("recommendForm");
@@ -675,7 +641,7 @@ function setupFormSubmission(inviteData, t, user) {
     return;
   }
   
-  submitBtn.textContent = t.submitRecommendation || "送出推薦";
+  submitBtn.textContent = window.t("recommendForm.submitRecommendation");
   
   form.addEventListener("submit", async function(e) {
     e.preventDefault();
@@ -689,31 +655,31 @@ function setupFormSubmission(inviteData, t, user) {
     
     try {
       submitBtn.disabled = true;
-      submitBtn.textContent = t.submitting || "送出中...";
+      submitBtn.textContent = window.t("common.submitting");
       
       // 收集表單資料
       const formData = getFormData();
       console.log("📋 表單資料:", formData);
       
       // 驗證資料
-      if (!validateData(formData, t)) {
+      if (!validateData(formData)) {
         console.log("❌ 資料驗證失敗");
         return;
       }
       
       // 儲存推薦
-      await saveRecommendation(inviteData, formData, t);
+      await saveRecommendation(inviteData, formData);
       
       // 顯示成功
-      showSuccess(t);
+      showSuccess();
       
     } catch (error) {
       console.error("❌ 提交失敗:", error);
-      showError(t.submitError || "推薦提交失敗，請稍後再試");
+      showError(window.t("recommendForm.submitError"));
       
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = t.submitRecommendation || "送出推薦";
+      submitBtn.textContent = window.t("recommendForm.submitRecommendation");
     }
   });
   
@@ -745,12 +711,12 @@ function getFormData() {
 }
 
 // 驗證資料
-function validateData(data, t) {
+function validateData(data) {
   const checks = [
-    { field: data.name, message: t.errorMissingName || "請填寫被推薦人姓名" },
-    { field: data.email, message: t.errorMissingEmail || "請填寫被推薦人 Email" },
-    { field: data.relation, message: t.errorMissingRelation || "請選擇關係" },
-    { field: data.content, message: t.errorMissingContent || "請填寫推薦內容" }
+    { field: data.name, message: window.t("recommendForm.errorMissingName") },
+    { field: data.email, message: window.t("recommendForm.errorMissingEmail") },
+    { field: data.relation, message: window.t("recommendForm.errorMissingRelation") },
+    { field: data.content, message: window.t("recommendForm.errorMissingContent") }
   ];
   
   for (let i = 0; i < checks.length; i++) {
@@ -763,13 +729,13 @@ function validateData(data, t) {
   // Email 格式檢查
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailPattern.test(data.email)) {
-    showError(t.errorInvalidEmail || "請填寫有效的 Email 地址");
+    showError(window.t("recommendForm.errorInvalidEmail"));
     return false;
   }
   
   // 亮點檢查
   if (data.highlights.length === 0) {
-    showError(t.errorMissingHighlight || "請選擇亮點");
+    showError(window.t("recommendForm.errorMissingHighlight"));
     return false;
   }
   
@@ -777,9 +743,7 @@ function validateData(data, t) {
 }
 
 // 儲存推薦
-// js/pages/give-recommendation.js
-
-async function saveRecommendation(inviteData, formData, t) {
+async function saveRecommendation(inviteData, formData) {
   console.log("💾 儲存推薦資料");
   console.log("  -> 是否為回覆模式:", inviteData.isReplyMode);
 
@@ -850,7 +814,7 @@ async function saveRecommendation(inviteData, formData, t) {
 }
 
 // 修改 showSuccess 函數
-function showSuccess(t) {
+function showSuccess() {
   console.log("🎉 顯示成功訊息");
 
   const container = document.getElementById("formContainer");
@@ -858,32 +822,30 @@ function showSuccess(t) {
     container.style.display = "none";
   }
 
-  const formT = t.form || {}; // 從 form 物件中取值
-
   const html = [
     `<div class="container" style="text-align: center; padding: 2rem;">`,
     `<div style="background: #f8f9fa; border-radius: 8px; padding: 2rem; max-width: 600px; margin: 0 auto;">`,
-    `<h1 style="color: #28a745; margin-bottom: 1.5rem;">✅ ${formT.recommendationSentTitle || "推薦已送出！"}</h1>`,
+    `<h1 style="color: #28a745; margin-bottom: 1.5rem;">✅ ${window.t("recommendForm.recommendationSentTitle")}</h1>`,
 
     // 重要說明區塊
     `<div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 6px; padding: 1.5rem; margin: 1.5rem 0; text-align: left;">`,
-    `<h3 style="color: #0066cc; margin: 0 0 1rem 0; font-size: 1.1rem;">${formT.successImportantNote || "重要說明："}</h3>`,
-    `<p style="margin: 0 0 1rem 0; line-height: 1.5;">${formT.successNote1 || "推薦將在對方註冊並核實身份後，正式納入你的推薦記錄。"}</p>`,
-    `<h3 style="color: #0066cc; margin: 1rem 0 1rem 0; font-size: 1.1rem;">${formT.successProTip || "💡 小提醒："}</h3>`,
-    `<p style="margin: 0 0 1rem 0; line-height: 1.5;">${formT.successNote2 || "你可以主動傳訊息提醒對方查收 Email，以確保推薦能順利送達！"}</p>`,
-    `<p style="margin: 1rem 0 0 0; line-height: 1.5;">${formT.successNote3 || "感謝你花時間為合作夥伴寫推薦，讓優秀的人才被看見。"}</p>`,
+    `<h3 style="color: #0066cc; margin: 0 0 1rem 0; font-size: 1.1rem;">${window.t("recommendForm.successImportantNote")}</h3>`,
+    `<p style="margin: 0 0 1rem 0; line-height: 1.5;">${window.t("recommendForm.successNote1")}</p>`,
+    `<h3 style="color: #0066cc; margin: 1rem 0 1rem 0; font-size: 1.1rem;">${window.t("recommendForm.successProTip")}</h3>`,
+    `<p style="margin: 0 0 1rem 0; line-height: 1.5;">${window.t("recommendForm.successNote2")}</p>`,
+    `<p style="margin: 1rem 0 0 0; line-height: 1.5;">${window.t("recommendForm.successNote3")}</p>`,
     `</div>`,
 
     // 按鈕區域
     `<div style="margin-top: 2rem;">`,
     `<button onclick="location.reload()" class="btn btn-success" style="margin-right: 1rem; padding: 0.75rem 1.5rem;">`,
-    `${formT.successRecommendAnother || "推薦其他人"}`,
+    `${window.t("recommendForm.successRecommendAnother")}`,
     `</button>`,
     `<button onclick="window.location.href='/pages/profile-dashboard.html'" class="btn btn-primary" style="margin-right: 1rem; padding: 0.75rem 1.5rem;">`,
-    `${formT.successBackToDashboard || "返回儀表板"}`,
+    `${window.t("common.backToDashboard")}`,
     `</button>`,
     `<button onclick="window.close()" class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">`,
-    `${formT.successCloseWindow || "關閉視窗"}`,
+    `${window.t("common.closeWindow")}`,
     `</button>`,
     `</div>`,
     `</div>`,
@@ -892,6 +854,7 @@ function showSuccess(t) {
 
   document.body.innerHTML = html;
 }
+
 // 顯示錯誤
 function showError(message) {
   console.error("❌ 錯誤:", message);
@@ -925,6 +888,7 @@ function hideLoading() {
   
   console.log("👁️ 載入畫面已隱藏，表單已顯示");
 }
+
 // 🆕 調試函數
 function debugReplyMode() {
   console.log("🔍 回推薦模式調試資訊:");
@@ -943,6 +907,7 @@ function debugReplyMode() {
   console.log("- formTitle:", document.getElementById("formTitle"));
   console.log("- recommendNote:", document.getElementById("recommendNote"));
 }
+
 // 🆕 調試函數：檢查工作資料載入狀態
 function debugJobInfo(inviteData) {
   console.log("🔍 === 工作資料調試 ===");

@@ -1,92 +1,213 @@
 /* ==========================================================================
-   等級與成就系統樣式 (level.css) - V5 最終版
-   ========================================================================== */
+  等級與成就系統樣式 (level.css) - V6 優化版
+  ========================================================================== */
 
 /* --- 2. 儀表板等級狀態卡片 --- */
 #userLevelInfo {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem; 
+ display: flex;
+ align-items: center;
+ gap: 1rem;
+ padding: 1.5rem; 
 }
 
 /* 儀表板專用的「星星徽章」*/
 /* ✨ 使用 ID 選擇器提高權重，確保樣式生效 */
 #userLevelInfo .level-badge-dashboard {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
-  margin-right: 1rem;
+ position: relative;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ width: 80px;
+ height: 80px;
+ flex-shrink: 0;
+ margin-right: 1rem;
 }
 
 #userLevelInfo .level-badge-dashboard .star-icon {
-  font-size: 100px;
-  line-height: 1;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+ font-size: 100px;
+ line-height: 1;
+ text-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 #userLevelInfo .level-badge-dashboard .level-number {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 14px;
-  font-weight: 700;
-  color: white;
-  text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+ position: absolute;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ font-size: 14px;
+ font-weight: 700;
+ color: white;
+ text-shadow: 0 1px 1px rgba(0,0,0,0.5);
 }
 
 /* ... 右側詳細資訊、進度條等樣式 ... */
-.level-details { display: flex; flex-direction: column; width: 100%; }
-.level-name { font-weight: 600; font-size: 1.1rem; color: #343a40; }
-.progress-bar { width: 100%; height: 8px; background-color: #e9ecef; border-radius: 8px; overflow: hidden; margin-top: 4px; }
-.progress-bar-fill { height: 100%; background-color: #0d6efd; border-radius: 8px; transition: width 0.5s ease-in-out; }
-.exp-text { display: flex; justify-content: space-between; font-size: 0.75rem; color: #6c757d; margin-top: 2px; }
+.level-details { 
+ display: flex; 
+ flex-direction: column; 
+ width: 100%; 
+}
 
+.level-name { 
+ font-weight: 600; 
+ font-size: 1.1rem; 
+ color: #343a40; 
+}
+
+.progress-bar { 
+ width: 100%; 
+ height: 8px; 
+ background-color: #e9ecef; 
+ border-radius: 8px; 
+ overflow: hidden; 
+ margin-top: 4px; 
+}
+
+.progress-bar-fill { 
+ height: 100%; 
+ background-color: #0d6efd; 
+ border-radius: 8px; 
+ transition: width 0.5s ease-in-out; 
+}
+
+.exp-text { 
+ display: flex; 
+ justify-content: space-between; 
+ font-size: 0.75rem; 
+ color: #6c757d; 
+ margin-top: 2px; 
+}
 
 /* --- 3. 公開頁榮譽徽章樣式 --- */
 .public-level-badge {
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 16px;
-  color: white;
-  white-space: nowrap;
+ font-size: 0.8rem;
+ font-weight: 600;
+ padding: 4px 10px;
+ border-radius: 16px;
+ white-space: nowrap;
 }
 
-
 /* --- 4. 通用等級顏色主題 --- */
-.level-gray .star-icon, .public-level-badge.level-gray { color: #adb5bd; background-color: #adb5bd; }
-.level-briefcase .star-icon, .public-level-badge.level-briefcase { color: #6c757d; background-color: #6c757d; }
-.level-handshake .star-icon, .public-level-badge.level-handshake { color: #198754; background-color: #198754; }
-.level-rocket .star-icon, .public-level-badge.level-rocket { color: #0d6efd; background-color: #0d6efd; }
-.level-gold .star-icon, .public-level-badge.level-gold { color: #ffc107; background-color: #ffc107; }
-.level-sun .star-icon, .public-level-badge.level-sun { color: #fd7e14; background-color: #fd7e14; }
-.level-globe .star-icon, .public-level-badge.level-globe { color: #0dcaf0; background-color: #0dcaf0; }
 
-/* 針對漸層色的特殊處理 */
-.level-trophy .star-icon, .public-level-badge.level-trophy { background: linear-gradient(45deg, #f7d02c, #f9a62c); }
-.level-diamond .star-icon, .public-level-badge.level-diamond { background: linear-gradient(45deg, #4de5ff, #0d8bfd); }
-.level-legendary .star-icon, .public-level-badge.level-legendary { background: linear-gradient(45deg, #d4af37, #f7d02c, #b8860b); }
+/* 淺色/亮色背景 → 深色字體 */
+.level-gray .star-icon, 
+.public-level-badge.level-gray { 
+ background-color: #adb5bd; 
+}
+.level-gray .star-icon {
+ color: #adb5bd;
+}
+.public-level-badge.level-gray { 
+ color: #2c3e50; 
+}
+
+.level-gold .star-icon, 
+.public-level-badge.level-gold { 
+ background-color: #ffc107; 
+}
+.level-gold .star-icon {
+ color: #ffc107;
+}
+.public-level-badge.level-gold { 
+ color: #2c3e50; 
+}
+
+.level-sun .star-icon, 
+.public-level-badge.level-sun { 
+ background-color: #fd7e14; 
+}
+.level-sun .star-icon {
+ color: #fd7e14;
+}
+.public-level-badge.level-sun { 
+ color: #2c3e50; 
+}
+
+.level-globe .star-icon, 
+.public-level-badge.level-globe { 
+ background-color: #0dcaf0; 
+}
+.level-globe .star-icon {
+ color: #0dcaf0;
+}
+.public-level-badge.level-globe { 
+ color: #2c3e50; 
+}
+
+/* 深色背景 → 白色字體 */
+.level-briefcase .star-icon, 
+.public-level-badge.level-briefcase { 
+ background-color: #6c757d; 
+}
+.level-briefcase .star-icon {
+ color: #6c757d;
+}
+.public-level-badge.level-briefcase { 
+ color: white; 
+}
+
+.level-handshake .star-icon, 
+.public-level-badge.level-handshake { 
+ background-color: #198754; 
+}
+.level-handshake .star-icon {
+ color: #198754;
+}
+.public-level-badge.level-handshake { 
+ color: white; 
+}
+
+.level-rocket .star-icon, 
+.public-level-badge.level-rocket { 
+ background-color: #0d6efd; 
+}
+.level-rocket .star-icon {
+ color: #0d6efd;
+}
+.public-level-badge.level-rocket { 
+ color: white; 
+}
+
+/* 漸層背景的特殊處理 */
+.level-trophy .star-icon, 
+.public-level-badge.level-trophy { 
+ background: linear-gradient(45deg, #f7d02c, #f9a62c); 
+}
+.public-level-badge.level-trophy { 
+ color: #2c3e50; 
+}
+
+.level-diamond .star-icon, 
+.public-level-badge.level-diamond { 
+ background: linear-gradient(45deg, #4de5ff, #0d8bfd); 
+}
+.public-level-badge.level-diamond { 
+ color: white; 
+}
+
+.level-legendary .star-icon, 
+.public-level-badge.level-legendary { 
+ background: linear-gradient(45deg, #d4af37, #f7d02c, #b8860b); 
+}
+.public-level-badge.level-legendary { 
+ color: #2c3e50; 
+}
 
 /* ✨ 修正漸層色星星的顏色顯示 */
 .level-trophy .star-icon,
 .level-diamond .star-icon,
 .level-legendary .star-icon {
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ background-clip: text;
+ color: transparent;
 }
 
-/* 修正亮色背景下，數字的顏色 */
+/* 修正亮色背景下，星星數字的顏色 */
 #userLevelInfo .level-gold .level-number,
+#userLevelInfo .level-sun .level-number,
+#userLevelInfo .level-globe .level-number,
 #userLevelInfo .level-legendary .level-number,
 #userLevelInfo .level-trophy .level-number {
-  color: #4b3803;
-  text-shadow: none;
+ color: #2c3e50;
+ text-shadow: none;
 }

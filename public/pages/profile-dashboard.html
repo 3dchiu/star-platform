@@ -6,45 +6,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="profileTitle">My Career Profile</title>
 
-  <!-- 全站 CSS（在 public../styles/main.css） -->
   <link rel="stylesheet" href="../styles/main.css" />
   <link rel="stylesheet" href="../styles/level.css" />
-  <!-- 🔥 Firebase compat SDK - 嘗試不同版本 -->
- 
+  
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
   
-  <!-- 如果上面都不行，試試選項 3: Firebase 10.11.0 -->
-  <!--
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-compat-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-compat-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-compat-auth.js"></script>
-  -->
-  
-  <!-- 🔥 Firebase 初始化腳本 -->
   <script src="../js/firebase-init.js"></script>
   
-  <!-- 🌐 多語系檔案載入 -->
   <script type="module" src="../js/i18n.js"></script>
-
-  <!-- 🌐 多語系設定：一進入頁面就根據 localStorage 套用語言 -->
   <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const lang = localStorage.getItem("lang") || "zh-Hant";
-    if (window.setLang) window.setLang(lang);
-  });
-</script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const lang = localStorage.getItem("lang") || "zh-Hant";
+      if (window.setLang) window.setLang(lang);
+    });
+  </script>
 
-  <!-- 公共 header -->
   <script type="module" src="../js/components/app-header.js"></script>
 
-  <!-- 這才是 Profile Dashboard 的邏輯 -->
   <script type="module" src="../js/pages/profile-dashboard.js"></script>
 </head>
 <body>
-  <!-- 🕒 資料載入中遮罩，等 profile 資料讀取完才會隱藏 -->
   <div id="dashboardLoading" class="loading-overlay">
     <div style="display:flex; align-items:center; justify-content:center;">
       <div class="spinner"></div>
@@ -55,268 +39,197 @@
   <div id="appHeader"></div>
 
   <main class="container">
-      <!-- ✅ 引導使用者第一次建立職涯資料的 Onboarding 卡片 -->
-      <!-- Onboarding 小卡 Start -->
-  <section id="quickStartCard" class="white-card soft-shadow p-6 mb-6 onboarding-card" style="display: none;">
-    <h2 id="onboardingTitle" class="text-xl font-semibold mb-4"></h2>
-    <ol id="onboardingSteps" class="list-decimal list-inside mb-4"></ol>
-  </section>
-      <!-- Onboarding 小卡 End -->
-  <div class="profile-top-row">
-        
-        <section id="basicInfo" class="white-card soft-shadow p-6"></section>
-        
-        <section id="userLevelInfo" class="level-container white-card soft-shadow p-6"></section>
+    <section id="quickStartCard" class="white-card soft-shadow p-6 mb-6 onboarding-card" style="display: none;">
+      <h2 id="onboardingTitle" class="text-xl font-semibold mb-4"></h2>
+      <ol id="onboardingSteps" class="list-decimal list-inside mb-4"></ol>
+    </section>
 
-      </div>
-      <section id="bioSection" class="white-card soft-shadow p-6 mb-6">
-        <h3 class="text-lg font-semibold mb-2" data-i18n="editBio"></h3>
-        <p id="bioText" class="mb-4 text-gray-600"></p>
-        <button id="editBioBtn" class="btn btn-secondary" data-i18n="editBio"></button>
-      </section>
+    <div class="profile-top-row">
+      <section id="basicInfo" class="white-card soft-shadow p-6"></section>
+      <section id="userLevelInfo" class="level-container white-card soft-shadow p-6"></section>
+    </div>
 
-    <!-- Work Experiences -->
-    <h2 class="mt-8 mb-4 text-xl font-semibold brand-blue-text" data-i18n="workExperiences">
-      Work Experiences
-    </h2>
-    <!-- 📤 使用者每段工作經歷卡片會插入在這裡（由 JS 動態產生） -->
+    <section id="bioSection" class="white-card soft-shadow p-6 mb-6">
+      <h3 class="text-lg font-semibold mb-2" data-i18n="bio"></h3>
+      <p id="bioText" class="text-gray-700 whitespace-pre-wrap"></p>
+    </section>
+
+    <h2 class="mt-8 mb-4 text-xl font-semibold brand-blue-text" data-i18n="workExperiences"></h2>
     <div id="experienceList"></div>
-    <!-- ➕ 動態插入的按鈕區塊（新增工作經歷、查看推薦總覽） -->
     <div id="actionBtns" class="btn-group"></div>
   </main>
 
-  <!-- 🔽 經歷編輯 Modal：新增／編輯經歷，以及第一次填姓名 -->
+  <dialog id="profileEditModal" class="white-card p-6 shadow-lg rounded-lg">
+    <form id="profileEditForm" novalidate>
+        <h3 class="text-xl font-semibold mb-4" data-i18n="editProfileTitle"></h3>
+        <hr class="my-4">
+
+        <div class="form-group mb-4">
+            <label for="edit-english-name" class="form-label" data-i18n="labelEnglishName"></label>
+            <input type="text" id="edit-english-name" class="form-input">
+        </div>
+
+        <div class="form-group mb-4">
+            <label for="edit-headline" class="form-label" data-i18n="labelHeadline"></label>
+            <input type="text" id="edit-headline" class="form-input" data-i18n-placeholder="placeholderHeadline">
+        </div>
+
+        <div class="form-group mb-4">
+            <label for="edit-bio" class="form-label" data-i18n="labelBio"></label>
+            <textarea id="edit-bio" class="form-input" rows="5"></textarea>
+        </div>
+        
+        <div class="flex justify-end gap-4 mt-6">
+            <button type="button" id="cancel-edit-btn" class="btn-secondary" data-i18n="cancel"></button>
+            <button type="submit" id="save-changes-btn" class="btn-primary" data-i18n="saveChanges"></button>
+        </div>
+    </form>
+  </dialog>
+
   <dialog id="expModal" class="white-card p-6">
     <form id="expForm" novalidate>
-      <h3 id="modalTitle" class="text-lg font-semibold mb-4" data-i18n="addExperienceTitle">
-        Add Experience
-      </h3>
-
-      <div 
-      id="onboardingHint" 
-      class="onboarding-hint" 
-      style="display: none; background-color: #e7f3ff; color: #004085; border: 1px solid #b8daff; padding: 1rem; border-radius: 0.25rem; margin-bottom: 1rem;"
-    >
-        </div>
-      <!-- 🆕 首次填寫檔案時才會顯示姓名欄位 -->
+      <h3 id="modalTitle" class="text-lg font-semibold mb-4" data-i18n="addExperienceTitle"></h3>
+      <div id="onboardingHint" class="onboarding-hint" style="display: none;"></div>
       <div id="nameSection" class="form-group mb-4" hidden>
-        <label for="nameInput" data-i18n="labelname">
-          姓名（母語）
-        </label>
+        <label for="nameInput" data-i18n="labelName"></label>
         <input id="nameInput" autocomplete="off" />
-
-        <label for="englishNameInput" data-i18n="labelEnglishName">
-          英文姓名（選填）
-        </label>
+        <label for="englishNameInput" data-i18n="labelEnglishNameOptional"></label>
         <input id="englishNameInput" />
       </div>
-
-      <!-- 公司 -->
       <div class="form-group">
-        <label for="companyInput" data-i18n="company">Company</label>
+        <label for="companyInput" data-i18n="company"></label>
         <input id="companyInput" />
       </div>
-
-      <!-- 職稱 -->
       <div class="form-group">
-        <label for="positionInput" data-i18n="position">Position</label>
+        <label for="positionInput" data-i18n="position"></label>
         <input id="positionInput" />
       </div>
-
-      <!-- 期間 -->
       <div class="form-group date-fields">
-        <label data-i18n="period">Period</label>
-      
-        <!-- 開始日期 -->
+        <label data-i18n="period"></label>
         <select id="startYear"></select>
         <select id="startMonth"></select>
         <span>–</span>
-      
-        <!-- 🔽 結束日期欄位：若勾選「目前在職」則會自動隱藏 -->
         <div id="endDateContainer">
           <select id="endYear"></select>
           <select id="endMonth"></select>
         </div>
-      
-        <!-- 勾選「目前在職」 -->
         <label class="checkbox-group">
           <input type="checkbox" id="stillWorking"/>
-          <span data-i18n="currentlyWorking">Currently working</span>
+          <span data-i18n="currentlyWorking"></span>
         </label>
       </div>
-
-      <!-- 描述 -->
       <div class="form-group">
-        <label for="descInput" data-i18n="descriptionOptional">
-          Description (optional)
-        </label>
-        <textarea id="descInput" rows="4" placeholder="Responsibilities…"></textarea>
+        <label for="descInput" data-i18n="descriptionOptional"></label>
+        <textarea id="descInput" rows="4" data-i18n-placeholder="placeholderDescription"></textarea>
       </div>
-
-      <!-- Action -->
       <div class="flex justify-end gap-4">
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('expModal').close()" data-i18n="cancel">
-          Cancel
-        </button>
-        <button type="submit" class="btn btn-primary" data-i18n="save">
-          Save
-        </button>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('expModal').close()" data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="save"></button>
       </div>
     </form>
   </dialog>
-    <!-- 🔽 編輯 Bio 的 Modal：由「Edit Bio」按鈕觸發 -->
-    <dialog id="bioModal" class="white-card p-6">
-        <form id="bioForm" novalidate>
-          <h3 class="text-lg font-semibold mb-4" data-i18n="editBio">Edit Bio</h3>
-          <textarea id="bioTextarea" rows="6"
-                    placeholder="A short introduction about yourself…"></textarea>
-          <div class="flex justify-end gap-4 mt-4">
-            <button type="button"
-                    onclick="document.getElementById('bioModal').close()"
-                    class="btn btn-secondary"
-                    data-i18n="cancel">Cancel</button>
-            <button type="submit" class="btn btn-primary" data-i18n="save">Save</button>
-          </div>
-        </form>
-      </dialog>
-  <!-- 🔽 產生推薦邀請連結的 Modal，允許編輯邀請內容與預覽 -->
+   
   <dialog id="inviteModal" class="white-card p-6">
-    <h3 data-i18n="editInviteTitle">編輯邀請語</h3>
-  
-    <!-- 再編輯文字 -->
-    <textarea id="inviteTextarea" 
-          rows="4"
-          data-i18n="invitePlaceholder"
-          placeholder="請輸入您想對對方說的邀請話語…">
-    </textarea>
-  
+    <h3 data-i18n="editInviteTitle"></h3>
+    <textarea id="inviteTextarea" rows="4" data-i18n-placeholder="invitePlaceholder"></textarea>
     <p id="templateHint" style="font-size: 0.9rem; margin-top: 6px; color: #555;">
-      <span data-i18n="templateHintPrefix">不知道怎麼寫嗎？</span>
-      <span id="insertDirect" role="button" tabindex="0" 
-        style="color:#005bbb; text-decoration:underline; cursor:pointer;" data-i18n="insertDirect">插入中性版</span>
-      <span data-i18n="or">或</span>
-      <span id="insertWarmth" style="color:#bb4400; text-decoration:underline; cursor:pointer;" data-i18n="insertWarmth">插入溫暖版</span>
+      <span data-i18n="templateHintPrefix"></span>
+      <span id="insertDirect" role="button" tabindex="0" style="color:#005bbb; text-decoration:underline; cursor:pointer;" data-i18n="insertDirect"></span>
+      <span data-i18n="or"></span>
+      <span id="insertWarmth" style="color:#bb4400; text-decoration:underline; cursor:pointer;" data-i18n="insertWarmth"></span>
     </p>
-    
-    <!-- 🔔 新增提醒：請使用者不要直接複製，要按儲存 -->
-    <p id="previewReminder" data-i18n="previewReminder"
-      style="font-size: 0.9rem; color: #cc3300; margin-bottom: 0.5rem;">
-      ⚠️ 請記得按「儲存並複製」，否則推薦人會看不到你的邀請內容
-    </p>
-    <!-- 🔗 推薦預覽連結：會隨輸入內容即時更新 -->
+    <p id="previewReminder" data-i18n="previewReminder" style="font-size: 0.9rem; color: #cc3300; margin-bottom: 0.5rem;"></p>
     <div class="form-group mt-4">
-      <label data-i18n="previewLinkLabel">預覽連結：</label>
-      <a id="invitePreviewLink"
-         href="#"
-         target="_blank"
-         style="display:block; word-break:break-all; margin-top:4px;">
-      </a>
+      <label data-i18n="previewLinkLabel"></label>
+      <a id="invitePreviewLink" href="#" target="_blank" style="display:block; word-break:break-all; margin-top:4px;"></a>
     </div>
-    
-    <!-- 3. 按鈕 -->
     <div class="flex justify-end gap-4 mt-4">
-      <button id="inviteCancelBtn" class="btn btn-secondary" data-i18n="inviteCancel"></button>
+      <button id="inviteCancelBtn" class="btn btn-secondary" data-i18n="cancel"></button>
       <button id="inviteSaveBtn" class="btn btn-primary" data-i18n="inviteSaveAndCopy"></button>
     </div>    
   </dialog>  
-    <!-- 自訂複製連結的 Modal -->
+  
   <dialog id="copyModal" class="white-card p-6">
-    <p data-i18n="linkCopyFailed">複製失敗，請手動複製以下連結：</p>
-    <input id="copyLinkInput" readonly
-           style="width:100%; padding:8px; margin:8px 0; border:1px solid #ccc; border-radius:4px;" />
+    <p data-i18n="linkCopyFailed"></p>
+    <input id="copyLinkInput" readonly style="width:100%; padding:8px; margin:8px 0; border:1px solid #ccc; border-radius:4px;" />
     <menu style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-      <button id="copyConfirmBtn" class="btn btn-primary" data-i18n="copy">複製</button>
-      <button id="copyCancelBtn" class="btn btn-secondary" data-i18n="cancel">取消</button>
+      <button id="copyConfirmBtn" class="btn btn-primary" data-i18n="copy"></button>
+      <button id="copyCancelBtn" class="btn btn-secondary" data-i18n="cancel"></button>
     </menu>
   </dialog>
-  <!-- 🏗️ Modal 架構設計 -->
 
-<!-- 第一層：回覆選項選擇 Modal（新增）-->
-<dialog id="replyOptionsModal" class="white-card p-6">
-  <div class="modal-header">
-    <h3 data-i18n="replyOptions">回覆選項</h3>
-    <button class="close-btn" id="replyOptionsCloseBtn">&times;</button>
-  </div>
-  <div class="modal-body">
-    <div class="reply-options-grid">
-      <div class="reply-option" data-option="recommend">
-        <div class="option-icon">📝</div>
-        <div class="option-content">
-          <h4 data-i18n="recommendReply">推薦回覆</h4>
-          <p data-i18n="recommendReplyDesc">分享你對這位同事的工作觀察</p>
+  <dialog id="replyOptionsModal" class="white-card p-6">
+    <div class="modal-header">
+      <h3 data-i18n="replyOptions"></h3>
+      <button class="close-btn" id="replyOptionsCloseBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="reply-options-grid">
+        <div class="reply-option" data-option="recommend">
+          <div class="option-icon">📝</div>
+          <div class="option-content">
+            <h4 data-i18n="recommendReply"></h4>
+            <p data-i18n="recommendReplyDesc"></p>
+          </div>
+          <div class="option-action">
+            <button class="option-btn primary" data-i18n="select"></button>
+          </div>
         </div>
-        <div class="option-action">
-          <button class="option-btn primary">選擇</button>
-        </div>
-      </div>
-      
-      <div class="reply-option coming-soon" data-option="coffee">
-        <div class="option-icon">☕</div>
-        <div class="option-content">
-          <h4>
-            <span data-i18n="coffeeGratitude">咖啡感謝</span>
-            <span class="coming-soon-badge" data-i18n="comingSoon">即將推出</span>
-          </h4>
-          <p data-i18n="coffeeGratitudeDesc">送一杯咖啡表達感謝</p>
-        </div>
-        <div class="option-action">
-          <button class="option-btn secondary" data-i18n="joinWaitlist">加入等候清單</button>
+        <div class="reply-option coming-soon" data-option="coffee">
+          <div class="option-icon">☕</div>
+          <div class="option-content">
+            <h4>
+              <span data-i18n="coffeeGratitude"></span>
+              <span class="coming-soon-badge" data-i18n="comingSoon"></span>
+            </h4>
+            <p data-i18n="coffeeGratitudeDesc"></p>
+          </div>
+          <div class="option-action">
+            <button class="option-btn secondary" data-i18n="joinWaitlist"></button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</dialog>
+  </dialog>
 
-<!-- 第二層：具體推薦人員列表 Modal（保留，但更新標題）-->
-<dialog id="replyModal" class="white-card p-6">
-  <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-    <h3 id="replyModalTitle" data-i18n="selectColleagueToReply">選擇要回覆的同事</h3>
-    <button class="close-btn" id="replyCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
-  </div>
-  <div class="modal-body">
-    <div id="replyList" class="reply-list">
-      <!-- 可回覆的人員列表會動態插入這裡 -->
+  <dialog id="replyModal" class="white-card p-6">
+    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 id="replyModalTitle" data-i18n="selectColleagueToReply"></h3>
+      <button class="close-btn" id="replyCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
     </div>
-  </div>
-</dialog>
+    <div class="modal-body">
+      <div id="replyList" class="reply-list"></div>
+    </div>
+  </dialog>
 
-<!-- 🔧 完整的等候清單 Modal -->
-<dialog id="waitlistModal" class="white-card p-6">
-  <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-    <h3>☕ 咖啡感謝功能等候清單</h3>
-    <button class="close-btn" id="waitlistCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
-  </div>
-  
-  <div class="modal-body">
-    <p style="margin-bottom: 16px;">我們正在開發咖啡感謝功能，讓你可以用一杯咖啡向推薦你的同事表達感謝。</p>
-    <p style="margin-bottom: 24px; color: #6b7280;">留下你的 email，我們會在功能上線時第一時間通知你！</p>
-    
-    <form id="waitlistForm">
-      <div class="form-group">
-        <label for="waitlistEmail">Email</label>
-        <input type="email" id="waitlistEmail" required placeholder="your.email@company.com">
-      </div>
-      
-      <div class="form-group">
-        <label for="coffeePreference">你希望的咖啡價位？</label>
-        <select id="coffeePreference">
-          <option value="100">NT$ 100 (便利商店咖啡)</option>
-          <option value="200">NT$ 200 (連鎖咖啡店)</option>
-          <option value="250">NT$ 250 (精品咖啡)</option>
-          <option value="flexible">彈性選擇</option>
-        </select>
-      </div>
-      
-      <div class="flex justify-end gap-4" style="margin-top: 20px;">
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('waitlistModal').close()">
-          取消
-        </button>
-        <button type="submit" class="btn btn-primary">
-          加入等候清單
-        </button>
-      </div>
-    </form>
-  </div>
-</dialog>
+  <dialog id="waitlistModal" class="white-card p-6">
+    <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h3 data-i18n="waitlistTitle"></h3>
+      <button class="close-btn" id="waitlistCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 16px;" data-i18n="waitlistDesc1"></p>
+      <p style="margin-bottom: 24px; color: #6b7280;" data-i18n="waitlistDesc2"></p>
+      <form id="waitlistForm">
+        <div class="form-group">
+          <label for="waitlistEmail" data-i18n="labelEmail"></label>
+          <input type="email" id="waitlistEmail" required data-i18n-placeholder="placeholderEmail">
+        </div>
+        <div class="form-group">
+          <label for="coffeePreference" data-i18n="labelCoffeePrice"></label>
+          <select id="coffeePreference">
+            <option value="100" data-i18n="coffeePriceOption1"></option>
+            <option value="200" data-i18n="coffeePriceOption2"></option>
+            <option value="250" data-i18n="coffeePriceOption3"></option>
+            <option value="flexible" data-i18n="coffeePriceOption4"></option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-4" style="margin-top: 20px;">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('waitlistModal').close()" data-i18n="cancel"></button>
+          <button type="submit" class="btn btn-primary" data-i18n="joinWaitlist"></button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 </body>
 </html>

@@ -14,11 +14,11 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   
   <meta charset="UTF-8" />
-  <title id="pageTitle" data-i18n="pageTitle">My Recommendation Summary</title>
+  <title id="pageTitle" data-i18n="recommendSummary.pageTitle"></title>
   
   <!-- ✅ Open Graph 分享預覽設定 -->
-  <meta property="og:title" content="Galaxyz｜真實推薦，來自合作過的每一位夥伴" />
-  <meta property="og:description" content="看看他收到了哪些真實的職涯推薦，你也能留下真誠的一句話。" />
+  <meta property="og:title" data-i18n="recommendSummary.ogTitle" content="" />
+  <meta property="og:description" data-i18n="recommendSummary.ogDescription" content="" />
   <meta property="og:image" content="https://galaxyz.ai/img/preview-recommend.png" />
   <meta property="og:image:width" content="768" />
   <meta property="og:image:height" content="768" />
@@ -41,12 +41,12 @@
 
 <body class="bg-gray-100 text-gray-900">
   <!-- Loading 畫面 -->
-<div id="summaryLoading" class="loading-overlay">
-  <div style="display:flex; align-items:center; justify-content:center;">
-    <div class="spinner"></div>
-    <span id="loadingSummaryText" data-i18n="loadingSummaryMessage">Loading summary…</span>
+  <div id="summaryLoading" class="loading-overlay">
+    <div style="display:flex; align-items:center; justify-content:center;">
+      <div class="spinner"></div>
+      <span id="loadingSummaryText" data-i18n="recommendSummary.loadingSummaryMessage"></span>
+    </div>
   </div>
-</div>
 
   <!-- 共用頂欄由 app-header.js 動態插入 -->
   <div id="appHeader"></div>
@@ -55,21 +55,19 @@
   <main class="container summary-container fade-in">
 
     <!-- Header：姓名 + 返回按鈕 同行 -->
-     <header class="flex items-center justify-between mb-2">
+    <header class="flex items-center justify-between mb-2">
       <div class="summary-header">
         <div class="name-line">
           <h1 id="userName" class="text-2xl font-semibold brand-blue-text"></h1>
           <span id="publicLevelBadge"></span>
-          </div>
+        </div>
         <div id="publicStars" class="public-stars-row"></div>
       </div>
-    </header>
-    
+      
       <!-- 返回按鈕 -->
       <button id="backBtn"
               class="btn btn-secondary px-3 py-1 text-sm hidden"
-              data-i18n="backToProfile">
-        回到個人檔案
+              data-i18n="recommendSummary.backToProfile">
       </button>
     </header>
     
@@ -77,45 +75,48 @@
     <p id="description" class="text-base text-gray-600"></p>
    
     <!-- 🔍 篩選器 + 匯出按鈕（排成一列） -->
-  <div id="filters" class="filters-toolbar flex flex-wrap items-end gap-4 mb-4">
-    <!-- 篩選：推薦關係 -->
-    <div class="flex flex-col">
-      <label for="relationFilter" class="mb-1 text-sm" data-i18n="label_relation">🔗 推薦關係：</label>
-      <select id="relationFilter" class="px-2 py-1 border rounded w-52"></select>
-    </div>
+    <div id="filters" class="filters-toolbar flex flex-wrap items-end gap-4 mb-4">
+      <!-- 篩選：推薦關係 -->
+      <div class="flex flex-col">
+        <label for="relationFilter" class="mb-1 text-sm" data-i18n="recommendSummary.label_relation"></label>
+        <select id="relationFilter" class="px-2 py-1 border rounded w-52"></select>
+      </div>
 
-    <!-- 篩選：亮點 -->
-    <div class="flex flex-col">
-      <label for="highlightFilter" class="mb-1 text-sm" data-i18n="label_highlight">🌟 亮點：</label>
-      <select id="highlightFilter" class="px-2 py-1 border rounded w-52">
-        <option value="" data-i18n="allHighlights">全部亮點</option>
-        <option value="hardSkill" data-i18n="highlight_hardSkill">硬實力</option>
-        <option value="softSkill" data-i18n="highlight_softSkill">軟實力</option>
-        <option value="character" data-i18n="highlight_character">人品</option>
-      </select>
-    </div>
+      <!-- 篩選：亮點 -->
+      <div class="flex flex-col">
+        <label for="highlightFilter" class="mb-1 text-sm" data-i18n="recommendSummary.label_highlight"></label>
+        <select id="highlightFilter" class="px-2 py-1 border rounded w-52">
+          <option value="" data-i18n="recommendSummary.allHighlights"></option>
+          <option value="hardSkill" data-i18n="recommendSummary.highlight_hardSkill"></option>
+          <option value="softSkill" data-i18n="recommendSummary.highlight_softSkill"></option>
+          <option value="character" data-i18n="recommendSummary.highlight_character"></option>
+        </select>
+      </div>
+      
       <!-- 匯出 PDF 按鈕 -->
+      <div class="flex flex-col justify-end">
+        <button id="export-pdf"
+          class="btn btn-primary px-4 py-2 h-fit"
+          data-i18n="recommendSummary.exportPDF">
+          hidden> 
+        </button>
+      </div>
+    </div>  
+    
+    <!-- 🔁 切換模式按鈕 -->
     <div class="flex flex-col justify-end">
-      <button id="export-pdf"
-        class="btn btn-primary px-4 py-2 h-fit"
-        data-i18n="exportPDF">
-        匯出 PDF
+      <button id="toggleViewBtn"
+        class="btn btn-secondary px-4 py-2 h-fit"
+        data-i18n="recommendSummary.onlyShowRecommendations"
+        data-i18n-alt="recommendSummary.showWithCompany">
       </button>
     </div>
-  </div>  
-  <!-- 🔁 切換模式按鈕 -->
-  <div class="flex flex-col justify-end">
-    <button id="toggleViewBtn"
-      class="btn btn-secondary px-4 py-2 h-fit"
-      data-i18n="onlyShowRecommendations"
-      data-i18n-alt="showWithCompany">
-    </button>
-  </div>
+    
     <!-- 推薦列表 -->
     <section id="summaryArea"></section>
   </main>  
 
- <script type="module" src="../js/pages/recommend-summary.js"></script>
+  <script type="module" src="../js/pages/recommend-summary.js"></script>
 
 </body>
 </html>

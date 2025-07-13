@@ -40,18 +40,24 @@
   <div id="appHeader"></div>
 
   <main class="container summary-container fade-in">
-   <header class="flex items-center justify-between mb-2">
-      <div class="summary-header">
-        <div class="name-line">
-          <h1 id="userName" class="text-2xl font-semibold brand-blue-text"></h1>
-          <span id="publicLevelBadge"></span>
-          </div>
-        <div id="publicStars" class="public-stars-row"></div>
-      </div>
+    <header class="profile-summary-header white-card p-6 mb-6">
+        <div class="flex items-center justify-between mb-2">
+            <div class="summary-header">
+                <div class="name-line">
+                    <h1 id="userName" class="text-2xl font-bold"></h1>
+                    <span id="publicLevelBadge"></span>
+                </div>
+            </div>
+        </div>
+        <p id="profile-headline" class="text-lg text-gray-600 mt-1"></p>
     </header>
-    
-    <p id="description" class="text-base text-gray-600"></p>
-   
+
+    <section class="bio-card white-card p-6 mb-6">
+        <h2 class="card-title" data-i18n="aboutMe">關於我</h2>
+        <hr class="my-3">
+        <p id="profile-bio" class="text-gray-700 whitespace-pre-wrap"></p>
+    </section>
+
     <div class="flex flex-col justify-end">
         <button id="toggleViewBtn"
             class="btn btn-secondary px-4 py-2 h-fit"
@@ -61,7 +67,7 @@
     </div>
 
     <section id="summaryArea"></section>
-  </main>  
+</main>
 
   <script type="module" src="../js/pages/summary-public.js"></script>
 </body>
