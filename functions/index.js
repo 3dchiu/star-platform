@@ -723,6 +723,73 @@ async function sendOutgoingRecommendationEmails(data) {
   }
 }
 
+/**
+ * 🆕 【新增】為已註冊用戶，建立一則收到的推薦記錄
+ * @param {string} targetUserId - 被推薦人的用戶 ID
+ * @param {object} recommendationData - 來自 outgoingRecommendations 的原始推薦資料
+ * @param {object} verificationResult - 來自 validateRecommendationImmediately 的驗證結果
+ * @returns {string} - 新建立的推薦記錄 ID
+ */
+async function createRecommendationForRegisteredUser(targetUserId, recommendationData, verificationResult) {
+    try {
+        const recRef = admin.firestore().collection("users").doc(targetUserId).collection("recommendations").doc();
+        
+        const finalRecData = {
+            id: recRef.id,
+            name: recommendationData.name,
+            email: recommendationData.email,
+            content: recommendationData.content,
+            highlights: recommendationData.highlights || [],
+            relation: recommendationData.relation,
+            
+            recommenderUserId: recommendationData.recommenderUserId,
+            recommenderJobId: recommendationData.recommenderJobId,
+            recommenderCompany: recommendationData.recommenderCompany,
+            recommenderPosition: recommendationData.recommenderPosition,
+            
+            type: 'received',
+            status: verificationResult.status, // 使用驗證結果的狀態
+            confidence: verificationResult.confidence || 0,
+            
+            // 如果驗證成功，就填入匹配的資訊
+            matchedJobId: verificationResult.matchedJobId || null,
+            verifiedAt: verificationResult.status === 'verified' ? FieldValue.serverTimestamp() : null,
+
+            createdAt: FieldValue.serverTimestamp(),
+            fullyProcessed: true,
+            fromOutgoing: true
+        };
+
+        await recRef.set(finalRecData);
+        console.log(`[createRec] ✅ 已為用戶 ${targetUserId} 成功建立推薦記錄: ${recRef.id}`);
+
+        // 如果推薦被成功驗證，就觸發統計和通知
+        if (verificationResult.status === 'verified') {
+            const recommenderSnap = await admin.firestore().doc(`users/${recommendationData.recommenderUserId}`).get();
+            const recipientSnap = await admin.firestore().doc(`users/${targetUserId}`).get();
+
+            if (recommenderSnap.exists && recipientSnap.exists) {
+                const recommender = recommenderSnap.data();
+                const recipient = recipientSnap.data();
+                
+                // 更新統計
+                await updateRecommenderStats(recommender.userId, 1, recommendationData.recommenderJobId, recommendationData, 10);
+                await updateRecipientStats(recipient.userId, 1);
+
+                // 寄送通知
+                await sendMilestoneNotification('recommendationGivenVerified', { recipient, recommender });
+                await sendMilestoneNotification('recommendationReceivedVerified', { recipient, recommender });
+            }
+        }
+
+        return recRef.id;
+
+    } catch (error) {
+        console.error(`❌ 建立推薦記錄時發生錯誤:`, error);
+        throw error; // 將錯誤向上拋出，讓主函式可以捕捉到
+    }
+}
+
 // 🔽 功能 4：新推薦建立時，若 email 對應已有註冊使用者，補上 recommenderId
 exports.assignRecommenderIdOnRecCreated = onDocumentCreated("users/{userId}/recommendations/{recId}", async (event) => {
   const recRef = event.data.ref;

@@ -15,7 +15,7 @@
   <meta property="og:image" content="https://galaxyz.ai/img/preview-recommend.png" />
   <meta property="og:image:width" content="768" />
   <meta property="og:image:height" content="768" />
-  <meta property="og:url" content="https://galaxyz.ai/pages/recommend-summary.html" />
+  <meta property="og:url" content="https://galaxyz.ai/pages/public-profile.html" />
   <meta property="og:type" content="website" />
 
   <link rel="stylesheet" href="../styles/main.css" />
@@ -29,11 +29,12 @@
   <script type="module" src="../js/components/app-header.js"></script>
 </head>
 
-<body class="bg-gray-100 text-gray-900">
+<!-- ✅ 關鍵修正1: 添加 public-profile-page class 避免樣式衝突 -->
+<body class="bg-gray-100 text-gray-900 public-profile-page">
   <div id="summaryLoading" class="loading-overlay">
     <div style="display:flex; align-items:center; justify-content:center;">
       <div class="spinner"></div>
-      <span id="loadingSummaryText" data-i18n="loadingSummaryMessage">Loading summary…</span>
+      <span id="loadingSummaryText" data-i18n="publicSummary.loadingSummaryMessage">Loading summary…</span>
     </div>
   </div>
 
@@ -53,7 +54,7 @@
     </header>
 
     <section class="bio-card white-card p-6 mb-6">
-        <h2 class="card-title" data-i18n="aboutMe">關於我</h2>
+        <h2 class="card-title" data-i18n="publicSummary.aboutMe">關於我</h2>
         <hr class="my-3">
         <p id="profile-bio" class="text-gray-700 whitespace-pre-wrap"></p>
     </section>
@@ -61,8 +62,8 @@
     <div class="flex flex-col justify-end">
         <button id="toggleViewBtn"
             class="btn btn-secondary px-4 py-2 h-fit"
-            data-i18n="onlyShowRecommendations"
-            data-i18n-alt="showWithCompany">
+            data-i18n="publicSummary.onlyShowRecommendations"
+            data-i18n-alt="publicSummary.showWithCompany">
         </button>
     </div>
 

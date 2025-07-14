@@ -465,11 +465,33 @@ export const i18n = {
       ogTitle: "Galaxyz | Authentic recommendations from every collaborator",
       ogDescription: "See the authentic career recommendations they've received, and leave your sincere words too.",
       
+      // 統計
+      totalRecommendations: "Total Recommendations",
+      workExperience: "Work Experience",
+      memberSince: "Member Since",
+
+      // 時間
+      present: "Present",
+      
       // 推薦相關
       verifiedRecommendations: "Verified Recommendations",
       totalRecommendations: "Total Recommendations",
       workExperience: "Work Experience",
       recommendations: "Recommendations",
+
+      // 亮點翻譯
+      highlight_hardSkill: "Hard Skills",
+      highlight_softSkill: "Soft Skills", 
+      highlight_character: "Character & Integrity",
+
+      // 關係翻譯
+      relation_directManager: "Direct Manager",
+      relation_crossDeptManager: "Cross-team Manager",
+      relation_sameDeptColleague: "Teammate (Same Team)",
+      relation_crossDeptColleague: "Teammate (Different Team)",
+      relation_subordinate: "Direct Report",
+      relation_client: "Client",
+      relation_vendor: "Vendor / Partner",
       
       // 其他功能
       viewFullProfile: "View Full Profile",
@@ -1052,6 +1074,28 @@ export const i18n = {
       workExperience: "工作經歷",
       recommendations: "推薦",
       
+      // 亮點翻譯
+      highlight_hardSkill: "硬實力",
+      highlight_softSkill: "軟實力",
+      highlight_character: "人品",
+      
+      // 關係翻譯
+      relation_directManager: "直屬主管",
+      relation_crossDeptManager: "跨部門主管", 
+      relation_sameDeptColleague: "同部門同事",
+      relation_crossDeptColleague: "跨部門同事",
+      relation_subordinate: "部屬",
+      relation_client: "客戶",
+      relation_vendor: "供應商或外部合作夥伴",
+      
+      // 時間
+      present: "目前在職",
+      
+      // 統計
+      totalRecommendations: "推薦總數",
+      workExperience: "工作經歷", 
+      memberSince: "加入時間",
+
       // 其他功能
       viewFullProfile: "查看完整檔案",
       contactUser: "聯絡用戶",

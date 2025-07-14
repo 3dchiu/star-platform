@@ -1935,3 +1935,220 @@ text-decoration: underline;
     color: #374151;
     line-height: 1.7; /* 增加行高，更易閱讀 */
 }
+/* ==========================================================================
+   ✅ 確認：以下 CSS 可以直接複製貼上到 main.css 末尾
+   ✅ 完全兼容現有的分享功能和亮點顯示
+   ========================================================================== */
+
+/* ✅ 公開頁面專用容器 */
+.public-profile-page .summary-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ✅ 個人檔案標題區塊 */
+.public-profile-page .profile-summary-header {
+  margin-bottom: 24px;
+}
+
+.public-profile-page .profile-summary-header .name-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.public-profile-page .profile-summary-header #userName {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.public-profile-page .profile-summary-header #profile-headline {
+  font-size: 1.125rem;
+  color: var(--gray-600, #6b7280);
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* ✅ 公開頁面等級徽章 - 重用現有等級顏色系統 */
+.public-profile-page .public-level-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  white-space: nowrap;
+}
+
+.public-profile-page .public-level-badge.level-gray { background-color: #6b7280; }
+.public-profile-page .public-level-badge.level-briefcase { background-color: #8b5cf6; }
+.public-profile-page .public-level-badge.level-handshake { background-color: #10b981; }
+.public-profile-page .public-level-badge.level-rocket { background-color: #f59e0b; }
+.public-profile-page .public-level-badge.level-gold { background-color: #eab308; }
+.public-profile-page .public-level-badge.level-sun { background-color: #f97316; }
+.public-profile-page .public-level-badge.level-globe { background-color: #3b82f6; }
+.public-profile-page .public-level-badge.level-trophy { background-color: #8b5cf6; }
+.public-profile-page .public-level-badge.level-diamond { background-color: #06b6d4; }
+.public-profile-page .public-level-badge.level-legendary { background-color: #ec4899; }
+
+/* ✅ 工作經歷區塊 */
+.public-profile-page .experience-block {
+  margin-bottom: 24px;
+}
+
+.public-profile-page .experience-header {
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.public-profile-page .experience-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.public-profile-page .experience-header p {
+  margin: 4px 0;
+  color: var(--color-text-secondary);
+}
+
+/* ✅ 推薦列表標題 */
+.public-profile-page .recommendations-list h4 {
+  font-size: 1.125rem;
+  font-weight: 500;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+/* ✅ 公開頁面推薦卡片 - 使用專用類別避免衝突 */
+.public-profile-page .public-recommendation-card {
+  background: #f9fafb;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+  scroll-margin-top: 100px; /* ✅ 支援分享連結定位 */
+}
+
+.public-profile-page .public-recommendation-card:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* ✅ 重用現有的亮點樣式，只需要添加滾動定位 */
+.public-profile-page .public-recommendation-card.highlight {
+  box-shadow: 0 0 0 2px #f90;
+  background: #fffbe6;
+  scroll-margin-top: 100px;
+}
+
+.public-profile-page .public-rec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.public-profile-page .public-rec-meta {
+  flex: 1;
+}
+
+.public-profile-page .public-rec-content {
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+/* ✅ 公開頁面亮點標籤 */
+.public-profile-page .public-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.public-profile-page .public-highlight-tag {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ✅ 錯誤和空狀態 - 使用專用類別 */
+.public-profile-page .public-error-container,
+.public-profile-page .public-no-content {
+  text-align: center;
+  color: var(--gray-600, #6b7280);
+  padding: 40px 20px;
+}
+
+.public-profile-page .public-error-container h2 {
+  color: #dc2626;
+  margin-bottom: 16px;
+}
+
+/* ✅ 僅推薦模式 */
+.public-profile-page .public-recommendations-only {
+  margin-bottom: 24px;
+}
+
+.public-profile-page .public-recommendations-only h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--color-border, #e5e7eb);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+}
+
+/* ✅ 響應式設計 */
+@media (max-width: 768px) {
+  .public-profile-page .summary-container {
+    padding: 16px;
+  }
+  
+  .public-profile-page .profile-summary-header .name-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .public-profile-page .profile-summary-header #userName {
+    font-size: 1.5rem;
+  }
+  
+  .public-profile-page .profile-summary-header #profile-headline {
+    font-size: 1rem;
+  }
+  
+  .public-profile-page .public-rec-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .public-profile-page .public-highlights {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .public-profile-page .public-recommendation-card {
+    padding: 12px;
+  }
+  
+  .public-profile-page .experience-header {
+    padding-bottom: 12px;
+  }
+  
+  .public-profile-page .public-level-badge {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+  }
+}
