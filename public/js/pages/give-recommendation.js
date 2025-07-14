@@ -744,71 +744,58 @@ function validateData(data) {
 
 // 儲存推薦
 async function saveRecommendation(inviteData, formData) {
-  console.log("💾 儲存推薦資料");
+  console.log("💾 呼叫後端函式儲存推薦資料...");
   console.log("  -> 是否為回覆模式:", inviteData.isReplyMode);
-
-  // 準備共用的資料 payload
-  const commonData = {
-    content: formData.content,
-    highlights: formData.highlights,
-    relation: formData.relation,
-    status: "pending",
-    recommenderName: inviteData.recommenderName,
-    recommenderUserId: auth.currentUser.uid,
-    recommenderJobId: inviteData.jobId,
-    recommenderCompany: inviteData.company || '',
-    recommenderPosition: inviteData.position || '',
-    createdAt: new Date(),
-    lang: localStorage.getItem("lang") || "zh",
-    recommenderEmail: auth.currentUser.email
-  };
 
   try {
     if (inviteData.isReplyMode) {
-      // --- 回覆推薦的寫入路徑 ---
+      // --- 回覆推薦的寫入路徑 (維持不變，因為是寫入使用者自己的子集合，權限通常允許) ---
       console.log("  -> 寫入到使用者推薦子集合 (回覆模式)...");
-      
       const replyData = {
-        ...commonData,
-        name: inviteData.targetName, // 被回覆者的名字
-        email: inviteData.targetEmail, // 被回覆者的 email
+        content: formData.content,
+        highlights: formData.highlights,
+        relation: formData.relation,
+        status: "pending",
+        recommenderName: inviteData.recommenderName,
+        recommenderUserId: auth.currentUser.uid,
+        recommenderJobId: inviteData.jobId,
+        recommenderCompany: inviteData.company || '',
+        recommenderPosition: inviteData.position || '',
+        createdAt: new Date(),
+        lang: localStorage.getItem("lang") || "zh",
+        recommenderEmail: auth.currentUser.email,
+        name: inviteData.targetName,
+        email: inviteData.targetEmail,
         type: "reply",
         originalRecommendationId: inviteData.originalRecId,
         targetEmail: inviteData.targetEmail,
         targetName: inviteData.targetName,
       };
-
-      // 【核心修正】只有在 targetUserId 存在時，才加入此欄位
       if (inviteData.targetUserId) {
         replyData.targetUserId = inviteData.targetUserId;
       }
-      
-      console.log("💾 準備儲存的最終回覆資料:", replyData);
-      
       const recRef = db.collection("users").doc(auth.currentUser.uid).collection("recommendations").doc();
       await recRef.set(replyData);
       console.log("✅ 回覆推薦儲存完成，ID:", recRef.id);
 
     } else {
-      // --- 推薦好夥伴的寫入路徑 ---
-      console.log("  -> 寫入到 outgoingRecommendations 集合 (推薦好夥伴模式)...");
-      const outgoingData = {
-        ...commonData,
-        name: formData.name,
-        email: formData.email,
-        type: "outgoing",
-        recommendeeName: formData.name,
-        recommendeeEmail: formData.email,
-        inviteId: inviteData.id,
-      };
-
-      const recRef = db.collection("outgoingRecommendations").doc();
-      await recRef.set(outgoingData);
-      console.log("✅ 推薦好夥伴儲存完成，ID:", recRef.id);
+      // --- 推薦好夥伴的寫入路徑 (改為呼叫 Cloud Function) ---
+      console.log("  -> 呼叫 'submitOutgoingRecommendation' Cloud Function...");
+      const functions = firebase.functions();
+      const submitFunction = functions.httpsCallable('submitOutgoingRecommendation');
+      
+      const response = await submitFunction({ inviteData, formData });
+      
+      if (response.data.success) {
+        console.log("✅ 後端函式成功儲存推薦，ID:", response.data.recommendationId);
+      } else {
+        throw new Error("後端函式回報儲存失敗。");
+      }
     }
 
   } catch (error) {
-    console.error("❌ 儲存推薦失敗:", error);
+    console.error("❌ 儲存或呼叫後端函式失敗:", error);
+    // 拋出錯誤，讓外層的 try...catch 可以捕捉到並顯示給使用者
     throw error;
   }
 }

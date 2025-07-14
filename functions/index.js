@@ -3089,3 +3089,74 @@ exports.addAdminRole = onCall(async (request) => {
     throw new functions.https.HttpsError('internal', '設定管理員時發生錯誤。');
   }
 });
+
+/**
+ * 可呼叫函式：處理前端送出的「推薦好夥伴」表單資料
+ * @param {object} data - 包含 inviteData 和 formData 的物件
+ * @returns {Promise<object>} - 回傳操作結果
+ */
+exports.submitOutgoingRecommendation = onCall({
+  // 確保只有已登入的使用者可以呼叫此函式
+  enforceAppCheck: false, // 根據您的專案設定調整
+  consumeAppCheckToken: false,
+}, async (request) => {
+  // 1. 權限檢查
+  if (!request.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      '必須登入才能執行此操作。'
+    );
+  }
+
+  // 2. 取得前端傳來的資料
+  const { inviteData, formData } = request.data;
+  if (!inviteData || !formData) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      '缺少必要的推薦資料。'
+    );
+  }
+
+  console.log(`[submitOutgoing] 收到來自 ${request.auth.uid} 的推薦請求`);
+
+  // 3. 組合要寫入的資料 (與您前端的邏輯相同)
+  const commonData = {
+      content: formData.content,
+      highlights: formData.highlights,
+      relation: formData.relation,
+      status: "submitted", // 初始狀態
+      recommenderName: inviteData.recommenderName,
+      recommenderUserId: request.auth.uid, // 使用經過驗證的 UID
+      recommenderJobId: inviteData.jobId,
+      recommenderCompany: inviteData.company || '',
+      recommenderPosition: inviteData.position || '',
+      createdAt: FieldValue.serverTimestamp(), // 使用伺服器時間
+      lang: inviteData.lang || "zh",
+      recommenderEmail: request.auth.token.email, // 使用經過驗證的 Email
+  };
+
+  const outgoingData = {
+      ...commonData,
+      name: formData.name,
+      email: formData.email,
+      type: "outgoing",
+      recommendeeName: formData.name,
+      recommendeeEmail: formData.email,
+      inviteId: inviteData.id,
+  };
+
+  try {
+    // 4. 由後端安全地寫入資料庫
+    const recRef = await admin.firestore().collection("outgoingRecommendations").add(outgoingData);
+    console.log(`[submitOutgoing] ✅ 推薦好夥伴儲存完成，ID: ${recRef.id}`);
+    
+    // 因為建立了新文件，既有的 notifyOnOutgoingRecommendationCreated 會自動被觸發
+    // 所以這裡不需要做其他事情
+    
+    return { success: true, recommendationId: recRef.id };
+
+  } catch (error) {
+    console.error("[submitOutgoing] ❌ 寫入 outgoingRecommendations 失敗:", error);
+    throw new functions.https.HttpsError('internal', '儲存推薦時發生伺服器錯誤。');
+  }
+});

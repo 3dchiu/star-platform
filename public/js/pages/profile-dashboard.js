@@ -469,7 +469,6 @@ async function loadUserRecommendations(userId) {
     try {
         const recommendations = [];
         
-        // 1. 載入收到的推薦
         const receivedRef = db.collection("users").doc(userId).collection("recommendations");
         const receivedSnapshot = await receivedRef.get();
         
@@ -480,7 +479,6 @@ async function loadUserRecommendations(userId) {
             });
         });
         
-        // 2. 載入推薦他人的記錄（從工作經歷中）
         for (const job of window.profile.workExperiences) {
             if (job.recommendations && Array.isArray(job.recommendations)) {
                 job.recommendations.forEach(rec => {
@@ -494,23 +492,21 @@ async function loadUserRecommendations(userId) {
         }
         
         console.log(`✅ 載入推薦記錄總計: ${recommendations.length} 筆`);
-        console.log("📊 推薦類型分布:", {
-            received: recommendations.filter(r => r.type === 'received').length,
-            outgoing: recommendations.filter(r => r.type === 'outgoing').length
-        });
         
-        // 3. 計算統計
-        const stats = calculateRecommendationStats(recommendations);
+        // 計算統計
+        const newStats = calculateRecommendationStats(recommendations);
         
-        // 4. 從現有的 recommendationStats 讀取 totalGiven
-        stats.totalGiven = window.profile.recommendationStats?.totalGiven || 0;
-        
-        window.profile.recommendations = recommendations;
-        window.profile.recommendationStats = stats;
+        // 👇 --- 這是最核心的修正 --- 👇
+        // 使用 Object.assign 將新計算出的統計數據合併到現有的 recommendationStats 中，
+        // 這樣既能更新 totalReceived 等數據，又能保留從資料庫讀來的 exp。
+        window.profile.recommendationStats = Object.assign(window.profile.recommendationStats || {}, newStats);
+        // 👆 --- 核心修正結束 --- 👆
 
-        // 5. 將統計數據映射到工作經歷
+        window.profile.recommendations = recommendations;
+
+        // 將統計數據映射到工作經歷
         window.profile.workExperiences.forEach(job => {
-            const jobStats = stats.byJob[job.id] || {
+            const jobStats = window.profile.recommendationStats.byJob[job.id] || {
                 received: 0, given: 0, canReply: 0, allReceived: 0,
                 verified: 0, pending: 0, failed: 0, highlights: {}, relations: {}
             };
@@ -524,30 +520,21 @@ async function loadUserRecommendations(userId) {
             job.pending = jobStats.pending;
             job.failed = jobStats.failed;
             
-            if (typeof originalGivenCount !== 'undefined' && originalGivenCount !== null) {
-                console.log(`✅ 保留原始 givenCount: ${originalGivenCount}`);
-            } else {
+            if (typeof originalGivenCount === 'undefined' || originalGivenCount === null) {
                 job.givenCount = 0;
-                console.log(`🆕 設定初始 givenCount: 0`);
             }
 
             job.highlightCount = typeof jobStats.highlights === 'object' ? jobStats.highlights : {};
             job.relationCount = typeof jobStats.relations === 'object' ? jobStats.relations : {};
         });
 
-        console.log("✅ 推薦統計映射完成，givenCount 已正確保留");
+        console.log("✅ 推薦統計映射完成");
         
-        // 6. 觸發 UI 重新渲染
-        console.log("🔄 觸發 UI 重新渲染...");
-        try {
-            const list = document.getElementById("experienceList");
-            if (list && window.profile) {
-                renderExperienceCardsWithReply(list, window.profile);
-                console.log("✅ renderExperienceCardsWithReply 已調用");
-            }
-            debugRecommendationData();
-        } catch (renderError) {
-            console.error("❌ UI 渲染失敗:", renderError);
+        // 觸發 UI 重新渲染
+        const list = document.getElementById("experienceList");
+        if (list && window.profile) {
+            renderExperienceCardsWithReply(list, window.profile);
+            console.log("✅ renderExperienceCardsWithReply 已調用");
         }
         
         return recommendations;
@@ -1472,6 +1459,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // 🎯 綁定 Modal 關閉事件
                 bindModalCloseEvents();
 
+                // 在所有儀表板內容渲染完成後，強制校準 Header 搜尋欄的 placeholder
+                const searchInput = document.getElementById('headerSearchInput');
+                if (searchInput) {
+                    searchInput.placeholder = window.t('header.searchPlaceholder');
+                }
                 // 🔄 隱藏載入遮罩
                 document.getElementById("dashboardLoading").style.display = "none";
                 console.log("✅ 儀表板初始化完成！");

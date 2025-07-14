@@ -644,6 +644,7 @@ export const i18n = {
     header: {
       login: "Login",
       logout: "Logout",
+      searchPlaceholder: "Search for talent...",
     },
 
     //Recommend-Network
@@ -1256,6 +1257,7 @@ export const i18n = {
     header: {
       login: "登入",
       logout: "登出",
+      searchPlaceholder: "搜尋人才...",
     },
 
     //Recommend-Network

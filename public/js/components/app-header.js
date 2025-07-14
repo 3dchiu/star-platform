@@ -216,6 +216,17 @@ async function setupAuthentication(elements) {
       updateButtonDisplay(user, elements);
       if(logoLink) logoLink.href = user ? '/pages/profile-dashboard.html' : '/';
 
+      // ✅ 修正：若目前頁面為 public-summary 且剛登入成功，導向自己的儀表板
+      const currentPath = location.pathname;
+      const isPublicPage = currentPath.includes('public-summary.html') || currentPath.includes('public-profile.html');
+      const justLoggedIn = document.referrer.includes('login.html');
+
+      if (user && isPublicPage && justLoggedIn) {
+        console.log("🔁 使用者從公開頁登入後，導向個人儀表板");
+        location.href = '/pages/profile-dashboard.html';
+        return; // 確保不繼續執行下方程式
+      }
+
       if (user && headerSearchContainer && headerSearchInput && headerSearchResults) {
         headerSearchContainer.style.display = 'block';
         
