@@ -96,52 +96,144 @@ function handleHighlightFromSharedLink(highlightRecId) {
     
     // 等待內容完全載入後再執行亮點
     setTimeout(() => {
-        // 尋找對應的推薦卡片（使用 rec- 前綴，與私人頁面保持一致）
-        const targetCard = document.querySelector(`#rec-${highlightRecId}`) || 
-                          document.querySelector(`[data-rec-id="${highlightRecId}"]`);
+        // 先嘗試找到目標推薦卡片
+        let targetCard = document.querySelector(`#rec-${highlightRecId}`) || 
+                        document.querySelector(`[data-rec-id="${highlightRecId}"]`);
         
         if (targetCard) {
-            // 使用現有的 highlight 類別（與私人頁面一致）
-            targetCard.classList.add('highlight');
-            
-            // 滾動到目標位置
-            targetCard.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center' 
-            });
-            
-            // 3秒後移除亮點效果
-            setTimeout(() => {
-                targetCard.classList.remove('highlight');
-            }, 3000);
-            
-            console.log(`✅ 已亮點顯示推薦: ${highlightRecId}`);
+            // ✅ 情況1：推薦已經可見（是第一筆推薦）
+            console.log(`✅ 推薦已可見，直接亮點顯示: ${highlightRecId}`);
+            highlightRecommendation(targetCard);
         } else {
-            console.warn(`⚠️ 找不到推薦卡片: ${highlightRecId}`);
+            // ❌ 情況2：推薦被隱藏（不是第一筆推薦）
+            console.log(`⚠️ 推薦被隱藏，需要先展開: ${highlightRecId}`);
+            
+            // 🔧 解決方案：找到包含該推薦的工作經歷，並展開它
+            const expandedSuccessfully = expandJobContainingRecommendation(highlightRecId);
+            
+            if (expandedSuccessfully) {
+                // 展開後再次嘗試找到推薦卡片
+                setTimeout(() => {
+                    targetCard = document.querySelector(`#rec-${highlightRecId}`) || 
+                               document.querySelector(`[data-rec-id="${highlightRecId}"]`);
+                    
+                    if (targetCard) {
+                        console.log(`✅ 展開後找到推薦，開始亮點顯示: ${highlightRecId}`);
+                        highlightRecommendation(targetCard);
+                    } else {
+                        console.warn(`❌ 展開後仍找不到推薦: ${highlightRecId}`);
+                    }
+                }, 200); // 給一點時間讓DOM更新
+            } else {
+                console.warn(`❌ 無法展開包含推薦的工作經歷: ${highlightRecId}`);
+            }
         }
-    }, 1000); // 給足夠時間讓內容載入
+    }, 1000);
+}
+
+// ✅ 新函數：找到並展開包含特定推薦的工作經歷
+function expandJobContainingRecommendation(recommendationId) {
+    console.log(`🔍 搜尋包含推薦 ${recommendationId} 的工作經歷...`);
+    
+    // 在 currentProfile 中搜尋包含該推薦的工作經歷
+    if (!currentProfile || !currentProfile.workExperiences) {
+        console.warn("❌ 無法取得工作經歷資料");
+        return false;
+    }
+    
+    let targetJobId = null;
+    
+    // 搜尋包含該推薦的工作經歷
+    currentProfile.workExperiences.forEach(exp => {
+        if (exp.recommendations && exp.recommendations.length > 0) {
+            const hasRecommendation = exp.recommendations.some(rec => rec.id === recommendationId);
+            if (hasRecommendation) {
+                targetJobId = exp.id;
+                console.log(`✅ 找到包含推薦的工作經歷: ${targetJobId}`);
+            }
+        }
+    });
+    
+    if (!targetJobId) {
+        console.warn(`❌ 找不到包含推薦 ${recommendationId} 的工作經歷`);
+        return false;
+    }
+    
+    // 找到對應的工作卡片和展開按鈕
+    const jobCard = document.querySelector(`.job-card[data-jobid="${targetJobId}"]`);
+    if (!jobCard) {
+        console.warn(`❌ 找不到工作卡片: ${targetJobId}`);
+        return false;
+    }
+    
+    const toggleButton = jobCard.querySelector('.rec-toggle-btn');
+    if (!toggleButton) {
+        console.log(`ℹ️ 工作經歷 ${targetJobId} 沒有展開按鈕（可能只有一筆推薦）`);
+        return true; // 沒有按鈕表示推薦已經顯示了
+    }
+    
+    // 檢查是否需要展開
+    if (toggleButton.dataset.expanded === 'false') {
+        console.log(`🔧 展開工作經歷 ${targetJobId} 的推薦列表`);
+        toggleButton.click(); // 模擬點擊展開按鈕
+        return true;
+    } else {
+        console.log(`ℹ️ 工作經歷 ${targetJobId} 的推薦已經展開`);
+        return true;
+    }
+}
+
+// ✅ 執行亮點顯示的輔助函數
+function highlightRecommendation(targetCard) {
+    // 使用現有的 highlight 類別
+    targetCard.classList.add('highlight');
+    
+    // 滾動到目標位置
+    targetCard.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+    });
+    
+    console.log(`✨ 亮點顯示完成`);
 }
 
 // 獲取翻譯函數
 function getTranslationFunction() {
     const lang = localStorage.getItem("lang") || "en";
-    return (key) => {
+
+    // 修正後的函式，可以接收額外的參數 (...args)
+    return (key, ...args) => {
         try {
             const keys = key.split(".");
             let value = window.i18n?.[lang];
-            
+
+            // 尋找對應的翻譯內容
             for (const k of keys) {
                 if (value && typeof value === 'object' && k in value) {
                     value = value[k];
                 } else {
-                    return key; // 找不到翻譯時返回原 key
+                    // 如果中途找不到，直接返回 key
+                    return key;
                 }
             }
             
-            return typeof value === 'string' ? value : key;
-        } catch (e) {
-            console.warn("翻譯錯誤:", key, e);
+            // 核心修正：檢查找到的 value 是否為一個函式
+            if (typeof value === 'function') {
+                // 如果是函式，就用傳入的參數 ...args 來呼叫它
+                return value(...args);
+            }
+            
+            // 如果是字串，直接返回
+            if (typeof value === 'string') {
+                return value;
+            }
+
+            // 其他情況（如 undefined 或 null），返回原始 key
             return key;
+
+        } catch (e) {
+            console.warn("翻譯時發生錯誤:", key, e);
+            return key; // 發生錯誤時返回原始 key
         }
     };
 }
@@ -237,7 +329,7 @@ function renderRecommendations(profile, t) {
     // 檢查是否有工作經歷和推薦
     if (!profile.workExperiences || profile.workExperiences.length === 0) {
         summaryArea.innerHTML = `
-            <div class="public-no-content white-card p-6 text-center">
+            <div class="no-content white-card p-6 text-center">
                 <p class="text-gray-500">${t("publicSummary.noVerifiedRecommendations")}</p>
             </div>
         `;
@@ -259,7 +351,7 @@ function renderRecommendations(profile, t) {
 
     if (allRecommendations.length === 0) {
         summaryArea.innerHTML = `
-            <div class="public-no-content white-card p-6 text-center">
+            <div class="no-content white-card p-6 text-center">
                 <p class="text-gray-500">${t("publicSummary.noVerifiedRecommendations")}</p>
             </div>
         `;
@@ -277,67 +369,151 @@ function renderRecommendations(profile, t) {
 // 以工作經歷模式渲染
 function renderWithCompanyMode(workExperiences, t) {
     const summaryArea = document.getElementById("summaryArea");
-    let html = '';
+    summaryArea.innerHTML = "";
 
+    // 按公司分組（與私人頁面邏輯一致）
+    const grouped = {};
     workExperiences.forEach(exp => {
-        if (!exp.recommendations || exp.recommendations.length === 0) {
-            return; // 跳過沒有推薦的經歷
+        if (exp.recommendations && exp.recommendations.length > 0) {
+            (grouped[exp.company] ||= []).push(exp);
         }
-
-        html += `
-            <div class="experience-block white-card p-6 mb-6">
-                <div class="experience-header mb-4">
-                    <h3 class="text-xl font-semibold text-gray-900">${exp.position}</h3>
-                    <p class="text-lg text-gray-700">${exp.company}</p>
-                    <p class="text-sm text-gray-500">
-                        ${formatDateRange(exp.startDate, exp.endDate, t)}
-                    </p>
-                    ${exp.description ? `<p class="text-gray-600 mt-2">${exp.description}</p>` : ''}
-                </div>
-                
-                <div class="recommendations-list">
-                    <h4 class="text-lg font-medium mb-3">${t("publicSummary.recommendations") || "推薦"}</h4>
-                    ${exp.recommendations.map(rec => renderRecommendationCard(rec, t)).join('')}
-                </div>
-            </div>
-        `;
     });
 
-    if (html === '') {
-        html = `
-            <div class="public-no-content white-card p-6 text-center">
+    let hasContent = false;
+
+    Object.entries(grouped).forEach(([company, jobs]) => {
+        if (jobs.length === 0) return;
+
+        hasContent = true;
+
+        // ✅ 使用與私人頁面相同的樣式類別
+        const companySection = document.createElement("div");
+        companySection.className = "company-section";
+        companySection.innerHTML = `<div class="company-name">${company}</div>`;
+
+        jobs.forEach(exp => {
+            // ✅ 使用 job-card 而非 experience-block
+            const jobCard = document.createElement("div");
+            jobCard.className = "job-card";
+            jobCard.dataset.jobid = exp.id;
+
+            // ✅ 使用與私人頁面一致的結構和類別
+            jobCard.innerHTML = `
+                <div class="job-title">${exp.position}</div>
+                <div class="job-date">${formatDateRange(exp.startDate, exp.endDate, t)}</div>
+                ${exp.description ? `<div class="job-description">${exp.description.replace(/\n/g, "<br>")}</div>` : ""}
+            `;
+
+            const recommendations = exp.recommendations || [];
+            
+            if (recommendations.length > 0) {
+                // ✅ 如果有多個推薦，添加展開/收合按鈕（與私人頁面邏輯一致）
+                const recSectionWrapper = document.createElement('div');
+                recSectionWrapper.className = 'rec-section-wrapper';
+
+                if (recommendations.length > 1) {
+                    const toggleBtn = document.createElement('button');
+                    toggleBtn.className = 'btn btn-link rec-toggle-btn';
+                    toggleBtn.dataset.expanded = 'false';
+                    toggleBtn.textContent = t('recommendSummary.showAll', recommendations.length) || `顯示全部 ${recommendations.length} 則推薦`;
+
+                    toggleBtn.addEventListener('click', (e) => {
+                        const wrapper = e.target.closest('.rec-section-wrapper');
+                        const recContainer = wrapper.querySelector('.rec-container');
+                        if (!recContainer) return;
+
+                        const isExpanded = e.target.dataset.expanded === 'true';
+                        if (isExpanded) {
+                            // 收合 - 只顯示第一筆
+                            recContainer.innerHTML = createRecommendationHTML(recommendations[0], t);
+                            e.target.textContent = t('recommendSummary.showAll', recommendations.length) || `顯示全部 ${recommendations.length} 則推薦`;
+                            e.target.dataset.expanded = 'false';
+                        } else {
+                            // 展開 - 顯示全部
+                            recContainer.innerHTML = recommendations.map(rec => createRecommendationHTML(rec, t)).join('');
+                            e.target.textContent = t('recommendSummary.showLess') || '收合推薦';
+                            e.target.dataset.expanded = 'true';
+                        }
+                    });
+                    recSectionWrapper.appendChild(toggleBtn);
+                }
+
+                // ✅ 使用 rec-container 類別
+                const recContainer = document.createElement('div');
+                recContainer.className = 'rec-container';
+                // 預設只顯示第一筆推薦
+                recContainer.innerHTML = createRecommendationHTML(recommendations[0], t);
+                
+                recSectionWrapper.appendChild(recContainer);
+                jobCard.appendChild(recSectionWrapper);
+            }
+
+            companySection.appendChild(jobCard);
+        });
+
+        summaryArea.appendChild(companySection);
+    });
+
+    if (!hasContent) {
+        summaryArea.innerHTML = `
+            <div class="no-content white-card p-6 text-center">
                 <p class="text-gray-500">${t("publicSummary.noVerifiedRecommendations")}</p>
             </div>
         `;
     }
-
-    summaryArea.innerHTML = html;
 }
 
-// 僅推薦模式渲染
-function renderOnlyRecommendationsMode(recommendations, t) {
+function renderOnlyRecommendationsMode(allRecommendations, t) {
     const summaryArea = document.getElementById("summaryArea");
     
-    if (recommendations.length === 0) {
+    if (allRecommendations.length === 0) {
         summaryArea.innerHTML = `
-            <div class="public-no-content white-card p-6 text-center">
+            <div class="no-content white-card p-6 text-center">
                 <p class="text-gray-500">${t("publicSummary.noVerifiedRecommendations")}</p>
             </div>
         `;
         return;
     }
 
+    // ✅ 使用與私人頁面類似的結構
     const html = `
-        <div class="public-recommendations-only white-card p-6">
+        <div class="recommendations-only white-card p-6">
             <h3 class="text-xl font-semibold mb-4">${t("publicSummary.verifiedRecommendations") || "已驗證推薦"}</h3>
-            <div class="recommendations-list">
-                ${recommendations.map(rec => renderRecommendationCard(rec, t)).join('')}
+            <div class="rec-container">
+                ${allRecommendations.map(rec => createRecommendationHTML(rec, t)).join('')}
             </div>
         </div>
     `;
 
     summaryArea.innerHTML = html;
 }
+
+// ✅ 新函數：創建推薦 HTML - 使用與私人頁面完全一致的樣式類別
+function createRecommendationHTML(rec, t) {
+    // 處理亮點標籤 - 使用私人頁面的 badge 類別
+    const badges = rec.highlights && rec.highlights.length > 0 
+        ? rec.highlights.map(h => `<span class="badge">${translateHighlight(h, t)}</span>`).join('')
+        : '';
+
+    // 處理關係顯示
+    const relationText = translateRelation(rec.relation, t);
+    
+    // 推薦人姓名處理（在公開頁面通常不顯示推薦人姓名）
+    const recommenderName = rec.recommenderName || "推薦人";
+
+    // ✅ 使用與私人頁面完全相同的結構和類別
+    return `
+        <div class="rec-card" id="rec-${rec.id}" data-rec-id="${rec.id}">
+            <div class="rec-header">
+                <span class="name">${recommenderName}</span>
+                <span class="meta">（${relationText}）</span>
+            </div>
+            ${badges ? `<div class="badge-container">${badges}</div>` : ''}
+            <div class="rec-content">${rec.content.replace(/\n/g, "<br>")}</div>
+        </div>
+    `;
+}
+
 
 // ✅ 渲染單個推薦卡片（關鍵：要與私人頁面的 ID 格式保持一致）
 function renderRecommendationCard(rec, t) {

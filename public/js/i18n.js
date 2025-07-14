@@ -444,6 +444,14 @@ export const i18n = {
       relations: "Relationship Summary",
       present: "Present",
       registerToView: "🌟 Register to view all",
+
+      //分享按鈕
+      shareMessage_part1: "I received a recommendation from my {{relation}} during my time at {{company}}, documenting my performance in ({{highlights}}).",
+      shareMessage_part2: "This is more than just professional recognition; it's a collaborative experience worth remembering.",
+      shareMessage_part3: "Click to see this heartfelt recommendation from a colleague 👇",
+      copySuccess: "Share link copied!",
+      copyFailed: "Copy failed. Please copy the link manually: ",
+      shareRecBtnTitle: "Share this recommendation",
     },
 
     // public_profile 公開推薦頁
@@ -472,7 +480,7 @@ export const i18n = {
 
       // 時間
       present: "Present",
-      
+
       // 推薦相關
       verifiedRecommendations: "Verified Recommendations",
       totalRecommendations: "Total Recommendations",
@@ -1047,6 +1055,14 @@ export const i18n = {
       highlights: "亮點統計",
       relations: "關係統計",
       present: "目前在職",
+      
+      //分享按鈕
+      shareMessage_part1: "收到來自 {{company}} 時期 {{relation}} 的推薦，記錄了我在（{{highlights}}）上的真實表現。",
+      shareMessage_part2: "這不只是工作上的肯定，更是一段值得被記住的合作經歷。",
+      shareMessage_part3: "點進來看看這份來自共事夥伴的真心推薦👇",
+      copySuccess: "分享連結已複製！",
+      copyFailed: "複製失敗，請手動複製：",
+      shareRecBtnTitle: "分享這則推薦",
     },
 
     // public_profile 公開推薦頁
