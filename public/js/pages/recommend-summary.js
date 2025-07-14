@@ -125,12 +125,15 @@ function renderRecommendations() {
     if (!hasMatch) summaryArea.innerHTML = `<p>${isFiltering ? t("recommendSummary.noFilteredMatch") : t("recommendSummary.noVerifiedRecommendations")}</p>`;
 }
 
-async function loadAndRender(userId, db, highlightRecId) {
+async function loadAndRender(userId, db, highlightRecId, jobIdToFocus) { // 👈 新增 jobIdToFocus 參數
     const loadingEl = document.getElementById("summaryLoading");
     const summaryArea = document.getElementById("summaryArea");
     try {
         const userRef = db.collection("users").doc(userId);
-        const [userSnap, recsSnap] = await Promise.all([ userRef.get(), userRef.collection("recommendations").where("status", "==", "verified").get() ]);
+        const [userSnap, recsSnap] = await Promise.all([
+            userRef.get(),
+            userRef.collection("recommendations").where("status", "==", "verified").get()
+        ]);
         if (!userSnap.exists) throw new Error("找不到使用者資料");
         
         const profile = userSnap.data();
@@ -139,7 +142,10 @@ async function loadAndRender(userId, db, highlightRecId) {
         
         const jobMap = new Map();
         (Array.isArray(profile.workExperiences) ? profile.workExperiences : []).forEach(job => {
-            if (job && job.id) { job.verifiedRecommendations = []; jobMap.set(job.id, job); }
+            if (job && job.id) {
+                job.verifiedRecommendations = [];
+                jobMap.set(job.id, job);
+            }
         });
         recsSnap.forEach(docSnap => {
             const rec = { id: docSnap.id, ...docSnap.data() };
@@ -152,8 +158,11 @@ async function loadAndRender(userId, db, highlightRecId) {
         const t = window.t;
         document.title = t("recommendSummary.pageTitle");
         document.getElementById("userName").innerText = t("recommendSummary.summaryFor", profile.name || "");
-        if (profile.bio?.trim()) document.getElementById("description").innerText = profile.bio.trim();
-        else document.getElementById("description").style.display = "none";
+        if (profile.bio?.trim()) {
+            document.getElementById("description").innerText = profile.bio.trim();
+        } else {
+            document.getElementById("description").style.display = "none";
+        }
         
         const backBtn = document.getElementById("backBtn");
         if (backBtn) {
@@ -165,12 +174,36 @@ async function loadAndRender(userId, db, highlightRecId) {
         await updateFilterOptions();
         await renderRecommendations();
 
+        // --- 👇 這是核心修正區塊 👇 ---
+
+        // 優先處理單一推薦的高亮
         if (highlightRecId) {
             setTimeout(() => {
                 const el = document.getElementById(`rec-${highlightRecId}`);
-                if (el) { el.scrollIntoView({ behavior: "smooth", block: "center" }); el.classList.add("highlight"); }
+                if (el) {
+                    el.scrollIntoView({ behavior: "smooth", block: "center" });
+                    el.classList.add("highlight");
+                }
+            }, 500);
+        } 
+        // 如果沒有指定高亮推薦，再處理整個工作卡片的定位
+        else if (jobIdToFocus) {
+            setTimeout(() => {
+                const jobCard = document.querySelector(`.job-card[data-jobid="${jobIdToFocus}"]`);
+                if (jobCard) {
+                    // 讓頁面平滑捲動到該卡片位置
+                    jobCard.scrollIntoView({ behavior: "smooth", block: "center" });
+                    
+                    // 加上短暫的高亮效果，讓使用者知道是哪一張卡片
+                    jobCard.style.transition = 'background-color 0.5s ease-out';
+                    jobCard.style.backgroundColor = '#e7f3ff'; // 淡藍色高亮
+                    setTimeout(() => {
+                        jobCard.style.backgroundColor = ''; // 2秒後恢復原狀
+                    }, 2000);
+                }
             }, 500);
         }
+        
     } catch (err) {
         console.error("載入或渲染失敗:", err);
         if (summaryArea) summaryArea.innerHTML = `<p style="color: red;">載入失敗: ${err.message}</p>`;
@@ -266,12 +299,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const auth = firebase.auth();
         console.log("✅ Firebase 就緒，監聽 Auth 狀態");
         auth.onAuthStateChanged(user => {
-            if (user) {
-                const params = new URLSearchParams(location.search);
-                loadAndRender(user.uid, firebase.firestore(), params.get("highlightRecId"));
-            } else {
-                window.location.href = "/pages/login.html";
-            }
+          if (user) {
+              const params = new URLSearchParams(location.search);
+        // ✅ 新增讀取 jobId，並傳入 loadAndRender
+              loadAndRender(user.uid, firebase.firestore(), params.get("highlightRecId"), params.get("jobId"));
+          } else {
+              window.location.href = "/pages/login.html";
+          }
         });
     } catch (error) {
         console.error("❌ Firebase 初始化失敗:", error);
