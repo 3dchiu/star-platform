@@ -250,7 +250,6 @@ function renderExperienceCardsWithReply(list, profile) {
     const frag = document.createDocumentFragment();
     const grouped = {};
     
-    // 取得翻譯函式
     const t = getTranslationFunction();
 
     profile.workExperiences.sort((a,b)=>b.startDate.localeCompare(a.startDate))
@@ -291,9 +290,15 @@ function renderExperienceCardsWithReply(list, profile) {
             const summaryDiv = document.createElement('div');
             summaryDiv.className = 'rec-summary-block';
             
+            // ✨ --- 核心修改：第一部分 --- ✨
+            // 我們將「統計文字」和「操作按鈕」的 HTML 分開產生。
+            
+            let summaryTextHTML = '';
+            
+            // 步驟 1: 只有在有收到推薦時，才產生統計文字區塊。
             if (hasRec || (job.allReceived && job.allReceived > 0)) {
                 const lang = localStorage.getItem("lang") || "zh-Hant";
-                const unit = lang === "zh-Hant" ? "位" : (count => count === 1 ? "person" : "people");
+                const unit = (count) => (lang === "zh-Hant" ? "位" : (count === 1 ? "person" : "people"));
                 
                 let mainStatsText = hasRec ? `
                     <span class="stat-item">
@@ -305,8 +310,8 @@ function renderExperienceCardsWithReply(list, profile) {
                         <span class="emoji">📬</span> ${t('profileDashboard.noRecommendation')}
                     </span>`;
                 
-                const replyStatsText = canReplyCount > 0 ? `<span class="stat-separator">|</span><span class="stat-item">${t('profileDashboard.canReply')} <strong>${canReplyCount}</strong> ${t('profileDashboard.people')}</span>` : '';
-                const givenStatsText = `<span class="stat-separator">|</span><span class="stat-item">${t('profileDashboard.totalRecommended')} <strong>${givenCount}</strong> ${t('profileDashboard.people')}</span>`;
+                const replyStatsText = canReplyCount > 0 ? `<span class="stat-separator">|</span><span class="stat-item">${t('profileDashboard.canReply')} <strong>${canReplyCount}</strong> ${unit(canReplyCount)}</span>` : '';
+                const givenStatsText = `<span class="stat-separator">|</span><span class="stat-item">${t('profileDashboard.totalRecommended')} <strong>${givenCount}</strong> ${unit(givenCount)}</span>`;
 
                 let pendingHint = "";
                 if (pendingCount > 0 || failedCount > 0) {
@@ -318,49 +323,56 @@ function renderExperienceCardsWithReply(list, profile) {
                 }
                 
                 const predefinedHighlights = new Set(['hardSkill', 'softSkill', 'character']);
-
-                const highlightText = hasRec ? 
-                    Object.entries(job.highlightCount || {})
-                        .map(([key, count]) => {
-                            if (predefinedHighlights.has(key)) {
-                                const translatedKey = t(`recommendSummary.highlight_${key}`) || key;
-                                return `${translatedKey} ${count} ${typeof unit === "function" ? unit(count) : unit}`;
-                            } else {
-                                return `${key} ${count} ${typeof unit === "function" ? unit(count) : unit}`;
-                            }
-                        })
-                        .join('、') || t('profileDashboard.noHighlights') 
-                    : t('profileDashboard.noHighlights');
-
-                // 👇 【核心修正】: 使用 t('recommendSummary.relationFilterOptions') 取得陣列
-                const relationText = hasRec ? 
-                    Object.entries(job.relationCount || {})
-                        .map(([key, count]) => {
-                            const relOptions = t('recommendSummary.relationFilterOptions') || [];
-                            const match = relOptions.find(opt => opt.value === key);
-                            const translatedKey = match ? match.label : key;
-                            return `${translatedKey} ${count} ${typeof unit === "function" ? unit(count) : unit}`;
-                        })
-                        .join('、') || t('profileDashboard.noRelations') 
-                    : t('profileDashboard.noRelations');
+                const highlightText = Object.entries(job.highlightCount || {}).map(([k, c]) => `${predefinedHighlights.has(k) ? t(`recommendSummary.highlight_${k}`) : k} ${c} ${unit(c)}`).join('、') || t('profileDashboard.noHighlights');
                 
-                summaryDiv.innerHTML = `
-                    <hr style="border: none; border-top: 1px solid #ddd; margin: 16px 0;" />
-                    <div class="summary-content">
-                        <div class="summary-text">
-                            <div class="recommendation-stats">${mainStatsText}${replyStatsText}${givenStatsText}</div>
-                            ${pendingHint}
-                            ${hasRec ? `<p>${t('profileDashboard.highlights')}：${highlightText}</p><p>${t('profileDashboard.relations')}：${relationText}</p>` : `<p><span class="emoji">🧡</span> ${t('profileDashboard.noRecommendationsHint')}</p>`}
-                        </div>
-                        <div class="recommendation-actions">
-                            <button class="action-btn primary recommend-others-btn" data-idx="${idx}" title="${t('profileDashboard.recommendOthers')} (+10 EXP)">🤝 ${t('profileDashboard.recommendOthers')}</button>
-                            ${canReplyCount > 0 ? `<button class="action-btn secondary reply-btn" data-idx="${idx}" title="${t('profileDashboard.replyRecommend')} (+3 EXP)">💬 ${t('profileDashboard.replyRecommend')} (${canReplyCount})</button>` : ''}
-                            <button class="action-btn secondary link-btn" data-idx="${idx}" title="${t('profileDashboard.inviteRecommender')} (${t('profileDashboard.successfulRecommendation')} +5 EXP)">📨 ${t('profileDashboard.inviteRecommender')}</button>
-                        </div>
-                    </div>`;
+                const relOptions = t('recommendSummary.relationFilterOptions') || [];
+                const relationText = Object.entries(job.relationCount || {}).map(([k, c]) => {
+                    const match = relOptions.find(opt => opt.value === k);
+                    return `${match ? match.label : k} ${c} ${unit(c)}`;
+                }).join('、') || t('profileDashboard.noRelations');
+                
+                summaryTextHTML = `
+                    <div class="summary-text">
+                        <div class="recommendation-stats">${mainStatsText}${replyStatsText}${givenStatsText}</div>
+                        ${pendingHint}
+                        <p>${t('profileDashboard.highlights')}：${highlightText}</p>
+                        <p>${t('profileDashboard.relations')}：${relationText}</p>
+                    </div>
+                `;
+
             } else {
-                // ... (此處的 else 區塊邏輯不變)
+                // 如果沒有收到任何推薦，顯示一段引導文字。
+               summaryTextHTML = `
+                <div class="summary-text no-recommendations-prompt">
+                    <p>
+                        <span class="emoji">💌</span>
+                        <strong>${t('profileDashboard.noRecsTitle')}</strong>
+                    </p>
+                    <ul style="list-style-type: disc; padding-left: 20px; margin-top: 8px; color: #555;">
+                        <li>${t('profileDashboard.noRecsAction1')}</li>
+                        <li>${t('profileDashboard.noRecsAction2')}</li>
+                    </ul>
+                </div>
+            `;
             }
+
+            // ✨ --- 核心修改：第二部分 --- ✨
+            // 步驟 2: 無論如何，都產生操作按鈕的區塊。
+            const actionButtonsHTML = `
+                <div class="recommendation-actions">
+                    <button class="action-btn primary recommend-others-btn" data-idx="${idx}" title="${t('profileDashboard.recommendOthers')} (+10 EXP)">🤝 ${t('profileDashboard.recommendOthers')}</button>
+                    ${canReplyCount > 0 ? `<button class="action-btn secondary reply-btn" data-idx="${idx}" title="${t('profileDashboard.replyRecommend')} (+3 EXP)">💬 ${t('profileDashboard.replyRecommend')} (${canReplyCount})</button>` : ''}
+                    <button class="action-btn secondary link-btn" data-idx="${idx}" title="${t('profileDashboard.inviteRecommender')} (${t('profileDashboard.successfulRecommendation')} +5 EXP)">📨 ${t('profileDashboard.inviteRecommender')}</button>
+                </div>
+            `;
+
+            // 步驟 3: 將統計文字和操作按鈕組合起來。
+            summaryDiv.innerHTML = `
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 16px 0;" />
+                <div class="summary-content">
+                    ${summaryTextHTML}
+                    ${actionButtonsHTML}
+                </div>`;
             
             roleCard.appendChild(summaryDiv);
             wrap.appendChild(roleCard);
@@ -603,10 +615,11 @@ function calculateRecommendationStats(recommendations) {
             }
 
             // 判斷是否可回覆
-            if (!rec.hasReplied) {
+            if (rec.status === 'verified' && !rec.hasReplied) {
                 const alreadyRecommended = recommendedTargets.has(rec.recommenderId) || 
                                          recommendedTargets.has((rec.email || '').toLowerCase());
                 
+                // 只有在尚未回覆，且也尚未主動推薦過對方的情況下，才算可回覆
                 if (!alreadyRecommended) {
                     stats.totalCanReply++;
                     jobStats.canReply++;
@@ -1077,7 +1090,7 @@ function openModalForEdit(idx) {
     
     if (modalTitle) modalTitle.textContent = t('profileDashboard.editExperience');
     
-    // 填入現有資料
+    // --- 填入現有資料 (此部分邏輯不變) ---
     const companyInp = document.getElementById("companyInput");
     const positionInp = document.getElementById("positionInput");
     const startY = document.getElementById("startYear");
@@ -1108,22 +1121,32 @@ function openModalForEdit(idx) {
         if (endM) endM.value = "";
     }
     
+    // ✨ --- 核心修改 --- ✨
+    // 1. 檢查這份工作是否有已驗證的推薦 (job.verified > 0)。
+    //    `job.verified` 的值是在 `loadUserRecommendations` 函式中計算並賦予的。
+    const shouldLock = job.verified && job.verified > 0;
+    
     editIdx = idx;
-    lockCoreFields(true);
+    
+    // 2. 將檢查結果 (true/false) 傳遞給 lockCoreFields 函式。
+    lockCoreFields(shouldLock);
+    
     if (expModal) expModal.showModal();
 }
 
 // ✨ 鎖定核心欄位
-function lockCoreFields(isEdit) {
+function lockCoreFields(shouldLock) {
     const companyInp = document.getElementById("companyInput");
-    const positionInp = document.getElementById("positionInput");
+    const positionInp = document.getElementById("positionInput"); // 職位輸入欄
     const startY = document.getElementById("startYear");
     const startM = document.getElementById("startMonth");
     
-    if (companyInp) companyInp.disabled = isEdit;
-    if (positionInp) positionInp.disabled = isEdit;
-    if (startY) startY.disabled = isEdit;
-    if (startM) startM.disabled = isEdit;
+    // ✨ --- 核心修改 --- ✨
+    // 現在，公司、職位、開始日期都會根據 shouldLock 的值 (true/false) 來決定是否禁用。
+    if (companyInp) companyInp.disabled = shouldLock;
+    if (positionInp) positionInp.disabled = shouldLock; // <--- 已將此欄位加入鎖定邏輯
+    if (startY) startY.disabled = shouldLock;
+    if (startM) startM.disabled = shouldLock;
 }
 
 // ✨ 解鎖所有欄位
@@ -1322,7 +1345,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // 🌍 初始化靜態文字和語言切換
         renderAllStaticText();
-        updateOnboardingText();
         
         // 🌍 語言切換事件監聽
         window.addEventListener("langChanged", () => {
@@ -1397,6 +1419,29 @@ document.addEventListener("DOMContentLoaded", async () => {
                 
                 // 📊 載入推薦資料並渲染
                 await loadUserRecommendations(window.profile.userId);
+                const stats = window.profile.recommendationStats || {};
+                const totalReceived = stats.totalReceived || 0;
+                const totalGiven = stats.totalGiven || 0;
+
+                // 條件：只要收到過 或 送出過 任何一筆已驗證的推薦
+                const hasAnyVerifiedRec = totalReceived > 0 || totalGiven > 0;
+                const quickStartCard = document.getElementById('quickStartCard');
+
+                if (quickStartCard) {
+                    if (hasAnyVerifiedRec) {
+                // 如果有推薦紀錄，就隱藏卡片
+                    quickStartCard.style.display = 'none';
+                    } else {
+                // 如果沒有推薦紀錄，才顯示卡片
+                    console.log("ℹ️ 使用者尚無推薦紀錄，準備顯示新手引導卡。");
+
+                // ✨ 核心修正：在顯示卡片容器前，先呼叫函式填入最新的文字內容
+                    updateOnboardingText(); 
+        
+                // 接著才顯示整個區塊
+                    quickStartCard.style.display = 'block'; 
+                    }
+                }
                 const experienceListContainer = document.getElementById("experienceList");
                 if (experienceListContainer) {
                     renderExperienceCardsWithReply(experienceListContainer, window.profile);

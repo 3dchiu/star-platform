@@ -767,7 +767,7 @@ async function saveRecommendation(inviteData, formData) {
         name: inviteData.targetName,
         email: inviteData.targetEmail,
         type: "reply",
-        originalRecommendationId: inviteData.originalRecId,
+        originalRecommendationId: inviteData.originalRecommendationId || originalRecIdFromUrl,
         targetEmail: inviteData.targetEmail,
         targetName: inviteData.targetName,
       };

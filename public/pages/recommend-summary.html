@@ -78,13 +78,11 @@
    
     <!-- 🔍 篩選器 + 匯出按鈕（排成一列） -->
     <div id="filters" class="filters-toolbar flex flex-wrap items-end gap-4 mb-4">
-      <!-- 篩選：推薦關係 -->
       <div class="flex flex-col">
         <label for="relationFilter" class="mb-1 text-sm" data-i18n="recommendSummary.label_relation"></label>
         <select id="relationFilter" class="px-2 py-1 border rounded w-52"></select>
       </div>
 
-      <!-- 篩選：亮點 -->
       <div class="flex flex-col">
         <label for="highlightFilter" class="mb-1 text-sm" data-i18n="recommendSummary.label_highlight"></label>
         <select id="highlightFilter" class="px-2 py-1 border rounded w-52">
@@ -106,15 +104,13 @@
     
     <!-- 🔁 切換模式按鈕 -->
     <div class="flex flex-col justify-end">
-      <button id="toggleViewBtn"
-        class="btn btn-secondary px-4 py-2 h-fit"
-        data-i18n="recommendSummary.onlyShowRecommendations"
-        data-i18n-alt="recommendSummary.showWithCompany">
-      </button>
-    </div>
-    
-    <!-- 推薦列表 -->
-    <section id="summaryArea"></section>
+        <button id="toggleViewBtn"
+          class="btn btn-secondary px-4 py-2 h-fit"
+          data-i18n="recommendSummary.onlyShowRecommendations"
+          data-i18n-alt="recommendSummary.showWithCompany">
+        </button>
+      </div>
+    </div> <section id="summaryArea"></section>
   </main>  
 
   <script type="module" src="../js/pages/recommend-summary.js"></script>
