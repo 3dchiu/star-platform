@@ -53,23 +53,26 @@
 
     <!-- 🆕 註冊表單（預設隱藏） -->
     <div id="registerSection" style="display: none;">
-      <form id="registerForm">
-        <input type="email" id="registerEmail" 
-               data-i18n-placeholder="login.emailPlaceholder" placeholder="" required />
-        <input type="password" id="registerPassword" 
-               data-i18n-placeholder="login.passwordPlaceholder" placeholder="" required />
-        <!-- 🎫 活動邀請碼欄位（選填） -->
-        <input type="text" id="inviteCodeInput" 
-               data-i18n-placeholder="login.inviteCodePlaceholder" placeholder="" />
-        <small style="color: gray; display: block; margin-bottom: 12px;" 
-               data-i18n="login.inviteCodeHint"></small>
-        <button id="registerBtn" type="submit" data-i18n="login.registerButton"></button>
-      </form>
-      <p>
-        <span data-i18n="login.alreadyHaveAccount"></span>
-        <a href="#" id="showLogin" data-i18n="login.backToLogin"></a>
-      </p>
-    </div>
+  <form id="registerForm">
+    <input type="email" id="registerEmail" 
+           data-i18n-placeholder="login.emailPlaceholder" placeholder="" required />
+    <input type="password" id="registerPassword" 
+           data-i18n-placeholder="login.passwordPlaceholder" placeholder="" required />
+    <input type="text" id="inviteCodeInput" 
+           data-i18n-placeholder="login.inviteCodePlaceholder" placeholder="" />
+    <small style="color: gray; display: block; margin-bottom: 12px;" 
+           data-i18n="login.inviteCodeHint"></small>
+
+    <div class="terms-notice" data-i18n="login.termsAgreement" style="font-size: 12px; color: #666; margin: 16px 0;">
+      </div>
+
+    <button id="registerBtn" type="submit" data-i18n="login.registerButton"></button>
+  </form>
+  <p>
+    <span data-i18n="login.alreadyHaveAccount"></span>
+    <a href="#" id="showLogin" data-i18n="login.backToLogin"></a>
+  </p>
+</div>
 
     <!-- 錯誤或訊息顯示 -->
     <div id="error-message" style="color: red; display: none;"></div>
@@ -79,5 +82,7 @@
 <script type="module" src="../js/components/app-header.js"></script>
 <script type="module" src="../js/pages/login.js"></script>
 
+<div id="appFooter"></div>
+<script type="module" src="../js/components/app-footer.js"></script>
 </body>
 </html>

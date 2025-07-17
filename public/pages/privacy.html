@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Privacy Policy – Galaxyz</title>
+
+  <link rel="stylesheet" href="../styles/main.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="../js/firebase-init.js" type="module"></script>
+  <script type="module" src="../js/i18n.js"></script>
+  <script type="module" src="../js/components/app-header.js"></script>
+
+  <style>
+    .privacy-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .privacy-container h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .privacy-container h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 0.5rem;
+    }
+    .privacy-container h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .privacy-container p, .privacy-container li {
+      line-height: 1.7;
+      color: #333;
+    }
+    .privacy-container ul {
+      padding-left: 20px;
+      list-style-type: disc;
+    }
+    .last-updated {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .site-footer {
+      text-align: center;
+      padding: 2rem 0;
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="appHeader"></div>
+
+  <main class="container">
+    <div class="privacy-container">
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last Updated: July 17, 2025</p>
+
+      <section>
+        <h2>1. Who We Are</h2>
+        <p>Galaxyz is a career networking platform based on real recommendations. Our website is: https://galaxyz.ai</p>
+      </section>
+
+      <section>
+        <h2>2. What Data We Collect</h2>
+        <p>To provide our service, we collect the following types of information:</p>
+        
+        <h3>Information You Provide Directly</h3>
+        <ul>
+          <li><strong>Account & Profile Data:</strong> Your name, email, password, language preferences, and career information you choose to share, such as work experiences and bio.</li>
+          <li><strong>Recommendation Data:</strong> The content, highlights, and relationship tags you provide when writing or receiving recommendations.</li>
+        </ul>
+
+        <h3>Information Generated Through Your Activity</h3>
+        <ul>
+          <li><strong>Invitation and Recommendation Records:</strong> When you invite others or recommend a partner, we store records of these actions to properly manage the entire recommendation process.</li>
+          <li><strong>Public Profile Data:</strong> We create a public version of your profile for search and public page features. This includes keywords derived from your name and headline to optimize the platform's search functionality.</li>
+        </ul>
+
+        <h3>Information About Others</h3>
+        <ul>
+          <li>When you recommend a non-registered user, we temporarily store their email address in a `pendingUsers` collection until they register.</li>
+        </ul>
+
+        <h3>Information We Collect Automatically</h3>
+        <ul>
+          <li><strong>Log and Usage Data:</strong> Like most websites, we may automatically collect your IP address, browser type, device information, and your activity on our platform for security, analytics, and service improvement.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. How We Use Your Data</h2>
+        <p>We use the information we collect for the following purposes:</p>
+        <ul>
+          <li>To operate and maintain our recommendation system.</li>
+          <li>To verify recommendation content and user identity.</li>
+          <li>To generate your public profile page if you choose to make it public.</li>
+          <li>To send you important notifications regarding your account and recommendations.</li>
+          <li>To analyze usage and improve our platform's user experience.</li>
+          <li><strong>To maintain a safe and trustworthy environment:</strong> If we discover activities such as recommendation abuse or the creation of fraudulent accounts, we reserve the right to suspend or terminate the responsible account(s).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Who Can See Your Data</h2>
+        <ul>
+          <li><strong>Yourself:</strong> You can see all of your own information on your dashboard.</li>
+          <li><strong>People You Recommend:</strong> When you recommend someone, they will see your name and the recommendation content.</li>
+          <li><strong>The Public:</strong> If you enable your public profile, visitors can see your name, bio, level, work experiences that have received recommendations, and the content of those recommendations. To protect your recommenders' privacy, we **do not** display their names on your public profile.</li>
+          <li><strong>System Administrators:</strong> Our authorized personnel may access your data for debugging, support, and system maintenance purposes only.</li>
+          <li><strong>Third-Party Service Providers:</strong> We may share necessary data with third-party vendors that help us operate our service (e.g., cloud hosting, email delivery). These providers are contractually obligated to protect your data.</li>
+          <li><strong>Legal Requirements:</strong> We may disclose your information if required to do so by law or in response to valid requests by public authorities.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5. Your Rights and Choices</h2>
+        <p>You have the following rights regarding your personal data:</p>
+        <ul>
+          <li><strong>Right to Access and Correct:</strong> You can review and edit most of your personal information directly on your Profile Dashboard at any time.</li>
+          <li><strong>Right to Delete:</strong> You can request the deletion of your account and associated data by contacting us. We will process your request within a reasonable timeframe.</li>
+          <li><strong>Right to Opt-Out of "Sale" or "Sharing":</strong> We do not sell your personal data. Under some privacy laws, "sharing" can have a broad definition. We do not share your data with third parties for cross-context behavioral advertising.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6. Data Retention</h2>
+        <p>We retain your personal data as long as your account is active. If you choose to delete your account, we will delete your personally identifiable information from our active systems in accordance with our data deletion schedule, though we may retain anonymized, aggregate data for analytical purposes.</p>
+      </section>
+
+      <section>
+        <h2>7. Data Security</h2>
+        <p>We are committed to protecting your data. We use industry-standard security measures, including those provided by Google Firebase, with strict access controls to safeguard your information against unauthorized access, alteration, or destruction.</p>
+      </section>
+
+      <section>
+        <h2>8. Cookies & Tracking Technologies</h2>
+        <p>We do not use cookies for tracking or advertising purposes. We may use essential cookies or similar technologies (like `localStorage`) for core site functionality, such as keeping you logged in.</p>
+      </section>
+
+      <section>
+        <h2>9. Children's Privacy</h2>
+        <p>Our service is not directed to individuals under the age of 18. We do not knowingly collect personal information from children under 18.</p>
+      </section>
+
+      <section>
+        <h2>10. Changes to This Privacy Policy</h2>
+        <p>We may update this privacy policy from time to time. The updated version will be indicated by a "Last Updated" date and will be effective as soon as it is accessible. We encourage you to review this policy frequently to be informed of how we are protecting your information.</p>
+      </section>
+
+      <section>
+        <h2>11. Contact Us</h2>
+        <p>If you have any questions or comments about this policy, you may email us at hello@galaxyz.ai</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2025 Galaxyz.ai - All Rights Reserved.</p>
+  </footer>
+
+</body>
+</html>

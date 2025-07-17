@@ -2037,3 +2037,33 @@ text-decoration: underline;
   }
 }
 
+/* ========================================
+   Footer Styles
+   ======================================== */
+.site-footer {
+  text-align: center; /* 讓內部所有文字內容置中 */
+  padding: 2rem 1rem;
+  margin-top: 2rem;
+  color: #888;
+  font-size: 0.8rem;
+  border-top: 1px solid #e5e7eb; /* 加上一條頂部分隔線 */
+}
+
+.footer-links {
+  margin-bottom: 1rem; /* 與下方的版權文字間隔 */
+  display: flex;
+  justify-content: center; /* 水平置中連結 */
+  gap: 1.5rem; /* 連結之間的間距 */
+  flex-wrap: wrap; /* 在小螢幕上自動換行 */
+}
+
+.footer-links a {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.footer-links a:hover {
+  color: #0056b3; /* 滑鼠懸停時的顏色 */
+  text-decoration: underline;
+}
