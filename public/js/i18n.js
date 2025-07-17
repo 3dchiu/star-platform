@@ -641,6 +641,7 @@ export const i18n = {
       inviteOnlyNotice: "Registration is currently by invitation and recommendation only. Please check if your invitation link is valid.",
       alreadyHaveAccount: "Already have an account?",
       backToLogin: "Back to Login",
+      termsAgreement: 'By clicking "Register", you agree to our <a href="/pages/privacy.html" target="_blank">Privacy Policy</a>.',
     },
 
     header: {
@@ -666,7 +667,15 @@ export const i18n = {
       networkLoginPrompt: "Please log in to view your network.",
       meTag: "(me)",
       unregisteredTag: "(unregistered)",
+    },
+
+    footer: {
+      home: "Home",
+      about: "About Us",
+      privacy: "Privacy Policy",
+      copyright: `© ${new Date().getFullYear()} Galaxyz.ai - All Rights Reserved.`
     }
+
   },
 
   "zh-Hant": {
@@ -1256,6 +1265,7 @@ export const i18n = {
       inviteOnlyNotice: "目前僅限受邀者與推薦人註冊，請確認您的邀請連結是否正確。",
       alreadyHaveAccount: "已經有帳號了？",
       backToLogin: "返回登入",
+      termsAgreement: '點擊「註冊」即表示您已閱讀並同意我們的<a href="/pages/privacy.html" target="_blank">隱私權政策</a>。',
     },
 
     header: {
@@ -1281,8 +1291,14 @@ export const i18n = {
       networkLoginPrompt: "請先登入以查看推薦網絡。",
       meTag: "（我）",
       unregisteredTag: "（未註冊）",
+    },
+    footer: {
+      home: "首頁",
+      about: "關於我們",
+      privacy: "隱私權政策",
+      copyright: `© ${new Date().getFullYear()} Galaxyz.ai - 版權所有`
     }
-  }
+  },
 };
 // 🌍 添加缺少的全域變數
 let currentLang = localStorage.getItem('lang') || 'en';
