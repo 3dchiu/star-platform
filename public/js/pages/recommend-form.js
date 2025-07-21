@@ -193,7 +193,7 @@ async function loadDataByInviteId(loadingText) {
     throw new Error("邀請不存在或已失效");
   }
   
-  const inviteData = inviteSnap.data();
+  inviteData = inviteSnap.data(); 
   console.log("📄 邀請資料:", inviteData);
   
   userId = inviteData.userId;
@@ -424,7 +424,6 @@ function renderPage() {
   const relationSelect = document.getElementById("relation");
   if (relationSelect) {
     const relationOptions = t.relationOptions || [
-      { value: "", label: "請選擇關係" },
       { value: "directManager", label: "我是他/她的直接主管" },
       { value: "crossDeptManager", label: "我是他/她的跨部門主管" },
       { value: "sameDeptColleague", label: "我是他/她的同部門同事" },
@@ -546,135 +545,164 @@ function bindEvents() {
     inviteArea.addEventListener("input", () => { userEdited = true; });
   }
 
+  // ✨ --- 新增此區塊：綁定 Email 欄位的 blur 事件 --- ✨
+  const emailInput = document.getElementById('email');
+  if (emailInput) {
+    emailInput.addEventListener('blur', handleEmailBlur);
+  }
+  // ✨ --- 新增結束 --- ✨
+
   window.addEventListener("langChanged", () => {
     console.log("🌐 語言已變更，重新渲染頁面");
     renderPage();
   });
 }
 
-// 🔽 處理表單提交
-async function handleSubmit(e) {
-  e.preventDefault();
-  console.log("📤 [V2] 處理表單提交...");
+async function handleEmailBlur(event) {
+    const email = event.target.value.trim().toLowerCase();
+    const jobContainer = document.getElementById('recommenderJobContainer');
+    const jobLoading = document.getElementById('recommenderJobLoading');
+    const jobSelect = document.getElementById('recommenderJob');
 
-  const btn = document.getElementById("submitBtn");
-  const lang = localStorage.getItem("lang") || "zh";
-  const t = i18n[lang] || i18n.zh || {};
-  
-  if (btn) btn.disabled = true;
-
-  // 步驟 1: 收集並驗證表單資料
-  const formData = {
-    name: document.getElementById("name")?.value.trim() || "",
-    email: document.getElementById("email")?.value.trim().toLowerCase() || "",
-    relation: document.getElementById("relation")?.value || "",
-    content: document.getElementById("content")?.value.trim() || "",
-    highlights: Array.from(document.querySelectorAll('input[name="highlight"]:checked')).map(cb => cb.value)
-  };
-
-  if (!formData.name || !formData.email || !formData.relation || !formData.content || formData.highlights.length === 0) {
-    alert(t.fillAllFields || "請完整填寫所有欄位");
-    if (btn) btn.disabled = false;
-    return;
-  }
-  
-  // 步驟 2: 檢查上下文資料是否已載入
-  if (!profileData || !jobData || !inviteData) {
-      console.error("❌ 提交錯誤：頁面核心資料未載入", { hasProfile: !!profileData, hasJob: !!jobData, hasInvite: !!inviteData });
-      alert(t.submitError || "提交失敗，頁面資料不完整，請重新整理。");
-      if (btn) btn.disabled = false;
-      return;
-  }
-
-  try {
-    // 步驟 3: 檢查是否重複提交（針對同一個邀請）
-    // 根據文件規則，我們在寫入端先做簡易檢查，防止使用者誤觸
-    const q = db.collection("outgoingRecommendations")
-                .where("inviteId", "==", inviteId)
-                .where("email", "==", formData.email);
-    
-    const existingSnap = await q.get();
-
-    if (!existingSnap.empty) {
-        console.warn("⚠️ 偵測到重複提交");
-        alert(t.alreadyRecommended || "您已經為此邀請提交過推薦，請勿重複操作。");
-        // 直接導向感謝頁面，體驗更流暢
-        window.location.href = `thank-you.html?userId=${userId}&recommenderName=${encodeURIComponent(formData.name)}`;
+    if (!email || !jobContainer || !jobLoading || !jobSelect) {
+        if(jobContainer) jobContainer.style.display = 'none';
         return;
     }
 
-    // 步驟 4: 準備寫入 `outgoingRecommendations` 的資料
-    // 這個物件結構嚴格遵循 V1 技術文件
-    const outgoingRecommendationData = {
-        // 表單核心資料
-        name: formData.name,
-        email: formData.email,
-        relation: formData.relation,
-        content: formData.content,
-        highlights: formData.highlights,
-        
-        // 關聯與上下文資料
-        inviteId: inviteId,
-        lang: lang,
-        recommenderUserId: auth.currentUser ? auth.currentUser.uid : null,
-        recommendeeName: profileData.name || null,
-        recommendeeEmail: profileData.email || null,
-        type: inviteData.type || 'unknown', // 來自 invite 文件，例如 'outgoing' 或 'inviteFriend'
+    try {
+        jobLoading.style.display = 'block';
+        jobContainer.style.display = 'none'; // 先隱藏
 
-        // 處理狀態欄位 (由 Cloud Function 更新)
-        processed: false,
-        processing: false,
-        status: 'submitted', // 初始狀態
+        const getWorkExperiences = firebase.functions().httpsCallable('getRecommenderWorkExperiencesByEmail');
+        const result = await getWorkExperiences({ email: email });
+        const experiences = result.data;
 
-        // 時間戳
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        // 清空舊選項
+        jobSelect.innerHTML = '<option value="">請選擇您想基於哪份經歷推薦...</option>';
 
-        // 文件中定義但表單無法提供的欄位，設為 null
-        duplicateOf: null,
-        processedAt: null,
-        processingStartedAt: null,
-        recommenderCompany: null,
-        recommenderJobId: null,
-        recommenderPosition: null,
-    };
-    console.log("💾 準備寫入 outgoingRecommendations:", outgoingRecommendationData);
+        if (experiences && experiences.length > 0) {
+            console.log(`✅ 找到 ${experiences.length} 筆工作經歷。`);
+            experiences.forEach(job => {
+                const option = document.createElement('option');
+                option.value = job.id;
+                option.textContent = `${job.company} - ${job.position} (${job.startDate} ~ ${job.endDate || '至今'})`;
+                option.dataset.company = job.company;
+                option.dataset.position = job.position;
+                jobSelect.appendChild(option);
+            });
+            jobContainer.style.display = 'block'; // 顯示整個容器
+        } else {
+            console.log(`ℹ️ Email ${email} 的用戶沒有公開的工作經歷。`);
+            jobContainer.style.display = 'none'; // 隱藏容器
+        }
+    } catch (error) {
+        console.error("查詢工作經歷時發生錯誤:", error);
+        jobContainer.style.display = 'none';
+    } finally {
+        jobLoading.style.display = 'none';
+    }
+}
 
-    // 步驟 5: 使用 Batch Write 確保資料寫入的原子性
-    const batch = db.batch();
+function renderWorkExperienceSelector(experiences, recommenderName) {
+    const container = document.getElementById('recommenderJobContainer');
+    const select = document.getElementById('recommenderJob');
+    const label = document.getElementById('recommenderJobLabel');
 
-    // 5a. 寫入主要的 outgoingRecommendations
-    const recRef = db.collection("outgoingRecommendations").doc();
-    batch.set(recRef, outgoingRecommendationData);
-
-    // 5b. 根據文件規則：如果邀請類型是 'inviteFriend'，則為推薦人建立一筆 pendingUsers 記錄
-    if (inviteData.type === 'inviteFriend' && !auth.currentUser) {
-        const pendingUserRef = db.collection("pendingUsers").doc(formData.email);
-        const pendingUserData = {
-            email: formData.email,
-            name: formData.name,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            source: 'inviteFriend_recommender', // 標示來源
-            relatedInviteId: inviteId,
-            status: 'pending_registration'
-        };
-        console.log("✍️ 準備寫入 pendingUsers:", pendingUserData);
-        batch.set(pendingUserRef, pendingUserData, { merge: true }); // 使用 merge 以免覆蓋舊資料
+    if (!experiences || experiences.length === 0) {
+        container.style.display = 'none';
+        return;
     }
 
-    // 步驟 6: 執行所有寫入操作
-    await batch.commit();
-
-    console.log("✅ 推薦資料批次寫入成功！");
+    // 更新標籤文字，使其更個人化 (需在 i18n 中定義)
+    label.textContent = `這則推薦是基於您 (${recommenderName}) 的哪一份工作經歷？`;
     
-    // 步驟 7: 導向感謝頁面
-    window.location.href = `thank-you.html?userId=${userId}&recommenderName=${encodeURIComponent(formData.name)}`;
+    // 清空舊選項並加入預設選項
+    select.innerHTML = `<option value="">請選擇...</option>`;
 
-  } catch (error) {
-    console.error("❌ 提交過程中發生錯誤:", error);
-    alert(t.submitError || "提交失敗，請檢查網路連線後再試。");
-    if (btn) btn.disabled = false;
-  }
+    experiences.forEach(job => {
+        const option = document.createElement('option');
+        option.value = job.id; // 下拉選單的值是工作的 ID
+        option.textContent = `${job.position} @ ${job.company}`;
+        select.appendChild(option);
+    });
+
+    // 顯示整個區塊
+    container.style.display = 'block';
+}
+
+// 🔽 邀請夥伴推薦表單提交
+async function handleSubmit(e) {
+    e.preventDefault();
+    console.log("📤 [v4] 處理表單提交 (組合標準資料包)...");
+
+    const btn = document.getElementById("submitBtn");
+    const t = i18n[localStorage.getItem("lang") || "zh"] || {};
+    if (btn) btn.disabled = true;
+
+    try {
+        // 步驟 1: 收集推薦人(Sandy)在表單中填寫的所有資料
+        const recommenderFormData = {
+            name: document.getElementById("name")?.value.trim() || "",
+            email: document.getElementById("email")?.value.trim().toLowerCase() || "",
+            relation: document.getElementById("relation")?.value || "",
+            content: document.getElementById("content")?.value.trim() || "",
+            highlights: Array.from(document.querySelectorAll('input[name="highlight"]:checked')).map(cb => cb.value)
+        };
+
+        const recommenderJobSelect = document.getElementById('recommenderJob');
+        const selectedRecommenderJobId = (recommenderJobSelect && recommenderJobSelect.offsetParent !== null)
+            ? recommenderJobSelect.value
+            : null;
+
+        // 驗證表單資料
+        if (!recommenderFormData.name || !recommenderFormData.email || !recommenderFormData.relation || !recommenderFormData.content) {
+            alert(t.fillAllFields || "請完整填寫所有欄位");
+            throw new Error("表單未填寫完整");
+        }
+
+        // 步驟 2: 組合一個完整的、標準格式的資料包，發送到後端
+        const finalRecommendationData = {
+            // 被推薦人 (David) 的資訊 (來自頁面載入時的資料)
+            recommendeeName: profileData.name,
+            recommendeeEmail: profileData.email.toLowerCase(),
+
+            // 推薦人 (Sandy) 的資訊 (來自表單)
+            recommenderName: recommenderFormData.name,
+            recommenderEmail: recommenderFormData.email,
+            recommenderUserId: null, // Sandy 未登入，所以是 null
+            recommenderJobId: selectedRecommenderJobId, // Sandy 選擇的自己的工作經歷 ID
+
+            // 推薦內容
+            content: recommenderFormData.content,
+            highlights: recommenderFormData.highlights,
+            relation: recommenderFormData.relation,
+
+            // 流程元數據
+            lang: localStorage.getItem("lang") || "zh",
+            type: 'outgoing_invite', // 標示這是來自「邀請連結」的推薦
+            inviteId: inviteId,
+            sourceJobId: jobId // David 希望被推薦的那份工作 ID
+        };
+        
+        console.log("📡 準備呼叫後端 v4，傳遞的標準資料包:", { recommendationData: finalRecommendationData });
+
+        // 步驟 3: 呼叫後端函式
+        const functions = firebase.functions();
+        const submitFunction = functions.httpsCallable('submitOutgoingRecommendation');
+        const response = await submitFunction({ recommendationData: finalRecommendationData }); // 用 recommendationData 包裝起來
+
+        if (response.data && response.data.success) {
+            window.location.href = `thank-you.html?userId=${userId}&recommenderName=${encodeURIComponent(recommenderFormData.name)}`;
+        } else {
+            throw new Error(response.data.message || "後端處理失敗。");
+        }
+
+    } catch (error) {
+        console.error("❌ 提交過程中發生錯誤:", error);
+        alert(t.submitError || `提交失敗: ${error.message}`);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
 }
 
 // 🔽 顯示錯誤

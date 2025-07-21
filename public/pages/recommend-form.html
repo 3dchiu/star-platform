@@ -36,7 +36,7 @@
 </head>
 <body>
  
-  <!-- 🕒 資料載入等待畫面（載入使用者與職缺資料前） -->
+  <!-- 🕒 資料載入等待畫面（載入使用者與職務資料前） -->
   <div id="loadingMessage" class="loading-overlay">
     <div style="display:flex; align-items:center; justify-content:center;">
       <div class="spinner"></div>
@@ -82,6 +82,22 @@
         <label for="email" id="labelEmail" data-i18n="recommendForm.email"></label>
         <input type="email" id="email" required />
         <small class="hint" data-i18n="recommendForm.hintEmail"></small>
+      </div>
+
+      <div class="form-group" id="recommenderJobContainer" style="display: none;">
+        <label for="recommenderJob" id="recommenderJobLabel">這則推薦是基於您的哪一份工作經歷？</label>
+        <select id="recommenderJob" name="recommenderJob" class="form-control">
+            </select>
+        <div id="recommenderJobLoading" style="display: none;">正在查詢您的經歷...</div>
+      </div>
+
+      <div id="recommenderJobContainer" style="display: none;" class="form-group">
+        <label for="recommenderJob" id="recommenderJobLabel"></label>
+        <select id="recommenderJob" name="recommenderJob" class="form-input"></select>
+        <div id="recommenderJobLoading" style="display: none; margin-top: 8px;">
+            <div class="spinner-small"></div>
+            <span data-i18n="recommendForm.loadingJobs"></span>
+        </div>
       </div>
 
       <!-- 與被推薦者的關係 -->

@@ -629,64 +629,7 @@ function setupFormOptions() {
   }
 }
 
-// 設定表單提交
-function setupFormSubmission(inviteData, user) {
-  console.log("📝 設定表單提交");
-  
-  const form = document.getElementById("recommendForm");
-  const submitBtn = document.getElementById("submitBtn");
-  
-  if (!form || !submitBtn) {
-    console.error("❌ 找不到表單或提交按鈕");
-    return;
-  }
-  
-  submitBtn.textContent = window.t("recommendForm.submitRecommendation");
-  
-  form.addEventListener("submit", async function(e) {
-    e.preventDefault();
-    console.log("📤 表單提交");
-    
-    // 防止重複提交
-    if (submitBtn.disabled) {
-      console.log("⏸️ 避免重複提交");
-      return;
-    }
-    
-    try {
-      submitBtn.disabled = true;
-      submitBtn.textContent = window.t("common.submitting");
-      
-      // 收集表單資料
-      const formData = getFormData();
-      console.log("📋 表單資料:", formData);
-      
-      // 驗證資料
-      if (!validateData(formData)) {
-        console.log("❌ 資料驗證失敗");
-        return;
-      }
-      
-      // 儲存推薦
-      await saveRecommendation(inviteData, formData);
-      
-      // 顯示成功
-      showSuccess();
-      
-    } catch (error) {
-      console.error("❌ 提交失敗:", error);
-      showError(window.t("recommendForm.submitError"));
-      
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = window.t("recommendForm.submitRecommendation");
-    }
-  });
-  
-  console.log("✅ 表單提交設定完成");
-}
-
-// 收集表單資料
+// ✨ --- 【請將此函式加回檔案中】 --- ✨
 function getFormData() {
   const getValue = function(id) {
     const element = document.getElementById(id);
@@ -708,6 +651,44 @@ function getFormData() {
     content: getValue("content"),
     highlights: highlights
   };
+}
+
+// 收集表單資料
+function setupFormSubmission(inviteData, user) {
+    console.log("📝 設定表單提交 v5");
+    const form = document.getElementById("recommendForm");
+    const submitBtn = document.getElementById("submitBtn");
+    
+    if (!form || !submitBtn) return;
+    
+    form.addEventListener("submit", async function(e) {
+        e.preventDefault();
+        if (submitBtn.disabled) return;
+        
+        try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = window.t("common.submitting");
+            
+            const formData = getFormData();
+            
+            if (!validateData(formData)) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = window.t("recommendForm.submitRecommendation");
+                return;
+            }
+            
+            await saveRecommendation(inviteData, formData, user);
+            
+            showSuccess();
+            
+        } catch (error) {
+            console.error("❌ 提交失敗:", error);
+            showError(error.message || window.t("recommendForm.submitError"));
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = window.t("recommendForm.submitRecommendation");
+        }
+    });
 }
 
 // 驗證資料
@@ -743,60 +724,54 @@ function validateData(data) {
 }
 
 // 儲存推薦
-async function saveRecommendation(inviteData, formData) {
-  console.log("💾 呼叫後端函式儲存推薦資料...");
-  console.log("  -> 是否為回覆模式:", inviteData.isReplyMode);
-
+async function saveRecommendation(inviteData, formData, user) {
+  console.log("💾 儲存推薦資料 v5 (組合標準資料包)...");
+  
   try {
-    if (inviteData.isReplyMode) {
-      // --- 回覆推薦的寫入路徑 (維持不變，因為是寫入使用者自己的子集合，權限通常允許) ---
-      console.log("  -> 寫入到使用者推薦子集合 (回覆模式)...");
-      const replyData = {
+    // 步驟 1: 組合一個完整的、標準格式的資料包，發送到後端
+    const finalRecommendationData = {
+        // 被推薦人 (Liz) 的資訊 (來自 getFormData 的結果)
+        recommendeeName: formData.name,
+        recommendeeEmail: formData.email.toLowerCase(),
+
+        // 推薦人 (David) 的資訊 (來自 inviteData 和當前登入用戶)
+        recommenderName: inviteData.recommenderName,
+        recommenderEmail: user.email, // 使用傳入的 user 物件
+        recommenderUserId: user.uid,   // 使用傳入的 user 物件
+        recommenderJobId: inviteData.recommenderJobId,
+        recommenderCompany: inviteData.company,
+        recommenderPosition: inviteData.position,
+
+        // 推薦內容 (來自 getFormData 的結果)
         content: formData.content,
         highlights: formData.highlights,
         relation: formData.relation,
-        status: "pending",
-        recommenderName: inviteData.recommenderName,
-        recommenderUserId: auth.currentUser.uid,
-        recommenderJobId: inviteData.jobId,
-        recommenderCompany: inviteData.company || '',
-        recommenderPosition: inviteData.position || '',
-        createdAt: new Date(),
-        lang: localStorage.getItem("lang") || "zh",
-        recommenderEmail: auth.currentUser.email,
-        name: inviteData.targetName,
-        email: inviteData.targetEmail,
-        type: "reply",
-        originalRecommendationId: inviteData.originalRecommendationId || originalRecIdFromUrl,
-        targetEmail: inviteData.targetEmail,
-        targetName: inviteData.targetName,
-      };
-      if (inviteData.targetUserId) {
-        replyData.targetUserId = inviteData.targetUserId;
-      }
-      const recRef = db.collection("users").doc(auth.currentUser.uid).collection("recommendations").doc();
-      await recRef.set(replyData);
-      console.log("✅ 回覆推薦儲存完成，ID:", recRef.id);
 
-    } else {
-      // --- 推薦好夥伴的寫入路徑 (改為呼叫 Cloud Function) ---
-      console.log("  -> 呼叫 'submitOutgoingRecommendation' Cloud Function...");
-      const functions = firebase.functions();
-      const submitFunction = functions.httpsCallable('submitOutgoingRecommendation');
-      
-      const response = await submitFunction({ inviteData, formData });
-      
-      if (response.data.success) {
-        console.log("✅ 後端函式成功儲存推薦，ID:", response.data.recommendationId);
-      } else {
-        throw new Error("後端函式回報儲存失敗。");
-      }
+        // 流程元數據
+        lang: localStorage.getItem("lang") || "zh",
+        type: inviteData.isReplyMode ? 'reply' : 'outgoing',
+        inviteId: inviteData.id,
+        sourceJobId: inviteData.jobId,
+        originalRecommendationId: inviteData.originalRecommendationId || null
+    };
+
+    console.log("📡 準備呼叫後端 v5，傳遞的標準資料包:", { recommendationData: finalRecommendationData });
+
+    // 步驟 2: 呼叫後端函式
+    const functions = firebase.functions();
+    const submitFunction = functions.httpsCallable('submitOutgoingRecommendation');
+    
+    const response = await submitFunction({ recommendationData: finalRecommendationData });
+  
+    if (!response.data || !response.data.success) {
+        throw new Error(response.data.message || "後端處理失敗。");
     }
 
+    console.log("✅ 後端函式成功儲存推薦，ID:", response.data.recommendationId);
+
   } catch (error) {
-    console.error("❌ 儲存或呼叫後端函式失敗:", error);
-    // 拋出錯誤，讓外層的 try...catch 可以捕捉到並顯示給使用者
-    throw error;
+      console.error("❌ 呼叫後端函式失敗:", error);
+      throw error; // 向上拋出錯誤
   }
 }
 
