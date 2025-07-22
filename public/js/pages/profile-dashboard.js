@@ -801,6 +801,7 @@ async function handleRecommendOthers(jobIndex) {
             position: job.position,
             recommenderName: window.profile.name,
             recommenderUserId: window.profile.userId,
+            recommenderEmail: window.profile.email,
             recommenderJobId: job.id,
             lang: lang,
             createdAt: new Date(),

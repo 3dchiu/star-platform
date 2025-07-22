@@ -731,18 +731,18 @@ async function saveRecommendation(inviteData, formData, user) {
     if (inviteData.isReplyMode) {
     const replyData = {
         type: 'reply',
-        status: 'processing', // 初始狀態
+        status: 'processing', 
         recommenderName: user.displayName || user.email,
         recommenderEmail: user.email,
-        recommenderJobId: inviteData.recommenderJobId, // User A 當初在哪個工作下發起的回覆
-        targetUserId: inviteData.targetUserId, // User C 的 ID
-        targetName: inviteData.targetName,     // User C 的名字
-        targetEmail: inviteData.targetEmail,   // User C 的 Email
+        recommenderJobId: inviteData.recommenderJobId, 
+        targetUserId: inviteData.targetUserId, 
+        targetName: inviteData.targetName,     
+        targetEmail: inviteData.targetEmail,   
         content: formData.content,
         highlights: formData.highlights,
         relation: formData.relation,
         lang: localStorage.getItem("lang") || "zh",
-        originalRecommendationId: inviteData.originalRecommendationId, // 關聯原始推薦
+        originalRecommendationId: inviteData.originalRecommendationId, 
         createdAt: new Date()
       };
 
@@ -751,7 +751,31 @@ async function saveRecommendation(inviteData, formData, user) {
 
     } else {
       // 如果是推薦好夥伴模式，維持原有邏輯，呼叫後端通用函式
-      const finalRecommendationData = { /* ... 省略原有組合資料的程式碼 ... */ };
+      const finalRecommendationData = {
+      // 被推薦人 (您要推薦的對象) 的資訊
+        recommendeeName: formData.name,                            
+        recommendeeEmail: formData.email.toLowerCase(),            
+
+      // 推薦人 (您自己) 的資訊
+        recommenderName: inviteData.recommenderName,               
+        recommenderEmail: user.email,                              
+        recommenderUserId: user.uid,                               
+        recommenderJobId: inviteData.recommenderJobId,             
+        recommenderCompany: inviteData.company,                    
+        recommenderPosition: inviteData.position,                  
+
+      // 推薦內容
+        content: formData.content,                                 
+        highlights: formData.highlights,                           
+        relation: formData.relation,                               
+
+    // 流程元數據
+        lang: localStorage.getItem("lang") || "zh",                
+        type: inviteData.isReplyMode ? 'reply' : 'outgoing',       
+        inviteId: inviteData.id,                                   
+        sourceJobId: inviteData.jobId,                             
+        originalRecommendationId: inviteData.originalRecommendationId || null 
+    };
       const functions = firebase.functions();
       const submitFunction = functions.httpsCallable('submitOutgoingRecommendation');
       await submitFunction({ recommendationData: finalRecommendationData });

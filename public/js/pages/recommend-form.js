@@ -650,9 +650,20 @@ async function handleSubmit(e) {
         };
 
         const recommenderJobSelect = document.getElementById('recommenderJob');
-        const selectedRecommenderJobId = (recommenderJobSelect && recommenderJobSelect.offsetParent !== null)
-            ? recommenderJobSelect.value
-            : null;
+        let selectedRecommenderJobId = null;
+        let selectedRecommenderCompany = null;
+        let selectedRecommenderPosition = null;
+
+        // 判斷下拉選單是否存在且可見
+        if (recommenderJobSelect && recommenderJobSelect.offsetParent !== null && recommenderJobSelect.value) {
+            selectedRecommenderJobId = recommenderJobSelect.value;
+        // 從被選中的 <option> 的 dataset 中讀取預先存好的公司和職位
+            const selectedOption = recommenderJobSelect.options[recommenderJobSelect.selectedIndex];
+            if (selectedOption) {
+                selectedRecommenderCompany = selectedOption.dataset.company || null;
+                selectedRecommenderPosition = selectedOption.dataset.position || null;
+            }
+        }
 
         // 驗證表單資料
         if (!recommenderFormData.name || !recommenderFormData.email || !recommenderFormData.relation || !recommenderFormData.content) {
@@ -662,15 +673,17 @@ async function handleSubmit(e) {
 
         // 步驟 2: 組合一個完整的、標準格式的資料包，發送到後端
         const finalRecommendationData = {
-            // 被推薦人 (David) 的資訊 (來自頁面載入時的資料)
+            // 被推薦人 
             recommendeeName: profileData.name,
             recommendeeEmail: profileData.email.toLowerCase(),
 
-            // 推薦人 (Sandy) 的資訊 (來自表單)
+            // 推薦人
             recommenderName: recommenderFormData.name,
             recommenderEmail: recommenderFormData.email,
-            recommenderUserId: null, // Sandy 未登入，所以是 null
-            recommenderJobId: selectedRecommenderJobId, // Sandy 選擇的自己的工作經歷 ID
+            recommenderUserId: null, 
+            recommenderJobId: selectedRecommenderJobId,
+            recommenderCompany: selectedRecommenderCompany,
+            recommenderPosition: selectedRecommenderPosition, 
 
             // 推薦內容
             content: recommenderFormData.content,
@@ -679,9 +692,9 @@ async function handleSubmit(e) {
 
             // 流程元數據
             lang: localStorage.getItem("lang") || "zh",
-            type: 'outgoing_invite', // 標示這是來自「邀請連結」的推薦
+            type: 'outgoing_invite', 
             inviteId: inviteId,
-            sourceJobId: jobId // David 希望被推薦的那份工作 ID
+            sourceJobId: jobId 
         };
         
         console.log("📡 準備呼叫後端 v4，傳遞的標準資料包:", { recommendationData: finalRecommendationData });
@@ -689,7 +702,7 @@ async function handleSubmit(e) {
         // 步驟 3: 呼叫後端函式
         const functions = firebase.functions();
         const submitFunction = functions.httpsCallable('submitOutgoingRecommendation');
-        const response = await submitFunction({ recommendationData: finalRecommendationData }); // 用 recommendationData 包裝起來
+        const response = await submitFunction({ recommendationData: finalRecommendationData }); 
 
         if (response.data && response.data.success) {
             window.location.href = `thank-you.html?userId=${userId}&recommenderName=${encodeURIComponent(recommenderFormData.name)}`;
