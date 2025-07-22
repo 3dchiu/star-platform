@@ -46,15 +46,23 @@ export const i18n = {
     // profile-dashboard.html
     profileDashboard: {
       onboarding: {
-        title: "Build Your Trust Network & Level Up! ✨",
+        title: "Start with giving — become a GIVER ✨",
         steps: [
-          "<strong>Give</strong> a recommendation to a great partner <span class='exp-badge'>+10 EXP</span>",
-          "<strong>Receive</strong> a verified recommendation from others <span class='exp-badge'>+5 EXP</span>",
-          "<strong>Reply</strong> to a recommendation you received <span class='exp-badge'>+3 EXP</span>"
+          "<strong>Give a recommendation</strong> to someone you’ve worked with and believe in<br/><span class='exp-badge'>+10 EXP</span> (You’re helping them shine)",
+          "<strong>Receive</strong> a genuine recommendation from someone<br/><span class='exp-badge'>+5 EXP</span> (Trust becomes your visible value)",
+          "<strong>Reply</strong> to a recommendation you’ve received with gratitude<br/><span class='exp-badge'>+3 EXP</span> (Let trust become a two-way connection)"
         ],
-        footer: "All EXP will be awarded after the recommendation is verified."
+        footer: "All EXP will be granted once the recommendation is verified. Your star map will light up with every new connection."
       },
-      
+
+      onboardingModal: {
+        modalTitle: "Welcome to Galaxyz!",
+        modalSubtitle: "Please complete your basic profile to get started.",
+        step1: "Step 1: Your Name",
+        step2: "Step 2: Your First Work Experience",
+        getStarted: "Get Started with Galaxyz",
+        placeholderNameWithWarning: "Cannot be changed once submitted",
+      },
       // Level System
       upgradeHint: (expNeeded, nextLevel) => `${expNeeded} EXP to reach Lv.${nextLevel}`,
       maxLevelReached: "Maximum level reached",
@@ -116,6 +124,7 @@ export const i18n = {
       selectEnd: "If you are no longer working here, please select the end date",
       errEndBeforeStart: "End date cannot be earlier than start date",
       errEndAfterToday: "End date cannot be after today",
+      editLockWarning: "Once this experience has a verified recommendation, core fields (Company, Position, Start Date) cannot be modified.",
       deleteConfirm: "Are you sure you want to delete this experience?",
       deleted: "Deleted",
       
@@ -126,9 +135,9 @@ export const i18n = {
       canReply: "Can reply to",
       people: "people",
       totalRecommended: "Recommended",
-      pendingHint: (parts) => `💡 There are also ${parts.join(', ')}. Details can be viewed when replying.`,
-      pending: (count) => `${count} pending`,
-      failed: (count) => `${count} failed`,
+      hintBoth: (p) => `You have ${p.pending} pending recommendations and ${p.failed} failed verifications.`,
+      hintPendingOnly: (p) => `You have ${p.count} recommendations pending data completion from the other party for verification.`,
+      hintFailedOnly: (p) => `You have ${p.count} recommendations that failed verification due to mismatched data.`,
       noHighlights: "No highlight statistics yet",
       noRelations: "No relation statistics yet",
       highlights: "Highlights",
@@ -171,8 +180,21 @@ export const i18n = {
       templateHint: "💡 Not sure what to write? Choose a template to get started:",
       
       // Invitation Message Templates
-      defaultInvite_direct: "I'm building my professional reputation profile and would love to invite you to write a testimonial about our collaboration at {{company}}. If you're willing, I'd also be happy to recommend you in return!",
-      defaultInvite_warmth: "I'm creating my professional network profile, reflecting on my career journey, and would really appreciate if you could share your impressions and observations about our collaboration at {{company}}. If you ever want to build your own professional network, I'd be delighted to recommend you too, helping us both build our professional credibility.",
+      inviteTemplates: {
+        inviteSenior: {
+            name: "Invite a Senior",
+            message: `Hi {Recipient Name},\n\nHope you're doing well! I often look back on our time working together at {company}. I especially remember your guidance and help, which had a great impact on me.\n\nI'm currently updating my career profile and was wondering if you would be willing to write a brief recommendation about my performance back then. It would mean a lot.\n\nThank you so much!\n\nBest,\n{userName}`
+        },
+        invitePeer: {
+            name: "Invite a Peer",
+            message: `Hi {Recipient Name},\n\nHow's it going? I was just thinking about our time working together at {company}. Good times!\n\nI'm building my professional trust profile on a new platform and would love for you to write a few words about my work. Your perspective would be incredibly valuable.\n\nThanks a bunch!\n\nCheers,\n{userName}`
+        },
+        inviteJunior: {
+            name: "Invite a Junior",
+            message: `Hi {Recipient Name},\n\nHope you're well! I'm currently organizing my past project and leadership experiences, and our time at {company} came to mind.\n\nTo make my record more complete, I'd like to invite you to share a sentence from your perspective about my management or collaboration style back then. Your feedback is highly valuable to me.\n\nThanks for your help!\n\nBest,\n{userName}`
+        }
+      },
+
       
       // Success/Error Messages for Invite
       inviteLinkCopied: "✅ Invitation link copied to clipboard!",
@@ -218,6 +240,7 @@ export const i18n = {
       coffeePriceOption2: "US$ 6-8 (Chain coffee shop)", 
       coffeePriceOption3: "US$ 9-12 (Specialty coffee)",
       coffeePriceOption4: "Flexible choice",
+      joinWaitlist: "Join Waitlist",
       
       // System Errors
       systemInitError: "System initialization failed, please refresh the page",
@@ -263,6 +286,10 @@ export const i18n = {
       manualCopyDesc: "Auto-copy failed, please manually copy the link below:",
       copyBtn: "Copy",
       close: "Close",
+
+      // Add these missing placeholder keys
+      placeholderHeadline: "e.g., Software Engineer passionate about product design",
+      placeholderDescription: "Briefly describe your main responsibilities, projects, or achievements...",
     },
 
     // recommend-form.html
@@ -286,6 +313,9 @@ export const i18n = {
       inviteTitle: "Invitation Message",
       selectRelation: "Select Relationship",
       submitRecommendation: "Submit Recommendation",
+      recommenderJobLabel: "Based on which of your work experiences is this recommendation?",
+      loadingJobs: "Loading your experiences...",
+      identityReminder: (email) => `To ensure the authenticity of every recommendation, after submission, we will send a confirmation link to <strong>${email}</strong>. Please click it to complete the final step.`,
       
       // 推薦他人模式標籤
       recommendeeName: "Colleague's Name", 
@@ -383,6 +413,27 @@ export const i18n = {
       // 其他
       defaultInviteForm: "I'm currently building my professional reputation profile and thought of you as a great collaborator. I'd truly appreciate a few words of feedback on our collaboration. If you are also building your professional network, I'd be happy to write one for you in return!",
       recommendingTo: "You are writing a collaboration feedback for <strong>{name}</strong>",
+
+      // 錯誤訊息
+      errorMissingInviteId: "Missing inviteId parameter, cannot load the page.",
+      backendError: "Backend processing failed.",
+      errorFirebaseTimeout: "Firebase initialization timed out, please check your network connection.",
+      errorInviteTimeout: "Loading invitation data timed out.",
+      errorInviteNotFound: "Invitation not found or has expired.",
+      errorUserTimeout: "Loading user data timed out.",
+      errorUserNotFound: "User data not found.",
+      errorJobNotFound: "Could not find work experience: {jobId}", // {jobId} 是變數
+      errorFormIncomplete: "The form is not completely filled out.",
+
+      // 載入提示
+      loadingInvite: "Loading invitation data...",
+      loadingPreview: "Loading preview data...",
+      loadingUser: "Loading user data...",
+      processingJobs: "Processing work experiences...",
+
+      // UI 文字
+      selectExperience: "Please select which experience this recommendation is based on...",
+      selectExperienceFor: "Based on which of your ({name}) work experiences is this recommendation?",
     },
 
     // thank-you.html
@@ -583,47 +634,80 @@ export const i18n = {
   
     },
     aboutPage: {
-      heroTitle: "We believe trust is the most powerful career asset.",
-      heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> is a career constellation built on authentic recommendations.\nProactively recommend, proactively build your trusted network.",
-      heroButton: "Start building my career constellation",
+  // 🪐 Hero Section
+  heroTitle: "We believe trust is the most powerful career asset.",
+  heroSubtitle: "Galaxyz is a career constellation made up of GIVERs.\nHere, recommendations aren't passively requested, but actively given.",
+  heroButton: "Start building my constellation",
 
-      ourVisionTitle: "What is <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
-      ourVisionContent: "Galaxyz was born from a simple yet often overlooked insight:\nMany people's true professional value cannot be fully captured on a resume.\n\nWe believe a career shouldn't be defined solely by titles or self-descriptions —\nbut by the authentic impressions and recommendations from those you've worked with.\nAnd by proactively recommending others, you contribute to a network of trust.",
+  // 🌟 Why Galaxyz exists?
+  whyGalaxyTitle: "Why does Galaxyz exist?",
+  whyGalaxyContent: "Many people's true value is actually hidden in others' eyes.\n\nWe see:\nSome efforts can't be shown on resumes;\nSome collaborations deserve to be recorded.\n\nSo we created Galaxyz,\nto let 'people who once worked together' leave genuine testimonies for each other.",
 
-      ourVisionBullets: [
-        "Build your career profile on authentic collaboration experiences",
-        "Make recommendations natural, warm, and trustworthy",
-        "Earn trust through real experiences, not social likes",
-        "Proactively recommend and grow your trusted network"
-      ],
+  // 👥 Who is a GIVER?
+  whoIsGiverTitle: "Who is a GIVER?",
+  whoIsGiverContent: "A GIVER is not a manager, not a celebrity.\nA GIVER is someone willing to actively give.\n\nYou just need to have worked together, willing to leave observations and recognition,\nthen you are a GIVER.\n\nHere, everyone has the ability to give.",
 
-      whyStarTitle: "Why do we call it <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>?",
-      whyStarContent: "Each of us is a star in our career journey.\nThose who have worked and grown with you are the connection points in your constellation.\n\nGalaxyz combines Galaxy + Z — symbolizing how X, Y, Z generations can together build a constellation of trust.\nEvery story you share lights up your part of the galaxy.",
-
-      founderNoteTitle: "A note from our founder",
-      founderNoteContent: `Galaxyz.ai was born from a journey of genuine collaboration between humans and AI. This platform is the result of my exploration and learning with ChatGPT.\n\nI believe AI should not replace humans, but empower us to better explore and express our value.\n\nOne day, when you're feeling down, I hope this network of authentic trust can lift you up and help you keep moving forward.\nThat is the biggest reason why I created Galaxyz.`,
-
-      howItWorksTitle: "How does it work?",
-      howItWorksSteps: [
-        {
-          title: "Add a work experience",
-          desc: "No need for a full resume — just add a real collaboration experience as the starting point of your trusted network."
-        },
-        {
-          title: "Proactively recommend your collaborators",
-          desc: "Write authentic recommendations for people you've worked with — pass on trust and build strong connections in your constellation."
-        },
-        {
-          title: "Collect recommendations and build your trusted constellation",
-          desc: "Your recommendations are automatically organized — the system offers both private and public views, with built-in anonymity protection."
-        }
-      ],
-
-      joinUsTitle: "Let trust start with you",
-      joinUsContent: `Build trust through real collaboration and let your professional value be seen.\n\n"You don't have to wait for a promotion or a job change to prove your value.\nStart by proactively recommending your collaborators — and build your trusted career constellation."`,
-
-      joinUsButton: "Join now",
+  // 🔤 The five spirits of GIVER
+  giverSpiritTitle: "The Five Spirits of GIVER",
+  giverSpirits: [
+    {
+      letter: "G",
+      word: "Give",
+      meaning: "Actively give, don't wait for invitations"
     },
+    {
+      letter: "I",
+      word: "Impact", 
+      meaning: "Leave impact, create connections"
+    },
+    {
+      letter: "V",
+      word: "Visibility",
+      meaning: "Let others be seen by more people"
+    },
+    {
+      letter: "E", 
+      word: "Endorse",
+      meaning: "Endorsement based on real collaboration"
+    },
+    {
+      letter: "R",
+      word: "Reciprocity", 
+      meaning: "Trust circulates and comes back"
+    }
+  ],
+  giverSpiritFooter: "Every GIVER is a shining star in Galaxyz.",
+
+  // ✨ How does Galaxyz work?
+  howItWorksTitle: "How does Galaxyz work?",
+  howItWorksSteps: [
+    {
+      title: "Build a collaboration experience",
+      desc: "No need to write a resume, just add a story of working together."
+    },
+    {
+      title: "Become a GIVER",
+      desc: "Actively recommend collaborators, and let your own value be seen."
+    },
+    {
+      title: "Receive recommendations, build trust constellation",
+      desc: "Recommendations are automatically organized into summaries, can be kept private or shared publicly."
+    }
+  ],
+
+  // 🌌 Origin of Galaxyz name
+  nameOriginTitle: "How did Galaxyz get its name?",
+  nameOriginContent: "Galaxyz = Galaxy + Z\n\nEveryone is a star in their career galaxy,\nthose who connect us are our career constellation.\n\nZ represents Gen Z, and also represents everyone who is shining.",
+
+  // 🧡 Founder's note
+  founderNoteTitle: "Founder's Note",
+  founderQuote: "One day, if you feel down,\nI hope the recommendations here can gently catch you like starlight.",
+  founderNoteContent: "Galaxyz is a product I completed with ChatGPT,\nand also my deepest longing for 'trust'.",
+
+  // 🔁 Final CTA
+  finalCtaQuote: "Start with you, become a GIVER.\nA recommendation is the most genuine light you give to the world.",
+  finalCtaButton: "Join Now"
+},
 
     login: {
       welcomeTitle: "Welcome to Galaxyz ✨",
@@ -636,8 +720,8 @@ export const i18n = {
       noAccount: "Don't have an account?",
       registerLink: "Register",
       registerOnlyNote: "(Only users who have submitted a recommendation can register)",
-      inviteCodePlaceholder: "Invite code (if any)",
-      inviteCodeHint: "If you're participating in an event, please enter your exclusive invite code, e.g., galaxyz12345",
+      inviteCodePlaceholder: "Invite code",
+      inviteCodeHint: "Please enter your exclusive invite code, e.g., galaxyz12345",
       inviteOnlyNotice: "Registration is currently by invitation and recommendation only. Please check if your invitation link is valid.",
       alreadyHaveAccount: "Already have an account?",
       backToLogin: "Back to Login",
@@ -723,13 +807,22 @@ export const i18n = {
     // profile-dashboard.html
     profileDashboard: {
       onboarding: {
-        title: "開始累積經驗值，建立你的信任網絡！ ✨",
-        steps: [
-          "<strong>主動推薦</strong>一位值得被看見的好夥伴 <span class='exp-badge'>+10 EXP</span>",
-          "<strong>收到</strong>一則來自他人的已驗證推薦 <span class='exp-badge'>+5 EXP</span>",
-          "<strong>回覆</strong>一則你收到的推薦以表達感謝 <span class='exp-badge'>+3 EXP</span>"
-        ],
-        footer: "所有經驗值都會在推薦通過驗證後計入。"
+      title: "從給予開始，成為一位 GIVER ✨",
+      steps: [
+        "<strong>主動推薦</strong>一位合作過、值得被看見的夥伴<br/><span class='exp-badge'>+10 EXP</span>（你也是他的發光者）",
+        "<strong>收到</strong>一則來自他人的真實推薦<br/><span class='exp-badge'>+5 EXP</span>（讓信任成為你的價值證明）",
+        "<strong>回應</strong>一則你收到的推薦，表達感謝與回饋<br/><span class='exp-badge'>+3 EXP</span>（讓信任成為循環）"
+      ],
+      footer: "所有經驗值將在推薦驗證後計入，星圖上的連結也會同步亮起。",
+    },
+      // ✨ --- 新增這個 onboardingModal 物件 --- ✨
+      onboardingModal: {
+        modalTitle: "歡迎來到 Galaxyz！",
+        modalSubtitle: "請完成您的基本資料，開始建立您的職涯檔案。",
+        step1: "第一步：您的姓名",
+        step2: "第二步：您的第一份工作經歷",
+        getStarted: "開始使用 Galaxyz",
+        placeholderNameWithWarning: "送出後無法修改",
       },
       profileTitle: "我的職涯檔案",
       loadingDashboardMessage: "正在載入您的個人資料…",
@@ -766,6 +859,7 @@ export const i18n = {
       selectEnd: "如果您已離職，請選擇結束年月",
       errEndBeforeStart: "結束日期不可早於開始日期",
       errEndAfterToday: "結束日期不能晚於今天",
+      editLockWarning: "當此筆經歷有已驗證的推薦後，核心欄位 (公司、職位、開始年月) 將無法修改。",
       deleteConfirm: "刪除後將無法復原，確定刪除此經歷？",
       deleted: "已刪除",
       inviteEmpty: "邀請內容不能為空。",
@@ -781,16 +875,16 @@ export const i18n = {
       canReply: "可回覆",
       people: "人",
       totalRecommended: "共推薦",
-      pendingHint: (parts) => `💡 另有 ${parts.join('、')}，可在回覆時查看詳情`,
-      pending: (count) => `${count} 則驗證中`,
-      failed: (count) => `${count} 則驗證失敗`,
+      hintBoth: (p) => `您有 ${p.pending} 則推薦待處理、${p.failed} 則驗證失敗。`,
+      hintPendingOnly: (p) => `您有 ${p.count} 則推薦正在等待對方完成資料以進行驗證。`,
+      hintFailedOnly: (p) => `您有 ${p.count} 則推薦因資料不符而驗證失敗。`,
       noHighlights: "暫無亮點統計",
       noRelations: "暫無關係統計",
       highlights: "亮點",
       relations: "關係",
       noRecsTitle: "開始建立你的職場信譽吧！",
       noRecsAction1: "為共事時期的好夥伴背書，點擊「🤝 推薦好夥伴」。",
-      noRecsAction2: "邀請同事為你推薦，點擊「📨 邀請夥伴推薦」。",
+      noRecsAction2: "邀請同事為你推薦，點擊「📨 請夥伴推薦」。",
       recommendOthers: "推薦好夥伴",
       replyRecommend: "回覆",
       inviteRecommender: "請夥伴推薦",
@@ -806,7 +900,6 @@ export const i18n = {
       unregisteredBadgeText: "未註冊",
       select: "選擇",
       editInviteTitle: "編輯邀請語",
-      invitePlaceholder: "請輸入您想對對方說的邀請話語…",
       templateHintPrefix: "不知道怎麼寫嗎？",
       insertDirect: "插入中性版",
       or: "或",
@@ -871,8 +964,20 @@ export const i18n = {
       inviteSaveBtn: "💾 儲存並複製連結",
       inviteCancelBtn: "取消",
       templateHint: "💡 不知道怎麼寫嗎？選擇範本快速開始：",
-      defaultInvite_direct: "我正在建立自己的職涯人脈口碑，想邀請您幫我寫一段我們在{{company}}合作時期的真實口碑。如果您願意，我也很樂意回覆推薦您！",
-      defaultInvite_warmth: "我正在建立自己的職涯人脈檔案，回顧過往的工作歷程，很希望能邀請您寫下幾句對我在{{company}}的合作印象與觀察。如果您未來也想建立自己的職涯人脈網絡，我也很樂意推薦您，共同累積彼此的專業信譽。",
+      inviteTemplates: {
+        inviteSenior: {
+            name: "邀請前輩",
+            message: `Hi {對方姓名}，\n\n好久不見，別來無恙！我們之前在 {company} 一起工作的日子讓我印象深刻，特別是您當時給我的指導與幫助，對我影響很大。\n\n最近我正在整理職涯紀錄，如果方便的話，是否能請您為我當時的表現，寫下幾句簡單的推薦或肯定呢？\n\n非常感謝！\n\n{userName}`
+        },
+        invitePeer: {
+            name: "邀請同輩",
+            message: `Hi {對方姓名}，\n\n最近好嗎？突然想到我們之前在 {company} 一起合作奮鬥的時光，真的很懷念！\n\n我正在使用一個平台來建立我的職涯信任檔案，想邀請你為我當時的表現寫幾句真實的話。你的看法對我來說很重要！\n\n先謝謝你！\n\n{userName}`
+        },
+        inviteJunior: {
+            name: "邀請後輩",
+            message: `Hi {對方姓名}，\n\n希望你一切都好！我最近在整理過去的專案與帶人經驗，想起了我們在 {company} 一起工作的時光。\n\n為了讓我的紀錄更完整，想邀請你從你的角度，為我當時的管理或協作風格寫幾句話。你的回饋對我非常有價值。\n\n感謝你的幫忙！\n\n{userName}`
+        }
+      },
       inviteLinkCopied: "✅ 邀請連結已複製到剪貼簿！",
       inviteCreateSuccess: "✅ 邀請建立成功！",
       inviteCreateFailed: "❌ 建立邀請失敗，請稍後再試",
@@ -883,6 +988,10 @@ export const i18n = {
       copyBtn: "複製",
       close: "關閉",
       successfulRecommendation: "成功推薦",
+      placeholderHeadline: "一句話介紹你自己，例如：對產品設計充滿熱情的軟體工程師",
+      placeholderDescription: "簡單描述您在這份工作中的主要職責、專案或成就…",
+      coffeePriceOption4: "彈性選擇",
+      joinWaitlist: "加入等候清單",
     },
 
     // recommend-form.html
@@ -910,6 +1019,9 @@ export const i18n = {
       inviteTitle: "被推薦人的邀請語",
       selectRelation: "請選擇關係",
       submitRecommendation: "送出合作口碑",
+      recommenderJobLabel: "這則推薦是基於您的哪一份工作經歷？",
+      loadingJobs: "正在查詢您的經歷...",
+      identityReminder: (email) => `為確保每份推薦的真實性，送出後系統將寄送一封確認信至 <strong>${email}</strong>，請點擊連結完成最後一步。`,
       
       // 推薦他人模式標籤
       recommendeeName: "被推薦人姓名", 
@@ -988,6 +1100,12 @@ export const i18n = {
       errorMissingHighlight: "請選擇至少一個亮點",
       submitError: "推薦提交失敗，請稍後再試",
       
+      // 載入提示
+      loadingInvite: "載入邀請資料中...",
+      loadingPreview: "載入預覽資料中...",
+      loadingUser: "載入用戶資料中...",
+      processingJobs: "處理工作經歷資料...",
+
       // 成功頁面
       recommendationSentTitle: "推薦已送出！",
       successImportantNote: "重要說明：",
@@ -1003,6 +1121,8 @@ export const i18n = {
       autofilled: "✓ 已自動填入",
       notFound: "⚠️ 找不到使用者資料。",
       notFoundJob: "⚠️ 找不到對應的工作經歷。",
+      selectExperience: "請選擇您想基於哪份經歷推薦...",
+      selectExperienceFor: "這則推薦是基於您 ({name}) 的哪一份工作經歷？",
       
       // 其他
       defaultInviteForm: `我正在建立自己的專業人脈檔案，想到您是我工作中合作愉快的夥伴，很希望能請您幫我寫幾句推薦。如果您也想建立自己的職涯人脈，我也很樂意回饋推薦您！`,
@@ -1157,9 +1277,9 @@ export const i18n = {
       ogDescription: "每一顆星都有故事，每個人都值得被推薦。一起組成信任星系。",
       
       // Hero 區塊
-      heroTitle: "主動推薦，累積你的職涯信任網絡",
-      heroSubtitle: "Galaxyz 讓你主動為合作夥伴撰寫真實推薦，\n也讓你的專業價值被更多人見證。\n每一段信任關係，都是職涯星圖上的一顆亮星。",
-      startButton: "開始建立我的信任網絡",
+      heroTitle: "成為 Giver，點亮彼此的職涯星圖",
+      heroSubtitle: "在 Galaxyz，你不必等待升遷或機會才被看見。\n只要你願意主動肯定合作過的人，\n你就是一位 Giver。\n每一次推薦，都是信任與價值的傳遞。",
+      startButton: "我想成為一位 Giver",
       
       // 搜尋功能
       searchPlaceholder: "搜尋姓名或個人標題...",
@@ -1197,7 +1317,7 @@ export const i18n = {
       },
       
       // 最終 CTA
-      finalCtaHint: "用主動推薦，打造你的職涯星圖，讓信任成為你最有力的職涯資產。",
+      finalCtaHint: "成為 Giver，從你開始傳遞信任。寫下對夥伴的肯定，也成就你的人脈影響力。",
       finalCta: "立即開始",
       
       // 錯誤訊息
@@ -1206,48 +1326,81 @@ export const i18n = {
     },
   
 
-    aboutPage: {
-      heroTitle: "我們相信職涯中最有力的資產，是信任。",
-      heroSubtitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> 是一個由真實合作推薦構成的職涯星圖，\n主動推薦，主動建立信任網絡。",
-      heroButton: "開始打造我的職涯星圖",
+aboutPage: {
+  // 🪐 Hero 區塊
+  heroTitle: "我們相信，職涯中最有力的資產，是信任。",
+  heroSubtitle: "Galaxyz 是一個由 GIVER 組成的職涯星圖。\n在這裡，推薦不是被動請求，而是主動給予。",
+  heroButton: "打造我的人脈星圖",
 
-      ourVisionTitle: "<span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span> 是什麼？",
-      ourVisionContent: "Galaxyz 的誕生，來自一個簡單卻被忽略的觀察：\n很多人的專業價值，其實在履歷上無法被完整呈現。\n\n我們相信，一個人的職涯，不應只靠頭銜或自我介紹來定義，\n而是來自合作過的人願意留下的真實推薦，\n更進一步，透過主動推薦，把信任傳遞下去。",
+  // 🌟 為什麼會有 Galaxyz？
+  whyGalaxyTitle: "為什麼會有 Galaxyz？",
+  whyGalaxyContent: "人的潛力就藏在歷練中\n\n我們看到：\n有些努力，履歷無法呈現；\n有些合作，值得被留下紀錄。\n\n所以我們創造 Galaxyz，\n讓「曾經一起努力的人」，可以為彼此留下真實的見證。",
 
-      ourVisionBullets: [
-        "將職涯檔案建立在真實合作經驗上",
-        "讓推薦變得自然、溫暖而可信",
-        "不靠社交按讚，而靠彼此見證",
-        "主動推薦，累積專屬信任網絡"
-      ],
+  // 👥 誰是 GIVER？
+  whoIsGiverTitle: "誰是 GIVER？",
+  whoIsGiverContent: "GIVER，不是主管、不是名人。\nGIVER 是願意主動給予的人。\n\n你只需要曾共事，願意留下觀察與肯定，\n你就是一位 GIVER。\n\n在這裡，每個人都有能力給予。",
 
-      whyStarTitle: "為什麼我們叫 <span class=\"gala-blue\">Gala</span><span class=\"xyz-orange\">xyz</span>？",
-      whyStarContent: "每一個人在職涯中都是一顆星，\n那些曾與你同行、合作過的人，正是你星圖上的連結點。\n\nGalaxyz 來自 Galaxy（銀河）＋ Z，象徵 X、Y、Z 世代都能共築信任星圖，\n每顆星的故事，成就整個銀河，而你也可以主動點亮更多星辰。",
-
-      founderNoteTitle: "創辦者手記",
-      founderNoteContent: `Galaxyz.ai 的誕生，來自一段人與 AI 真誠合作的旅程。這個平台，是我與 ChatGPT 共同摸索、嘗試與學習的成果。我相信，AI 並非取代人，而是成為支持人探索價值的助力。希望有一天，當你們情緒低落時，都能被這真實溫暖的信任接住。然後繼續前進，這就是我做 Galaxyz 最大的初衷。`,
-
-      howItWorksTitle: "如何運作？",
-      howItWorksSteps: [
-        {
-          title: "新增一段工作經歷",
-          desc: "不需寫履歷，只需新增一段真實合作經歷，作為建立信任網絡的起點。"
-        },
-        {
-          title: "主動推薦合作夥伴",
-          desc: "主動為曾合作過的人撰寫推薦，傳遞信任，也為自己的星圖建立更多可信連結。"
-        },
-        {
-          title: "收集推薦，建立信任星圖",
-          desc: "推薦會自動整理成總表，系統提供私人與公開版本，內容具匿名保護。"
-        }
-      ],
-
-      joinUsTitle: "讓信任從你開始傳遞",
-      joinUsContent: `在真實合作中累積信任，讓每一份專業，都有機會被看見。\n\n"你不需要等待升遷、換工作，才能證明自己的價值。\n主動為夥伴寫下一段推薦，也為自己建立更堅實的人脈星圖。"`,
-      
-      joinUsButton: "立即加入",
+  // 🔤 GIVER 的五個精神
+  giverSpiritTitle: "GIVER 的五個精神",
+  giverSpirits: [
+    {
+      letter: "G",
+      word: "Give",
+      meaning: "主動給予，不等待邀請"
     },
+    {
+      letter: "I", 
+      word: "Impact",
+      meaning: "留下影響，創造連結"
+    },
+    {
+      letter: "V",
+      word: "Visibility", 
+      meaning: "讓對方被更多人看見"
+    },
+    {
+      letter: "E",
+      word: "Endorse",
+      meaning: "基於真實合作的背書"
+    },
+    {
+      letter: "R",
+      word: "Reciprocity",
+      meaning: "信任會循環，也會回來"
+    }
+  ],
+  giverSpiritFooter: "每一個 GIVER，都是 Galaxyz 閃耀的一顆星。",
+
+  // ✨ Galaxyz 是怎麼運作的？
+  howItWorksTitle: "Galaxyz 是怎麼運作的？",
+  howItWorksSteps: [
+    {
+      title: "建立合作經歷",
+      desc: "不用寫履歷，只需新增一段你們曾一起共事的經歷。"
+    },
+    {
+      title: "成為 GIVER", 
+      desc: "主動推薦當時的合作夥伴，讓彼此的價值被看見。"
+    },
+    {
+      title: "累積人脈星圖",
+      desc: "推薦自動整理成總表，可私密保存與公開分享。"
+    }
+  ],
+
+  // 🌌 Galaxyz 的名字由來
+  nameOriginTitle: "Galaxyz 的名字，怎麼來的？",
+  nameOriginContent: "Galaxyz = Galaxy + Z\n\n每個人都是職涯銀河中的一顆星，\n這些連結我們的人，就是我們的人脈星圖。\n\n加上Z 象徵 X Y Z世代，共同在這片星空發光。",
+
+  // 🧡 創辦者手記
+  founderNoteTitle: "創辦者手記",
+  founderQuote: "有一天，如果你情緒低落，\n希望這裡的推薦能像星光一樣，溫柔地接住你。",
+  founderNoteContent: "Galaxyz 是我和 ChatGPT 一起完成的產品，\n也是我對「信任」最深的渴望。",
+
+  // 🔁 結尾 CTA
+  finalCtaQuote: "從你開始，成為一位 GIVER。\n一份推薦，是你給這世界最真實的光。",
+  finalCtaButton: "立即加入"
+},
     
     login: {
       welcomeTitle: "歡迎來到 Galaxyz✨ ",
@@ -1260,8 +1413,8 @@ export const i18n = {
       noAccount: "還沒有帳號？",
       registerLink: "註冊新帳號",
       registerOnlyNote: "（僅限曾填寫推薦表者可註冊）",
-      inviteCodePlaceholder: "邀請碼（若有）",
-      inviteCodeHint: "參與活動者請填寫專屬邀請碼，例如 galaxyz12345",
+      inviteCodePlaceholder: "邀請碼",
+      inviteCodeHint: "請填寫專屬邀請碼，例如 galaxyz12345",
       inviteOnlyNotice: "目前僅限受邀者與推薦人註冊，請確認您的邀請連結是否正確。",
       alreadyHaveAccount: "已經有帳號了？",
       backToLogin: "返回登入",
@@ -1271,7 +1424,7 @@ export const i18n = {
     header: {
       login: "登入",
       logout: "登出",
-      searchPlaceholder: "搜尋人才...",
+      searchPlaceholder: "搜尋人名...",
     },
 
     //Recommend-Network

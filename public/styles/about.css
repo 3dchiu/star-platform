@@ -126,6 +126,238 @@
   margin: 0.5rem auto 2.5rem auto;
 }
 
+/* 📦 在 about.css 中添加以下樣式 */
+
+/* GIVER 精神時間軸布局 */
+.giver-spirit {
+  background: white;
+  border-radius: 16px;
+  padding: 48px 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin: 40px 0;
+}
+
+.giver-spirit h2 {
+  text-align: center;
+  font-size: 2.2rem;
+  color: #2c3e50;
+  margin-bottom: 48px;
+  font-weight: 700;
+}
+
+.giver-timeline {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.giver-timeline::before {
+  content: '';
+  position: absolute;
+  left: 30px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, 
+    #FF6B6B 0%, 
+    #4ECDC4 25%, 
+    #45B7D1 50%, 
+    #96CEB4 75%, 
+    #FFEAA7 100%
+  );
+  border-radius: 2px;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 40px;
+  padding-left: 80px;
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: timelineSlideIn 0.6s ease forwards;
+}
+
+.timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.timeline-item:nth-child(2) { animation-delay: 0.2s; }
+.timeline-item:nth-child(3) { animation-delay: 0.3s; }
+.timeline-item:nth-child(4) { animation-delay: 0.4s; }
+.timeline-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes timelineSlideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.timeline-letter {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #2c3e50;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.timeline-item:hover .timeline-letter {
+  transform: scale(1.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* 為每個字母添加不同的顏色 */
+.timeline-item:nth-child(1) .timeline-letter {
+  border: 3px solid #FF6B6B;
+  color: #FF6B6B;
+}
+
+.timeline-item:nth-child(2) .timeline-letter {
+  border: 3px solid #4ECDC4;
+  color: #4ECDC4;
+}
+
+.timeline-item:nth-child(3) .timeline-letter {
+  border: 3px solid #45B7D1;
+  color: #45B7D1;
+}
+
+.timeline-item:nth-child(4) .timeline-letter {
+  border: 3px solid #96CEB4;
+  color: #96CEB4;
+}
+
+.timeline-item:nth-child(5) .timeline-letter {
+  border: 3px solid #FFEAA7;
+  color: #e17055;
+}
+
+.timeline-content {
+  background: #f8f9fa;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.timeline-item:hover .timeline-content {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.timeline-item:nth-child(1):hover .timeline-content {
+  border-left-color: #FF6B6B;
+}
+
+.timeline-item:nth-child(2):hover .timeline-content {
+  border-left-color: #4ECDC4;
+}
+
+.timeline-item:nth-child(3):hover .timeline-content {
+  border-left-color: #45B7D1;
+}
+
+.timeline-item:nth-child(4):hover .timeline-content {
+  border-left-color: #96CEB4;
+}
+
+.timeline-item:nth-child(5):hover .timeline-content {
+  border-left-color: #FFEAA7;
+}
+
+.timeline-word {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.timeline-meaning {
+  color: #6c757d;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.giver-spirit-footer {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #6c757d;
+  font-weight: 500;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e9ecef;
+  font-style: italic;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .giver-spirit {
+    padding: 32px 20px;
+  }
+  
+  .giver-spirit h2 {
+    font-size: 1.8rem;
+    margin-bottom: 32px;
+  }
+
+  .giver-timeline::before {
+    left: 20px;
+  }
+
+  .timeline-item {
+    padding-left: 60px;
+    margin-bottom: 32px;
+  }
+
+  .timeline-letter {
+    width: 40px;
+    height: 40px;
+    font-size: 1.4rem;
+  }
+
+  .timeline-content {
+    padding: 20px;
+  }
+
+  .timeline-word {
+    font-size: 1.2rem;
+  }
+
+  .timeline-meaning {
+    font-size: 0.9rem;
+  }
+
+  .giver-spirit-footer {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .giver-timeline::before {
+    left: 15px;
+  }
+
+  .timeline-item {
+    padding-left: 50px;
+  }
+
+  .timeline-letter {
+    width: 30px;
+    height: 30px;
+    font-size: 1.2rem;
+    left: 0;
+  }
+}
+
 /* How It Works 區 */
 .section-intro {
   font-size: 1.125rem;
@@ -305,4 +537,197 @@
     opacity: 1;
     transform: none;
   }
+}
+
+/* 🔧 修正標題置中問題 - 在現有 CSS 中添加以下樣式 */
+
+/* 新增：統一的區塊容器樣式 */
+.who-is-giver,
+.giver-spirit,
+.name-origin,
+.founder-note,
+.final-cta {
+  max-width: 960px;
+  margin: 80px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+/* 修正：確保所有卡片樣式統一置中 */
+.card,
+.who-is-giver,
+.giver-spirit,
+.name-origin {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  padding: 64px 24px;
+  margin: 60px auto;
+  text-align: center;
+  max-width: 800px;
+}
+
+/* 🔧 關鍵修正：覆蓋 giver-spirit 的標題樣式 */
+.giver-spirit h2,
+.about-how h2 {
+  text-align: center !important;
+  font-size: 2rem !important;
+  color: var(--brand-blue) !important;
+  margin-bottom: 2rem !important;
+  font-weight: 700 !important;
+  margin-top: 1rem !important;
+}
+
+/* 確保時間軸容器置中 */
+.giver-spirit-table {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 修正時間軸樣式，確保整體置中 */
+.giver-timeline {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  text-align: left; /* 時間軸內容左對齊，但整個容器置中 */
+}
+
+/* 修正：How It Works 區塊置中 */
+.about-how {
+  max-width: 960px;
+  margin: 100px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+/* 修正：步驟容器置中 */
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  margin: 48px auto 0 auto;
+  max-width: 960px;
+  padding: 0;
+}
+
+/* 修正：步驟卡片編號樣式 */
+.step-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 240px;
+  background: var(--color-surface, #fff);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 20px 16px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 新增：步驟編號樣式 */
+.step-number {
+  position: absolute;
+  top: -15px;
+  left: 20px;
+  width: 30px;
+  height: 30px;
+  background: var(--brand-blue);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* 確保創辦者手記也置中 */
+.founder-note {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  padding: 64px 24px;
+  margin: 60px auto;
+  text-align: center;
+  max-width: 800px;
+}
+
+.founder-note h2 {
+  text-align: center !important;
+  font-size: 2rem !important;
+  color: var(--brand-blue) !important;
+  margin-bottom: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+.founder-quote {
+  font-size: 1.3rem;
+  font-style: italic;
+  color: var(--brand-blue);
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-left: 4px solid var(--brand-blue);
+  background: #f8f9ff;
+  border-radius: 8px;
+  max-width: 600px;
+  white-space: pre-line;
+}
+
+/* Final CTA 樣式修正 */
+.final-cta {
+  margin: 100px auto;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.final-cta h2 {
+  text-align: center !important;
+  font-size: 2rem !important;
+  color: var(--brand-blue) !important;
+  margin-bottom: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+/* 手機版優化 */
+@media (max-width: 768px) {
+  .who-is-giver,
+  .giver-spirit,
+  .name-origin,
+  .founder-note,
+  .final-cta,
+  .about-how {
+    margin: 60px auto;
+    padding: 32px 16px;
+  }
+
+  .giver-spirit h2,
+  .about-how h2,
+  .founder-note h2,
+  .final-cta h2 {
+    font-size: 1.8rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+.how-it-works {
+  max-width: 960px;
+  margin: 100px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.how-it-works h2 {
+  text-align: center !important;
+  font-size: 2rem !important;
+  color: var(--brand-blue) !important;
+  margin-bottom: 2rem !important;
+  font-weight: 700 !important;
+  margin-top: 1rem !important;
+  width: 100% !important;
+  display: block !important;
 }

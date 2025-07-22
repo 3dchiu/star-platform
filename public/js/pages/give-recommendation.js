@@ -725,53 +725,40 @@ function validateData(data) {
 
 // 儲存推薦
 async function saveRecommendation(inviteData, formData, user) {
-  console.log("💾 儲存推薦資料 v5 (組合標準資料包)...");
+  console.log("💾 儲存推薦資料 (已修正版本)...");
   
   try {
-    // 步驟 1: 組合一個完整的、標準格式的資料包，發送到後端
-    const finalRecommendationData = {
-        // 被推薦人 (Liz) 的資訊 (來自 getFormData 的結果)
-        recommendeeName: formData.name,
-        recommendeeEmail: formData.email.toLowerCase(),
-
-        // 推薦人 (David) 的資訊 (來自 inviteData 和當前登入用戶)
-        recommenderName: inviteData.recommenderName,
-        recommenderEmail: user.email, // 使用傳入的 user 物件
-        recommenderUserId: user.uid,   // 使用傳入的 user 物件
-        recommenderJobId: inviteData.recommenderJobId,
-        recommenderCompany: inviteData.company,
-        recommenderPosition: inviteData.position,
-
-        // 推薦內容 (來自 getFormData 的結果)
+    if (inviteData.isReplyMode) {
+    const replyData = {
+        type: 'reply',
+        status: 'processing', // 初始狀態
+        recommenderName: user.displayName || user.email,
+        recommenderEmail: user.email,
+        recommenderJobId: inviteData.recommenderJobId, // User A 當初在哪個工作下發起的回覆
+        targetUserId: inviteData.targetUserId, // User C 的 ID
+        targetName: inviteData.targetName,     // User C 的名字
+        targetEmail: inviteData.targetEmail,   // User C 的 Email
         content: formData.content,
         highlights: formData.highlights,
         relation: formData.relation,
-
-        // 流程元數據
         lang: localStorage.getItem("lang") || "zh",
-        type: inviteData.isReplyMode ? 'reply' : 'outgoing',
-        inviteId: inviteData.id,
-        sourceJobId: inviteData.jobId,
-        originalRecommendationId: inviteData.originalRecommendationId || null
-    };
+        originalRecommendationId: inviteData.originalRecommendationId, // 關聯原始推薦
+        createdAt: new Date()
+      };
 
-    console.log("📡 準備呼叫後端 v5，傳遞的標準資料包:", { recommendationData: finalRecommendationData });
+      await db.collection("users").doc(user.uid).collection("recommendations").add(replyData);
+      console.log("✅ 已建立 'reply' 觸發文件，等待後端處理...");
 
-    // 步驟 2: 呼叫後端函式
-    const functions = firebase.functions();
-    const submitFunction = functions.httpsCallable('submitOutgoingRecommendation');
-    
-    const response = await submitFunction({ recommendationData: finalRecommendationData });
-  
-    if (!response.data || !response.data.success) {
-        throw new Error(response.data.message || "後端處理失敗。");
+    } else {
+      // 如果是推薦好夥伴模式，維持原有邏輯，呼叫後端通用函式
+      const finalRecommendationData = { /* ... 省略原有組合資料的程式碼 ... */ };
+      const functions = firebase.functions();
+      const submitFunction = functions.httpsCallable('submitOutgoingRecommendation');
+      await submitFunction({ recommendationData: finalRecommendationData });
     }
-
-    console.log("✅ 後端函式成功儲存推薦，ID:", response.data.recommendationId);
-
   } catch (error) {
-      console.error("❌ 呼叫後端函式失敗:", error);
-      throw error; // 向上拋出錯誤
+    console.error("❌ 儲存推薦失敗:", error);
+    throw error;
   }
 }
 

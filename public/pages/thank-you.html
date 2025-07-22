@@ -68,112 +68,87 @@
 </head>
 
 <body class="star-bg">
-  <!-- 🧩 共用頂欄（由 app-header.js 自動插入） -->
-  <div id="appHeader"></div>
-  <!-- 🔽 感謝頁主要內容區塊 -->
   <main class="page-container fade-in">
-    <!-- 🌌 星系插圖（象徵推薦網絡） -->
     <img id="networkImg" src="../img/network.png" class="network" loading="lazy" decoding="async" />
 
-    <!-- 感謝主標語 -->
-    <h1 id="title" class="thanks-title"></h1>
-    <p id="thanksText" class="thanks-message"></p>
+    <h1 class="thanks-title" data-i18n="thankYou.title"></h1>
+    <p class="thanks-message" data-i18n="thankYou.message"></p>
 
-    <!-- 🙌 CTA 區塊：根據 style（direct / warmth）顯示不同邀請語氣 -->
     <div class="call-to-action-board fadeUp">
       <p id="ctaMessage" class="invite-text"></p>
       <a href="#" id="startFresh" class="cta-btn brand-orange"></a>
-      <small class="footer-muted" id="footerText"></small>
+      
+      <small class="footer-muted" data-i18n="thankYou.footer"></small>
     </div>    
     
-     <!-- 查看推薦總表 -->
      <div id="summaryArea" class="summary-link" style="text-align:center; margin: 24px 0;">
-      <p id="summaryIntro" class="summary-intro"></p>
+      <p class="summary-intro" data-i18n="thankYou.summaryIntro"></p>
       <a id="summaryLink" href="#" target="_blank" style="text-decoration: underline;"></a>
     </div>    
   </main>
+  </body>
 
-  <!-- 
-  📌 顯示「還沒有帳號？目前僅開放⋯」區塊的條件說明：
-
-  1. 頁面網址需帶有參數 ?register=1&email=xxx
-  2. 且 Firestore 的 pendingUsers 中，存在此 email 對應的資料
-
-  滿足上述條件時：
-  - 顯示 #showRegisterRow（說明文字）
-  - 顯示 #registerSection（註冊表單）
-  - 隱藏 #loginSection（登入區塊）
-
-  若 email 不存在於 pendingUsers 中，則不開放註冊。
--->
   <script type="module">
-    import { i18n, setLang } from "../js/i18n.js";
+    import { setLang, t } from "../js/i18n.js"; // 引入 t 函式以便使用
 
+    // 1. 讀取 URL 參數
     const urlParams = new URLSearchParams(location.search);
     const userId = urlParams.get("userId");
     const style = urlParams.get("style") || "direct";
     const recommenderName = urlParams.get("recommenderName") || "";
     const recommenderEmail = urlParams.get("recommenderEmail") || "";
-    const inviteId = urlParams.get("inviteId") || null;
 
+    // 2. 設定語言並讓 setLang 自動處理所有 data-i18n 標籤
     const lang = localStorage.getItem("lang") || "en";
     setLang(lang);
     
-    const t = i18n[lang]?.thankYou || {};
-    document.getElementById("networkImg").alt = t.networkAlt || "Network Illustration";
-    document.title = t.pageTitle || "Galaxyz – Thank You";
-    document.getElementById("title").innerText = t.title || "";
-    document.getElementById("thanksText").innerText = t.message || "";
+    // 3. 專注處理需要「動態」設定的內容
+
+    // 設定圖片的 alt 文字
+    document.getElementById("networkImg").alt = t("thankYou.networkAlt");
     
-    // 推薦總表連結
+    // 設定推薦總表連結
     const summaryLink = document.getElementById("summaryLink");
-    summaryLink.href = `recommend-summary.html?public=true&userId=${userId}`;
-    document.getElementById("summaryIntro").innerText = t.summaryIntro || "";
-    summaryLink.innerText = t.summaryLink || "";
+    if (summaryLink && userId) {
+      summaryLink.href = `recommend-summary.html?public=true&userId=${userId}`;
+      summaryLink.innerText = t("thankYou.summaryLink");
+    } else if (summaryLink) {
+        // 如果沒有 userId，隱藏這個區塊
+        summaryLink.parentElement.style.display = 'none';
+    }
 
-    // CTA 區塊文字
-    document.getElementById("footerText").innerText = t.footer || "";
+    // 根據 style 參數，設定 CTA 區塊的動態文字
+    const ctaMessageEl = document.getElementById("ctaMessage");
+    const startFreshEl = document.getElementById("startFresh");
+    if (style === "warmth") {
+      ctaMessageEl.innerText = t("thankYou.warmthThanks");
+      startFreshEl.innerText = t("thankYou.warmthStart");
+    } else {
+      ctaMessageEl.innerText = t("thankYou.invite");
+      startFreshEl.innerText = t("thankYou.start");
+    }
 
-  if (style === "warmth") {
-    document.getElementById("ctaMessage").innerText = t.warmthThanks || "";
-    document.getElementById("startFresh").innerText = t.warmthStart || "";
-  } else {
-    document.getElementById("ctaMessage").innerText = t.invite || "";
-    document.getElementById("startFresh").innerText = t.start || "";
-  }
-
-    // 推薦人點擊 CTA 註冊
-    document.getElementById("startFresh").addEventListener("click", e => {
+    // 推薦人點擊 CTA 註冊的邏輯不變
+    startFreshEl.addEventListener("click", e => {
       e.preventDefault();
       if (recommenderName) sessionStorage.setItem("prefillName", recommenderName);
       if (recommenderEmail) sessionStorage.setItem("prefillEmail", recommenderEmail);
       location.href = `/pages/login.html?register=1&email=${encodeURIComponent(recommenderEmail)}&invitedBy=${userId}&message=${encodeURIComponent("我也想推薦你")}&style=warmth`;
     });
 
-    // 多語切換即時更新
-    window.addEventListener("langChanged", e => {
-      const lang = e.detail || "en";
-      const t = i18n[lang]?.thankYou || {};
-      document.getElementById("title").innerText = t.title || "";
-      document.getElementById("thanksText").innerText = t.message || "";
-      document.title = t.pageTitle || "";
-      document.getElementById("summaryIntro").innerText = t.summaryIntro || "";
-      summaryLink.innerText = t.summaryLink || "";
-      document.getElementById("footerText").innerText = t.footer || "";
-      document.getElementById("ctaMessage").innerText = (style === "warmth") ? t.warmthThanks : t.invite;
-      document.getElementById("startFresh").innerText = (style === "warmth") ? t.warmthStart : t.start;
-      document.getElementById("networkImg").alt = t.networkAlt || "Network Illustration";
+    // 監聽語言切換事件，只需更新動態部分
+    window.addEventListener("langChanged", () => {
+        document.getElementById("networkImg").alt = t("thankYou.networkAlt");
+        if (summaryLink) {
+            summaryLink.innerText = t("thankYou.summaryLink");
+        }
+        if (style === "warmth") {
+            ctaMessageEl.innerText = t("thankYou.warmthThanks");
+            startFreshEl.innerText = t("thankYou.warmthStart");
+        } else {
+            ctaMessageEl.innerText = t("thankYou.invite");
+            startFreshEl.innerText = t("thankYou.start");
+        }
     });
   </script>
-
-  <!-- 🎉 煙火特效：顯示推薦成功的喜悅 -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script>
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        confetti({ particleCount: 60, spread: 70, origin: { y: 0.25 } });
-      }, 600);
-    });
-  </script>
-</body>
 </html>

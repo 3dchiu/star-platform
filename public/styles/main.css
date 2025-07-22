@@ -274,7 +274,25 @@ input, select, textarea {
       vertical-align: middle;
       transform: scale(1.2);
     }
- 
+
+/* --- 新增：已鎖定 (Disabled) 的表單欄位樣式 (高權重版本) --- */
+#expModal input:disabled,
+#expModal select:disabled,
+#expModal textarea:disabled {
+  background-color: #f1f2f6 !important; /* 淺灰色背景 */
+  color: #747d8c !important;             /* 文字顏色變淡 */
+  cursor: not-allowed !important;         /* 滑鼠移上去會變成禁止符號 */
+  border-color: #dfe4ea !important;       /* 邊框顏色變淡 */
+}
+
+/* --- 新增或確認：表單提示與警告樣式 (高權重版本) --- */
+#expModal .form-hint.warning {
+  color: #856404 !important; /* 深黃色文字 */
+  background-color: #fff3cd !important; /* 淡黃色背景 */
+  padding: 10px 15px !important;
+  border-radius: 4px !important;
+  border-left: 5px solid #ffc107 !important; /* 左側醒目邊線 */
+}
  /* ==========================================================================
     7. Cards & Panels
     ========================================================================== */

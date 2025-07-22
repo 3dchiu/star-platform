@@ -190,8 +190,8 @@ async function loadDataByInviteId(loadingText) {
   const inviteSnap = await Promise.race([invitePromise, timeoutPromise]);
   
   if (!inviteSnap.exists) {
-    throw new Error("邀請不存在或已失效");
-  }
+    throw new Error(window.t("recommendForm.errorInviteNotFound"));
+}
   
   inviteData = inviteSnap.data(); 
   console.log("📄 邀請資料:", inviteData);
@@ -290,7 +290,7 @@ async function loadDataByUrlParams(loadingText) {
 
 // 🔽 載入用戶資料的共用函數
 async function loadUserData(loadingText) {
-  if (loadingText) loadingText.innerText = "載入用戶資料中...";
+  if (loadingText) loadingText.innerText = window.t("recommendForm.loadingUser");
   
   // 🕒 設定超時保護
   const userPromise = db.collection("users").doc(userId).get();

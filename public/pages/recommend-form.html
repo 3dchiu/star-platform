@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- 🔽 Firebase 8.10.1 SDK - 與 profile-dashboard 保持一致 -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
   
-  <!-- 🔥 Firebase 初始化腳本 -->
   <script src="../js/firebase-init.js"></script>
   
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 頁面標題由 JS 自動填入 -->
   <title data-i18n="recommendForm.recPageTitle"></title>
   <link rel="stylesheet" href="../styles/main.css" />
   
-  <!-- 🌐 Open Graph Meta：分享推薦頁用預覽圖與描述 -->
   <meta property="og:type" content="website" />
   <meta property="og:title" data-i18n="recommendForm.ogTitle" content="" />
   <meta property="og:description" data-i18n="recommendForm.ogDescription" content="" />
@@ -25,7 +21,6 @@
   <meta property="og:url" content="https://your-domain.netlify.app/pages/recommend-form.html?userId=XX&lang=zh" />
   <meta name="twitter:card" content="summary_large_image" />
   
-  <!-- 🈯 多語系支援：i18n 語言切換模組 -->
   <script type="module" src="../js/i18n.js"></script>
   <script type="module">
     import { setLang } from "../js/i18n.js";
@@ -36,7 +31,6 @@
 </head>
 <body>
  
-  <!-- 🕒 資料載入等待畫面（載入使用者與職務資料前） -->
   <div id="loadingMessage" class="loading-overlay">
     <div style="display:flex; align-items:center; justify-content:center;">
       <div class="spinner"></div>
@@ -44,20 +38,15 @@
     </div>
   </div>
 
-   <!-- Header 容器 -->
-  <div id="appHeader"></div>
+   <div id="appHeader"></div>
 
   <div id="errorMessage" style="display:none; color:red;"></div>
   
-  <!-- 🔽 推薦填寫表單主要容器 -->
   <main id="formContainer" class="container">
-    <!-- 🏷️ 表單標題（例如：「撰寫推薦」） -->
     <h1 id="formTitle" data-i18n="recommendForm.formTitle"></h1>
 
-    <!-- 📣 推薦提示文字：「您正在為 ___ 撰寫推薦」 -->
     <div id="recommendNote" class="sub-title text-lg text-gray-600 mt-2"></div>
 
-    <!-- 💌 被推薦人邀請語（由推薦連結自動帶入） -->
     <div class="form-group">
       <strong id="inviteTitle" data-i18n="recommendForm.inviteTitle"></strong><br>
       <textarea id="inviteContent" rows="4" 
@@ -65,19 +54,15 @@
           style="width:100%; border:none; background:transparent; font-style:italic; cursor:text;"></textarea>
     </div>
 
-    <!-- 🏢 顯示被推薦人的公司、職位與工作描述 -->
     <div id="jobInfo" class="form-group job-info"></div>
 
-    <!-- 📝 推薦表單開始 -->
     <form id="recommendForm">
-      <!-- 👤 推薦人姓名 -->
       <div class="form-group">
         <label for="name" id="labelName" data-i18n="recommendForm.name"></label>
         <input type="text" id="name" required minlength="2" maxlength="50" />
         <small class="hint" data-i18n="recommendForm.hintName"></small>
       </div>
 
-      <!-- 推薦人 Email -->
       <div class="form-group">
         <label for="email" id="labelEmail" data-i18n="recommendForm.email"></label>
         <input type="email" id="email" required />
@@ -85,14 +70,7 @@
       </div>
 
       <div class="form-group" id="recommenderJobContainer" style="display: none;">
-        <label for="recommenderJob" id="recommenderJobLabel">這則推薦是基於您的哪一份工作經歷？</label>
-        <select id="recommenderJob" name="recommenderJob" class="form-control">
-            </select>
-        <div id="recommenderJobLoading" style="display: none;">正在查詢您的經歷...</div>
-      </div>
-
-      <div id="recommenderJobContainer" style="display: none;" class="form-group">
-        <label for="recommenderJob" id="recommenderJobLabel"></label>
+        <label for="recommenderJob" id="recommenderJobLabel" data-i18n="recommendForm.recommenderJobLabel"></label>
         <select id="recommenderJob" name="recommenderJob" class="form-input"></select>
         <div id="recommenderJobLoading" style="display: none; margin-top: 8px;">
             <div class="spinner-small"></div>
@@ -100,50 +78,39 @@
         </div>
       </div>
 
-      <!-- 與被推薦者的關係 -->
       <div class="form-group">
-        <!-- 🤝 與被推薦人的合作關係 -->
         <label for="relation" id="labelRelation" data-i18n="recommendForm.relation"></label>
         <select id="relation" required></select>
       </div>
 
-      <!-- 推薦亮點 -->
       <div class="form-group">
-        <!-- 🌟 選擇推薦亮點（使用 radio 或 tag 按鈕） -->
         <label id="labelHighlights" data-i18n="recommendForm.highlightLabel"></label>
         <small class="hint" id="hintHighlights" data-i18n="recommendForm.hintHighlights"></small>
         <div id="highlightsContainer"></div>
       </div>
 
-      <!-- 自訂其他亮點 -->
       <div class="form-group">
-        <!-- ✍️ 自訂其他亮點 -->
         <label for="customHighlight" data-i18n="recommendForm.highlightOptionCustomLabel"></label>
         <input type="text" id="customHighlight" maxlength="30"
                data-i18n-placeholder="recommendForm.highlightOptionCustomPlaceholder" placeholder="" />
         <small class="hint" data-i18n="recommendForm.hintCustomHighlight"></small>
       </div>
 
-      <!-- 推薦內容 -->
       <div class="form-group">
-        <!-- 📝 寫下實際推薦內容 -->
         <label for="content" id="labelContent" data-i18n="recommendForm.contentLabel"></label>
         <textarea id="content" rows="5" required maxlength="500"></textarea>
         <small class="hint" id="hintContent" data-i18n="recommendForm.hintContent"></small>
       </div>
 
-      <!-- 🔔 最下方提醒：Galaxyz 建立於真實與信任 -->
       <div id="finalReminder"
+        data-i18n-key="recommendForm.identityReminder"
         style="font-size: 0.95rem; background: #f8f9fc; padding: 16px; border-left: 4px solid #0056b3; border-radius: 8px; margin-bottom: 24px;">
-      <!-- JS 會自動填入 identityReminder 內容 -->
       </div>
       
-      <!-- 🚀 送出推薦內容 -->
       <button type="submit" id="submitBtn" class="btn btn-primary" data-i18n="recommendForm.submitRecommendation"></button>
     </form>
   </main>
 
-  <!-- 📜 本頁核心邏輯：推薦表單載入與送出處理 -->
   <script type="module">
     // 🔄 檢查 URL 參數決定載入哪個 JS
     const urlParams = new URLSearchParams(window.location.search);
@@ -183,7 +150,6 @@
     }
   </script>
 
-  <!-- 🧩 共用 Header 組件（自動插入導覽列） -->
   <script type="module" src="../js/components/app-header.js"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <!-- 基本設定 -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About Star</title>
+  <title>About Galaxyz</title>
 
   <!-- 外部CSS -->
   <link rel="stylesheet" href="../styles/main.css">
@@ -23,80 +23,126 @@
 
   <main class="about-page">
 
-    <!-- 1. Hero 區 -->
+    <!-- 🪐 Hero 區塊 -->
     <section class="about-hero fade-in">
       <h1 data-i18n="aboutPage.heroTitle"></h1>
       <p data-i18n="aboutPage.heroSubtitle"></p>
       <a href="/pages/login.html" class="btn btn-primary" data-i18n="aboutPage.heroButton"></a>
     </section>
 
-    <!-- 2. Our Story 區 -->
-    <section class="about-story card">
-      <!-- 🈶 多語處理：標題與段落由 i18n 決定 -->
-      <h2 data-i18n="aboutPage.ourVisionTitle"></h2>
-    
-      <!-- 第一段文字也由 i18n 負責 -->
-      <div class="paragraph" data-i18n="aboutPage.ourVisionContent"></div>
-    
-      <!-- 🔁 願景清單：由 JS 根據語言動態插入 -->
-      <ul class="vision-list"></ul>
-    
-      <!-- 下一個子標題 & 內文依然用 data-i18n -->
-      <section class="dual-column fade-in">
-        <div class="column text-col">
-          <h2 data-i18n="aboutPage.whyStarTitle"></h2>
-          <div class="paragraph" data-i18n="aboutPage.whyStarContent"></div>
-        </div>
-        <div class="column image-col">
-          <img class="fade-in" src="../img/galaxyz-network-star.png" alt="Galaxyz 星圖示意圖" />
-        </div>
-      </section>
-      <!-- 💬 創辦人手記：可放個人理念或故事，支援 i18n -->
-      <div class="founder-note fade-in">
-        <span class="note-label" data-i18n="aboutPage.founderNoteTitle"></span>
-        <p data-i18n="aboutPage.founderNoteContent"></p>
-      </div>
+    <!-- 🌟 為什麼會有 Galaxyz？ -->
+    <section class="why-galaxyz card fade-in">
+      <h2 data-i18n="aboutPage.whyGalaxyTitle"></h2>
+      <div class="paragraph" data-i18n="aboutPage.whyGalaxyContent"></div>
     </section>
-    
 
-    <!-- 3. How It Works 區 -->
-    <section class="about-how">
+    <!-- 👥 誰是 GIVER？ -->
+    <section class="who-is-giver card fade-in">
+      <h2 data-i18n="aboutPage.whoIsGiverTitle"></h2>
+      <div class="paragraph" data-i18n="aboutPage.whoIsGiverContent"></div>
+    </section>
+
+    <!-- 🔤 GIVER 的五個精神 -->
+    <section class="giver-spirit card fade-in">
+      <h2 data-i18n="aboutPage.giverSpiritTitle"></h2>
+      
+      <!-- GIVER 精神表格：由 JS 根據語言動態插入 -->
+      <div class="giver-spirit-table"></div>
+      
+      <div class="giver-spirit-footer" data-i18n="aboutPage.giverSpiritFooter"></div>
+    </section>
+
+    <!-- ✨ Galaxyz 是怎麼運作的？ -->
+    <section class="how-it-works fade-in">
       <h2 data-i18n="aboutPage.howItWorksTitle"></h2>
       <div class="how-steps"></div>
     </section>
 
-    <!-- 4. Final CTA 區 -->
-    <section class="about-final-cta">
-      <div class="paragraph" data-i18n="aboutPage.joinUsContent"></div>
-      <a href="/pages/login.html" class="btn btn-primary" data-i18n="aboutPage.joinUsButton"></a>
+    <!-- 🌌 Galaxyz 的名字由來 -->
+    <section class="name-origin card fade-in">
+      <div class="dual-column">
+        <div class="column text-col">
+          <h2 data-i18n="aboutPage.nameOriginTitle"></h2>
+          <div class="paragraph" data-i18n="aboutPage.nameOriginContent"></div>
+        </div>
+        <div class="column image-col">
+          <img class="fade-in" src="../img/galaxyz-network-star.png" alt="Galaxyz 星圖示意圖" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 🧡 創辦者手記 -->
+    <section class="founder-note fade-in">
+      <h2 data-i18n="aboutPage.founderNoteTitle"></h2>
+      <blockquote class="founder-quote" data-i18n="aboutPage.founderQuote"></blockquote>
+      <div class="paragraph" data-i18n="aboutPage.founderNoteContent"></div>
+    </section>
+
+    <!-- 🔁 結尾 CTA -->
+    <section class="final-cta fade-in">
+      <blockquote data-i18n="aboutPage.finalCtaQuote"></blockquote>
+      <a href="/pages/login.html" class="btn btn-primary" data-i18n="aboutPage.finalCtaButton"></a>
     </section>
 
   </main>
 
-  <!-- 載入語言與步驟卡片 -->
+  <!-- 載入語言與動態內容 -->
   <script type="module">
     import { setLang, i18n } from '../js/i18n.js';
+    
     // 📤 動態載入「How it works」步驟卡片
     function renderHowItWorksSteps() {
       const lang = localStorage.getItem('lang') || 'en';
       const steps = (i18n[lang] && i18n[lang].aboutPage.howItWorksSteps) || [];
       const stepsContainer = document.querySelector('.how-steps');
       if (stepsContainer) {
-        stepsContainer.innerHTML = steps.map(step => `
+        stepsContainer.innerHTML = steps.map((step, index) => `
           <div class="step-card">
+            <div class="step-number">${index + 1}</div>
             <h3>${step.title}</h3>
             <p>${step.desc}</p>
           </div>
         `).join('');
       }
     }
-    // 📤 動態插入願景清單（ul > li）
-    function renderVisionBullets() {
+
+    // 🆕 動態載入 GIVER 精神時間軸
+    function renderGiverSpiritTable() {
       const lang = localStorage.getItem('lang') || 'en';
-      const bullets = (i18n[lang]?.aboutPage?.ourVisionBullets) || [];
-      const ul = document.querySelector('.vision-list');
-      if (!ul) return;
-      ul.innerHTML = bullets.map(item => `<li>${item}</li>`).join('');
+      const spirits = (i18n[lang]?.aboutPage?.giverSpirits) || [];
+      const tableContainer = document.querySelector('.giver-spirit-table');
+      
+      if (!tableContainer) return;
+      
+      // 使用時間軸布局
+      tableContainer.innerHTML = `
+        <div class="giver-timeline">
+          ${spirits.map(spirit => `
+            <div class="timeline-item">
+              <div class="timeline-letter">${spirit.letter}</div>
+              <div class="timeline-content">
+                <div class="timeline-word">${spirit.word}</div>
+                <div class="timeline-meaning">${spirit.meaning}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // 🆕 添加時間軸交互效果
+    function addTimelineInteractions() {
+      const timelineItems = document.querySelectorAll('.timeline-item');
+      
+      timelineItems.forEach((item, index) => {
+        item.addEventListener('mouseenter', () => {
+          item.style.zIndex = '10';
+        });
+        
+        item.addEventListener('mouseleave', () => {
+          item.style.zIndex = '1';
+        });
+      });
     }
   
     // ✨ 觀察畫面進入時啟動畫面淡入效果
@@ -114,7 +160,12 @@
       const lang = localStorage.getItem('lang') || 'en';
       setLang(lang);
       renderHowItWorksSteps();
-      renderVisionBullets();
+      renderGiverSpiritTable(); // 🆕 渲染 GIVER 精神時間軸
+  
+      // 延遲添加交互效果，確保 DOM 已渲染
+      setTimeout(() => {
+        addTimelineInteractions();
+      }, 600);
   
       // ✅ 啟用動畫觀察器
       document.querySelectorAll(".fade-in").forEach(el => {
@@ -122,13 +173,19 @@
       });
     });
   
-    // 🔁 當語言切換時，重新渲染願景與步驟內容
+    // 🔁 當語言切換時，重新渲染所有動態內容
     window.addEventListener('langChanged', () => {
       renderHowItWorksSteps();
-      renderVisionBullets();
+      renderGiverSpiritTable(); // 🆕 重新渲染 GIVER 精神時間軸
+      
+      // 重新添加交互效果
+      setTimeout(() => {
+        addTimelineInteractions();
+      }, 100);
     });
   </script>
+  
   <div id="appFooter"></div>
-<script type="module" src="../js/components/app-footer.js"></script>
+  <script type="module" src="../js/components/app-footer.js"></script>
 </body>
 </html>

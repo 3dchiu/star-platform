@@ -1,6 +1,7 @@
 // ========================================
 // 1️⃣ 常數和全域變數定義
 // ========================================
+import { t } from '../i18n.js';
 
 const LEVEL_MAP = {
     1: 0, 2: 10, 3: 25, 4: 50, 5: 100,
@@ -35,37 +36,6 @@ function getCurrentTranslation() {
     return getSafeTranslation(lang);
 }
 
-// 🌍 簡化的翻譯函數
-function t(key, ...args) {
-    const translation = getCurrentTranslation();
-    
-    // 支援巢狀 key，如 "profileDashboard.upgradeHint"
-    const keys = key.split('.');
-    let value = translation;
-    
-    for (const k of keys) {
-        if (value && typeof value === 'object') {
-            value = value[k];
-        } else {
-            value = undefined;
-            break;
-        }
-    }
-    
-    // 如果找不到翻譯，返回 key 本身
-    if (value === undefined) {
-        console.warn(`🌍 Missing translation for key: ${key}`);
-        return key;
-    }
-    
-    // 如果是函數（如 upgradeHint），調用它
-    if (typeof value === 'function') {
-        return value(...args);
-    }
-    
-    return value;
-}
-
 function getLevelInfo(exp, tFunc) {
     // 🔧 修復：等級名稱應該在頂層，不在 profileDashboard 下
     const i18nKey = (level) => `level${level}_name`;
@@ -92,6 +62,146 @@ function getLevelInfo(exp, tFunc) {
 
 function getNextLevelThreshold(level) {
     return LEVEL_MAP[level + 1] ?? Infinity;
+}
+
+function getTranslationFunction() {
+    const lang = localStorage.getItem("lang") || "en";
+    return (key, ...args) => {
+        try {
+            const keys = key.split(".");
+            let value = window.i18n?.[lang];
+
+            for (const k of keys) {
+                if (value && typeof value === 'object' && k in value) {
+                    value = value[k];
+                } else {
+                    return key; 
+                }
+            }
+            
+            if (typeof value === 'function') {
+                return value(...args);
+            }
+            
+            // 👇【核心修正】: 如果 value 不是字串或函式 (例如是陣列或物件)，
+            // 直接返回 value 本身，而不是返回 key。
+            return value; 
+
+        } catch (e) {
+            console.warn("翻譯時發生錯誤:", key, e);
+            return key;
+        }
+    };
+}
+
+// 🆕 統一的 Modal 翻譯刷新函數
+function forceRefreshModalTranslations(modalId = null) {
+    // 定義所有需要處理的彈窗
+    const allModals = [
+        'profileEditModal',    // 編輯個人檔案
+        'expModal',           // 新增/編輯工作經歷
+        'replyOptionsModal',  // 回覆選項
+        'replyModal',         // 回覆彈窗
+        'waitlistModal',      // 等候清單
+        'inviteModal',        // 邀請彈窗
+        'onboardingModal'     // 新手引導
+    ];
+    
+    const modalIds = modalId ? [modalId] : allModals;
+    
+    modalIds.forEach(id => {
+        const modal = document.getElementById(id);
+        if (!modal) {
+            console.log(`ℹ️ Modal ${id} 不存在，跳過`);
+            return;
+        }
+
+        console.log(`🔄 [統一修復] 刷新 ${id} 翻譯`);
+        
+        // 確保翻譯函數可用
+        const tFunc = window.t || ((key) => {
+            console.warn(`❌ 翻譯函數不可用，鍵: ${key}`);
+            return key;
+        });
+
+        try {
+            // 1. 處理標題（多種選擇器）
+            const titleSelectors = [
+                'h3[data-i18n]',
+                'h3#modalTitle', 
+                '.modal-header h3',
+                'h3',
+                '[data-i18n*="Title"]'
+            ];
+            
+            for (const selector of titleSelectors) {
+                const titleEl = modal.querySelector(selector);
+                if (titleEl) {
+                    let titleKey = titleEl.getAttribute('data-i18n');
+                    
+                    if (!titleKey) {
+                        const titleMapping = {
+                            'profileEditModal': 'profileDashboard.editProfileTitle',
+                            'expModal': 'profileDashboard.addExperienceTitle',
+                            'replyOptionsModal': 'profileDashboard.replyOptions',
+                            'replyModal': 'profileDashboard.selectColleagueToReply',
+                            'waitlistModal': 'profileDashboard.waitlistTitle',
+                            'inviteModal': 'profileDashboard.inviteModalTitle',
+                            'onboardingModal': 'profileDashboard.onboardingModal.modalTitle'
+                        };
+                        titleKey = titleMapping[id];
+                    }
+                    
+                    if (titleKey) {
+                        const translation = tFunc(titleKey);
+                        if (translation && translation !== titleKey) {
+                            titleEl.textContent = translation;
+                            console.log(`✅ ${id} 標題: ${translation}`);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 2. 處理所有 data-i18n 元素
+            modal.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (!key) return;
+                
+                const translation = tFunc(key);
+                if (translation && translation !== key) {
+                    el.textContent = translation;
+                }
+            });
+
+            // 3. 處理 placeholder 屬性
+            modal.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (!key) return;
+                
+                const translation = tFunc(key);
+                if (translation && translation !== key) {
+                    el.placeholder = translation;
+                }
+            });
+
+            // 4. 處理按鈕文字
+            modal.querySelectorAll('button[data-i18n]').forEach(btn => {
+                const key = btn.getAttribute('data-i18n');
+                if (!key) return;
+                
+                const translation = tFunc(key);
+                if (translation && translation !== key) {
+                    btn.textContent = translation;
+                }
+            });
+
+            console.log(`✅ [統一修復] ${id} 翻譯刷新完成`);
+
+        } catch (error) {
+            console.error(`❌ [統一修復] ${id} 翻譯刷新失敗:`, error);
+        }
+    });
 }
 
 function showToast(msg) {
@@ -169,36 +279,6 @@ function renderUserLevel(exp) {
     `;
 }
 
-function getTranslationFunction() {
-    const lang = localStorage.getItem("lang") || "en";
-    return (key, ...args) => {
-        try {
-            const keys = key.split(".");
-            let value = window.i18n?.[lang];
-
-            for (const k of keys) {
-                if (value && typeof value === 'object' && k in value) {
-                    value = value[k];
-                } else {
-                    return key; 
-                }
-            }
-            
-            if (typeof value === 'function') {
-                return value(...args);
-            }
-            
-            // 👇【核心修正】: 如果 value 不是字串或函式 (例如是陣列或物件)，
-            // 直接返回 value 本身，而不是返回 key。
-            return value; 
-
-        } catch (e) {
-            console.warn("翻譯時發生錯誤:", key, e);
-            return key;
-        }
-    };
-}
-
 // ✨ 基本資訊渲染
 function renderBasicInfo(profile) {
     const container = document.getElementById('basicInfo');
@@ -230,7 +310,7 @@ function renderBasicInfo(profile) {
                 <h1 class="text-2xl font-bold">${displayName}</h1>
                 ${headlineHTML}
             </div>
-            <button id="open-edit-modal-btn" class="icon-btn" title="${t('profileDashboard.editProfileTitle')}">✏️</button>
+            <button id="open-edit-modal-btn" class="icon-btn" title="${t('profileDashboard.editProfileTitle')}">&#9999;&#65039;</button>
         </div>
         ${recommendationsNote}
     `;
@@ -314,12 +394,15 @@ function renderExperienceCardsWithReply(list, profile) {
                 const givenStatsText = `<span class="stat-separator">|</span><span class="stat-item">${t('profileDashboard.totalRecommended')} <strong>${givenCount}</strong> ${unit(givenCount)}</span>`;
 
                 let pendingHint = "";
-                if (pendingCount > 0 || failedCount > 0) {
-                    const hintParts = [
-                        pendingCount > 0 ? t('profileDashboard.pending', pendingCount) : '',
-                        failedCount > 0 ? t('profileDashboard.failed', failedCount) : ''
-                    ].filter(Boolean);
-                    pendingHint = `<div class="pending-hint"><small>${t('profileDashboard.pendingHint', hintParts)}</small></div>`;
+                if (pendingCount > 0 && failedCount > 0) {
+                // 情境三：兩者都有
+                    pendingHint = `<div class="pending-hint"><small>💡 ${t('profileDashboard.hintBoth', { pending: pendingCount, failed: failedCount })}</small></div>`;
+                } else if (pendingCount > 0) {
+                // 情境一：只有 pending
+                    pendingHint = `<div class="pending-hint"><small>💡 ${t('profileDashboard.hintPendingOnly', { count: pendingCount })}</small></div>`;
+                } else if (failedCount > 0) {
+                // 情境二：只有 failed
+                    pendingHint = `<div class="pending-hint"><small>💡 ${t('profileDashboard.hintFailedOnly', { count: failedCount })}</small></div>`;
                 }
                 
                 const predefinedHighlights = new Set(['hardSkill', 'softSkill', 'character']);
@@ -395,6 +478,72 @@ function updateOnboardingText() {
 function populateYearMonth() {
     const now = new Date(), thisYear = now.getFullYear();
     let yrs = ['<option value="">--</option>'], mos = ['<option value="">--</option>'];
+    
+    // 產生年份選項
+    for (let y = thisYear; y >= thisYear - 40; y--) {
+        yrs.push(`<option value="${y}">${y}</option>`);
+    }
+    
+    // 產生月份選項
+    for (let m = 1; m <= 12; m++) {
+        const mm = String(m).padStart(2,"0");
+        mos.push(`<option value="${mm}">${m}</option>`);
+    }
+    
+    // 🔧 安全取得元素（修復重點）
+    const startY = document.getElementById("startYear");
+    const startM = document.getElementById("startMonth");
+    const endY = document.getElementById("endYear");
+    const endM = document.getElementById("endMonth");
+    const stillChk = document.getElementById("stillWorking"); // ✅ 在使用前才宣告
+    const endDateContainer = document.getElementById("endDateContainer");
+    
+    // 填入年份選項
+    if (startY) startY.innerHTML = yrs.join("");
+    if (endY) endY.innerHTML = yrs.join("");
+    
+    // 填入月份選項
+    if (startM) startM.innerHTML = mos.join("");
+    if (endM) endM.innerHTML = mos.join("");
+    
+    // 🔧 安全處理「目前在職」複選框事件
+    if (stillChk && endDateContainer && endY && endM) {
+        // 移除舊的事件監聽器（避免重複綁定）
+        stillChk.removeEventListener("change", handleStillWorkingChange);
+        
+        // 定義事件處理函數
+        function handleStillWorkingChange() {
+            const isWorking = stillChk.checked;
+            endDateContainer.classList.toggle("hidden", isWorking);
+            
+            // 設定 disabled 狀態
+            if (endY) endY.disabled = isWorking;
+            if (endM) endM.disabled = isWorking;
+            
+            // 如果選中「目前在職」，清空結束日期
+            if (isWorking) {
+                if (endY) endY.value = "";
+                if (endM) endM.value = "";
+            }
+        }
+        
+        // 綁定新的事件監聽器
+        stillChk.addEventListener("change", handleStillWorkingChange);
+        
+        console.log("✅ 年月下拉選單和目前在職功能初始化完成");
+    } else {
+        console.warn("⚠️ 部分 DOM 元素未找到，跳過目前在職功能設定");
+        if (!stillChk) console.warn("   - stillWorking checkbox 未找到");
+        if (!endDateContainer) console.warn("   - endDateContainer 未找到");
+        if (!endY) console.warn("   - endYear select 未找到");
+        if (!endM) console.warn("   - endMonth select 未找到");
+    }
+}
+
+// 函式一：為新用戶引導彈窗的年月下拉選單填入選項
+function populateOnboardingYearMonth() {
+    const now = new Date(), thisYear = now.getFullYear();
+    let yrs = ['<option value="">--</option>'], mos = ['<option value="">--</option>'];
     for (let y = thisYear; y >= thisYear - 40; y--) {
         yrs.push(`<option>${y}</option>`);
     }
@@ -402,35 +551,24 @@ function populateYearMonth() {
         const mm = String(m).padStart(2,"0");
         mos.push(`<option value="${mm}">${m}</option>`);
     }
-    const startY = document.getElementById("startYear");
-    const startM = document.getElementById("startMonth");
-    const endY = document.getElementById("endYear");
-    const endM = document.getElementById("endMonth");
-    const stillChk = document.getElementById("stillWorking");
-    const endDateContainer = document.getElementById("endDateContainer");
+
+    const startY = document.getElementById("onboarding-startYear");
+    const startM = document.getElementById("onboarding-startMonth");
+    const endY = document.getElementById("onboarding-endYear");
+    const endM = document.getElementById("onboarding-endMonth");
+    const stillChk = document.getElementById("onboarding-stillWorking");
+    const endDateContainer = document.getElementById("onboarding-endDateContainer");
     
     if (startY) startY.innerHTML = yrs.join("");
     if (endY) endY.innerHTML = yrs.join("");
     if (startM) startM.innerHTML = mos.join("");
     if (endM) endM.innerHTML = mos.join("");
     
-    if (stillChk && endDateContainer && endY && endM) {
+    if (stillChk && endDateContainer) {
         stillChk.addEventListener("change", () => {
-            const isWorking = stillChk.checked;
-            endDateContainer.classList.toggle("hidden", isWorking);
-            endY.disabled = endM.disabled = isWorking;
-            if (isWorking) endY.value = endM.value = "";
+            endDateContainer.classList.toggle("hidden", stillChk.checked);
         });
     }
-}
-
-// ✨ 靜態文字渲染
-function renderStaticText() {
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-        const key = el.getAttribute("data-i18n");
-        const translation = t(`profileDashboard.${key}`);
-        if (translation !== key) el.textContent = translation;
-    });
 }
 
 // ========================================
@@ -700,8 +838,10 @@ async function handleReplyRecommendation(jobIndex) {
             const matchesJob = (rec.matchedJobId || rec.jobId) === job.id;
             const isReceived = rec.type === 'received';
             const notReplied = !rec.hasReplied;
+            const isVerified = rec.status === 'verified'; // <--- 根據文件新增的檢查
+            const canReply = rec.canReply === true;       // <--- 根據文件新增的檢查
             
-            return matchesJob && isReceived && notReplied;
+            return matchesJob && isReceived && isVerified && notReplied && canReply;
         });
         
         if (availableRecommendations.length === 0) {
@@ -813,9 +953,14 @@ function bindProfileEditEvents(userRef, profile) {
         const btn = document.getElementById('open-edit-modal-btn');
         if (btn) {
             btn.onclick = () => {
+                // 填入現有資料
                 document.getElementById('edit-english-name').value = profile.englishName || '';
                 document.getElementById('edit-headline').value = profile.headline || '';
                 document.getElementById('edit-bio').value = profile.bio || '';
+                
+                // 🆕 強制刷新 Modal 翻譯
+                forceRefreshModalTranslations('profileEditModal');
+                
                 profileEditModal.showModal();
             };
         }
@@ -823,15 +968,19 @@ function bindProfileEditEvents(userRef, profile) {
 
     bindOpenModalButton();
 
+    // 取消按鈕事件
     if (cancelEditBtn) {
         cancelEditBtn.onclick = () => profileEditModal.close();
     }
 
+    // 表單提交事件（保持原有邏輯）
     if (profileEditForm) {
         profileEditForm.onsubmit = async (e) => {
             e.preventDefault();
             saveChangesBtn.disabled = true;
-            saveChangesBtn.textContent = t('profileDashboard.saving');
+            
+            const savingText = window.t ? window.t('profileDashboard.saving') : 'Saving...';
+            saveChangesBtn.textContent = savingText;
 
             const dataToUpdate = {
                 englishName: document.getElementById('edit-english-name').value.trim(),
@@ -847,15 +996,20 @@ function bindProfileEditEvents(userRef, profile) {
                 renderBioSection(profile);
                 bindOpenModalButton();
 
-                showToast(t('profileDashboard.updateSuccess'));
+                const successMsg = window.t ? window.t('profileDashboard.updateSuccess') : '✅ Update successful!';
+                showToast(successMsg);
                 profileEditModal.close();
 
             } catch (error) {
                 console.error("更新檔案失敗:", error);
-                showToast(`${t('profileDashboard.updateFailed')} ${error.message}`);
+                const errorMsg = window.t ? 
+                    `${window.t('profileDashboard.updateFailed')} ${error.message}` : 
+                    `❌ Update failed: ${error.message}`;
+                showToast(errorMsg);
             } finally {
                 saveChangesBtn.disabled = false;
-                saveChangesBtn.textContent = t('profileDashboard.saveChanges');
+                const saveText = window.t ? window.t('profileDashboard.saveChanges') : 'Save Changes';
+                saveChangesBtn.textContent = saveText;
             }
         };
     }
@@ -885,6 +1039,56 @@ function bindReplyModalEvents() {
             }
         });
     }
+}
+
+// 函式二：處理新用戶引導彈窗的提交事件
+async function handleOnboardingSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+
+    // 1. 收集姓名資料
+    window.profile.name = document.getElementById('onboarding-name').value.trim();
+    window.profile.englishName = document.getElementById('onboarding-english-name').value.trim();
+
+    // 2. 收集工作經歷資料
+    const company = document.getElementById('onboarding-company').value.trim();
+    const position = document.getElementById('onboarding-position').value.trim();
+    const startYear = document.getElementById('onboarding-startYear').value;
+    const startMonth = document.getElementById('onboarding-startMonth').value;
+    const isStillWorking = document.getElementById('onboarding-stillWorking').checked;
+    const endYear = isStillWorking ? "" : document.getElementById('onboarding-endYear').value;
+    const endMonth = isStillWorking ? "" : document.getElementById('onboarding-endMonth').value;
+
+    if (!window.profile.name || !company || !position || !startYear || !startMonth) {
+        alert("請填寫所有必填欄位！");
+        btn.disabled = false;
+        return;
+    }
+
+    const jobData = {
+        id: Date.now().toString(),
+        company,
+        position,
+        startDate: `${startYear}-${startMonth}`,
+        endDate: (endYear && endMonth) ? `${endYear}-${endMonth}` : "",
+        description: "", // 首次引導可留空
+    };
+
+    window.profile.workExperiences.push(jobData);
+
+    // 3. 儲存到 Firestore
+    await saveProfile();
+    
+    // 4. 更新儀表板畫面並關閉彈窗
+    renderBasicInfo(window.profile);
+    const experienceListContainer = document.getElementById("experienceList");
+    if (experienceListContainer) {
+        renderExperienceCardsWithReply(experienceListContainer, window.profile);
+    }
+    document.getElementById('onboardingModal').close();
+    showToast("歡迎！您的基本資料已儲存。");
+    btn.disabled = false;
 }
 
 // ✨ 回覆選項Modal事件
@@ -1074,11 +1278,17 @@ function openModalForAdd() {
     const modalTitle = document.getElementById("modalTitle");
     const expForm = document.getElementById("expForm");
     const expModal = document.getElementById("expModal");
-    
-    if (modalTitle) modalTitle.textContent = t('profileDashboard.addExperience');
+    document.getElementById("editLockHint").classList.add("hidden");
+    if (modalTitle) modalTitle.textContent = t('profileDashboard.addExperienceTitle');
     if (expForm) expForm.reset();
     editIdx = -1;
     lockCoreFields(false);
+    
+    // 🆕 強制刷新翻譯
+    setTimeout(() => {
+        forceRefreshModalTranslations('expModal');
+    }, 0);
+    
     if (expModal) expModal.showModal();
 }
 
@@ -1088,7 +1298,7 @@ function openModalForEdit(idx) {
     const modalTitle = document.getElementById("modalTitle");
     const expModal = document.getElementById("expModal");
     
-    if (modalTitle) modalTitle.textContent = t('profileDashboard.editExperience');
+    if (modalTitle) modalTitle.textContent = t('profileDashboard.editExperienceTitle');
     
     // --- 填入現有資料 (此部分邏輯不變) ---
     const companyInp = document.getElementById("companyInput");
@@ -1125,12 +1335,17 @@ function openModalForEdit(idx) {
     // 1. 檢查這份工作是否有已驗證的推薦 (job.verified > 0)。
     //    `job.verified` 的值是在 `loadUserRecommendations` 函式中計算並賦予的。
     const shouldLock = job.verified && job.verified > 0;
-    
+    const lockHint = document.getElementById("editLockHint");
+    if (lockHint) {
+        lockHint.classList.toggle("hidden", !shouldLock);
+    }
     editIdx = idx;
     
     // 2. 將檢查結果 (true/false) 傳遞給 lockCoreFields 函式。
     lockCoreFields(shouldLock);
-    
+    setTimeout(() => {
+        forceRefreshModalTranslations('expModal');
+    }, 0);
     if (expModal) expModal.showModal();
 }
 
@@ -1144,7 +1359,7 @@ function lockCoreFields(shouldLock) {
     // ✨ --- 核心修改 --- ✨
     // 現在，公司、職位、開始日期都會根據 shouldLock 的值 (true/false) 來決定是否禁用。
     if (companyInp) companyInp.disabled = shouldLock;
-    if (positionInp) positionInp.disabled = shouldLock; // <--- 已將此欄位加入鎖定邏輯
+    if (positionInp) positionInp.disabled = shouldLock; // <--- 已將此欄位加入鎖定 logique
     if (startY) startY.disabled = shouldLock;
     if (startM) startM.disabled = shouldLock;
 }
@@ -1326,30 +1541,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         db = firebase.firestore();
         console.log("✅ Firebase 初始化完成");
 
-        // 🌍 統一的靜態文字渲染函數
-        const renderAllStaticText = () => {
-            // 處理 data-i18n 屬性
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                const translation = t(`profileDashboard.${key}`);
-                if (translation !== key) el.textContent = translation;
-            });
-            
-            // 處理 placeholder 屬性
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-i18n-placeholder');
-                const translation = t(`profileDashboard.${key}`);
-                if (translation !== key) el.placeholder = translation;
-            });
-        };
-
-        // 🌍 初始化靜態文字和語言切換
-        renderAllStaticText();
-        
         // 🌍 語言切換事件監聽
         window.addEventListener("langChanged", () => {
-            renderAllStaticText();
+            // `setLang` 已經處理了所有 `data-i18n` 和 `data-i18n-placeholder`
+            // 所以我們只需要處理動態和複雜的內容
             updateOnboardingText();
+
+            // 🆕 刷新 Modal 翻譯
+            setTimeout(() => {
+                forceRefreshModalTranslations();
+            }, 100);
             
             // 重新渲染動態內容
             const list = document.getElementById("experienceList");
@@ -1387,7 +1588,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const userRef = db.collection("users").doc(user.uid);
                 const docSnap = await userRef.get();
 
-                // 🔧 修復：兼容新舊版本的 exists 檢查
                 const docExists = typeof docSnap.exists === 'function' ? docSnap.exists() : docSnap.exists;
 
                 if (docExists) { 
@@ -1408,73 +1608,72 @@ document.addEventListener("DOMContentLoaded", async () => {
                     Object.assign(window.profile, newProfileData);
                 }
 
-                // 🔧 確保 workExperiences 是陣列
                 if (!Array.isArray(window.profile.workExperiences)) {
                     window.profile.workExperiences = Object.values(window.profile.workExperiences || {});
+                }
+
+                const isNewUserSetupRequired = !window.profile.name || (window.profile.workExperiences || []).length === 0;
+
+                if (isNewUserSetupRequired) {
+                    console.log("ℹ️ 偵測到新用戶或資料不完整的用戶，開啟引導彈窗。");
+                    populateOnboardingYearMonth(); 
+                    forceRefreshModalTranslations('onboardingModal'); // 確保 modal 翻譯正確
+                    document.getElementById('onboardingModal').showModal();
                 }
 
                 // --- 🎨 渲染所有 UI 組件 ---
                 renderBasicInfo(window.profile);
                 renderBioSection(window.profile);
                 
-                // 📊 載入推薦資料並渲染
                 await loadUserRecommendations(window.profile.userId);
                 const stats = window.profile.recommendationStats || {};
                 const totalReceived = stats.totalReceived || 0;
                 const totalGiven = stats.totalGiven || 0;
 
-                // 條件：只要收到過 或 送出過 任何一筆已驗證的推薦
                 const hasAnyVerifiedRec = totalReceived > 0 || totalGiven > 0;
                 const quickStartCard = document.getElementById('quickStartCard');
 
-                if (quickStartCard) {
-                    if (hasAnyVerifiedRec) {
-                // 如果有推薦紀錄，就隱藏卡片
+                if (hasAnyVerifiedRec) {
+                    // 如果有已驗證推薦，就隱藏卡片
                     quickStartCard.style.display = 'none';
-                    } else {
-                // 如果沒有推薦紀錄，才顯示卡片
+                    quickStartCard.classList.remove('show'); // 同時移除 show class
+                } else {
+                    // 如果沒有，才顯示卡片
                     console.log("ℹ️ 使用者尚無推薦紀錄，準備顯示新手引導卡。");
-
-                // ✨ 核心修正：在顯示卡片容器前，先呼叫函式填入最新的文字內容
-                    updateOnboardingText(); 
-        
-                // 接著才顯示整個區塊
-                    quickStartCard.style.display = 'block'; 
-                    }
+                    updateOnboardingText();
+                    // 為了讓 CSS 動畫更流暢，可以稍微延遲一下再加入 'show' class
+                    setTimeout(() => {
+                        quickStartCard.classList.add('show');
+                    }, 100); // 延遲 100 毫秒
                 }
                 const experienceListContainer = document.getElementById("experienceList");
                 if (experienceListContainer) {
                     renderExperienceCardsWithReply(experienceListContainer, window.profile);
                 }
 
-                // 🏆 渲染等級資訊
                 const userExp = window.profile.recommendationStats?.exp || 0;
                 renderUserLevel(userExp);
                 
-                // 🔗 綁定個人檔案編輯事件
                 bindProfileEditEvents(userRef, window.profile);
                 
-                // ✨ 建立主要操作按鈕
                 const actionBtns = document.getElementById("actionBtns");
                 if (actionBtns) {
                     actionBtns.innerHTML = '';
                     actionBtns.classList.add("btn-group");
 
-                    // ➕ 新增工作經歷按鈕
                     const addBtn = document.createElement("button");
                     addBtn.id = "addBtn";
                     addBtn.type = "button";
                     addBtn.className = "btn cta-btn";
-                    addBtn.setAttribute("data-i18n", "addExperience");
+                    addBtn.setAttribute("data-i18n", "profileDashboard.addExperience");
                     addBtn.innerText = t('profileDashboard.addExperience');
                     addBtn.onclick = () => openModalForAdd();
                     actionBtns.appendChild(addBtn);
 
-                    // 📄 推薦總覽按鈕
                     const summaryBtn = document.createElement("button");
                     summaryBtn.type = "button";
                     summaryBtn.className = "btn cta-btn";
-                    summaryBtn.setAttribute("data-i18n", "viewSummaryAll");
+                    summaryBtn.setAttribute("data-i18n", "profileDashboard.viewSummaryAll");
                     summaryBtn.innerText = t('profileDashboard.viewSummaryAll');
                     summaryBtn.addEventListener("click", () => {
                         const url = `/pages/recommend-summary.html?userId=${window.profile.userId}&jobIndex=0`;
@@ -1482,11 +1681,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     });
                     actionBtns.appendChild(summaryBtn);
 
-                    // 🌐 公開推薦頁按鈕
                     const previewBtn = document.createElement("button");
                     previewBtn.type = "button";
                     previewBtn.className = "btn cta-btn";
-                    previewBtn.setAttribute("data-i18n", "viewPublicSummary");
+                    previewBtn.setAttribute("data-i18n", "profileDashboard.viewPublicSummary");
                     previewBtn.innerText = t('profileDashboard.viewPublicSummary');
                     previewBtn.addEventListener("click", () => {
                         const url = `/pages/public-profile.html?userId=${window.profile.userId}`;
@@ -1495,21 +1693,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                     actionBtns.appendChild(previewBtn);
                 }
 
-                // 🎯 綁定工作經歷相關事件
                 bindExperienceListEvents(t);
-                
-                // 🎯 綁定工作經歷表單事件
                 bindExperienceFormEvents();
-
-                // 🎯 綁定 Modal 關閉事件
                 bindModalCloseEvents();
+                bindOnboardingEvents();
 
-                // 在所有儀表板內容渲染完成後，強制校準 Header 搜尋欄的 placeholder
                 const searchInput = document.getElementById('headerSearchInput');
                 if (searchInput) {
                     searchInput.placeholder = window.t('header.searchPlaceholder');
                 }
-                // 🔄 隱藏載入遮罩
+                
+                // 由於 setLang 可能在 profile 物件完全載入前執行，這裡可以再手動調用一次確保所有內容更新
+                if (window.setLang) {
+                    window.setLang(localStorage.getItem("lang") || "zh-Hant");
+                }
+                
                 document.getElementById("dashboardLoading").style.display = "none";
                 console.log("✅ 儀表板初始化完成！");
 
@@ -1526,7 +1724,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
 
-        // 🌍 初始化各種 Modal 事件（在 auth 流程外）
         bindReplyModalEvents();
         initializeReplyOptionsModal();
         initializeWaitlistModal();
@@ -1552,13 +1749,11 @@ function bindExperienceListEvents(t) {
     const experienceList = document.getElementById("experienceList");
     if (experienceList) {
         experienceList.addEventListener("click", (e) => {
-            // 編輯按鈕
             if (e.target.closest(".edit-btn")) {
                 const idx = parseInt(e.target.closest(".edit-btn").dataset.idx);
                 openModalForEdit(idx);
             }
             
-            // 刪除按鈕
             else if (e.target.closest(".del-btn")) {
                 const idx = parseInt(e.target.closest(".del-btn").dataset.idx);
                 if (confirm(t('profileDashboard.deleteConfirm'))) {
@@ -1569,62 +1764,38 @@ function bindExperienceListEvents(t) {
                 }
             }
             
-            // 推薦他人按鈕
             else if (e.target.closest(".recommend-others-btn")) {
                 const idx = parseInt(e.target.closest(".recommend-others-btn").dataset.idx);
                 handleRecommendOthers(idx);
             }
             
-            // 回推薦按鈕
             else if (e.target.closest(".reply-btn")) {
                 const idx = parseInt(e.target.closest(".reply-btn").dataset.idx);
                 handleReplyRecommendation(idx);
             }
             
-            // 🔧 在新版 profile-dashboard.js 中的 bindExperienceListEvents 函數裡
-// 找到 "邀請夥伴推薦功能" 這個 else if 區塊，完全替換成：
-
-// 🔽 邀請夥伴推薦功能 - 完整版
 else if (e.target.closest(".link-btn")) {
     const idx = parseInt(e.target.closest(".link-btn").dataset.idx);
-    currentJobIndex = idx;
-    
     const job = window.profile.workExperiences[idx];
-    currentCompany = job.company;
-    
-    // --- 抓取彈窗和所有內部元素 ---
+    const user = window.profile;
+    const t = getTranslationFunction();
+
     const inviteModal = document.getElementById("inviteModal");
-    const inviteTextarea = document.getElementById("inviteTextarea");
-    const insertDirectBtn = document.getElementById("insertDirect");
-    const insertWarmthBtn = document.getElementById("insertWarmth");
+    const messageTextarea = document.getElementById("inviteTextarea");
+    const templateButtonsContainer = document.getElementById("message-templates");
     const inviteCancelBtn = document.getElementById("inviteCancelBtn");
     const inviteSaveBtn = document.getElementById("inviteSaveBtn");
     const previewLinkEl = document.getElementById("invitePreviewLink");
 
-    if (!inviteModal || !inviteTextarea) {
-        console.error("❌ 邀請 Modal 元素不存在");
+    if (!inviteModal || !messageTextarea || !templateButtonsContainer || !inviteSaveBtn) {
+        console.error("❌ 邀請 Modal 的部分關鍵元素不存在，無法開啟。");
         showToast("邀請功能暫時無法使用，請稍後再試");
         return;
     }
 
-    // ✨ --- 核心功能與事件綁定 --- ✨
-
-    // 1. 更新預設邀請文案的函式
-    const updateDefaultMessage = (style) => {
-        currentInviteStyle = style || "warmth";
-        const defaultMsg = t(`profileDashboard.defaultInvite_${currentInviteStyle}`);
-        const finalMsg = defaultMsg.replace("{{company}}", currentCompany || t('profileDashboard.unknownCompany'));
-        inviteTextarea.value = finalMsg;
-        
-        // 🆕 更新預覽連結
-        updatePreviewLink();
-    };
-
-    // 🆕 2. 預覽連結更新函式
     const generatePreviewUrl = () => {
-        const message = inviteTextarea.value.trim();
+        const message = messageTextarea.value.trim();
         const jobId = encodeURIComponent(job.id);
-        const style = currentInviteStyle || "custom";
         const encMsg = encodeURIComponent(message);
         const lang = localStorage.getItem("lang") || "zh-Hant";
         
@@ -1632,56 +1803,78 @@ else if (e.target.closest(".link-btn")) {
             `?userId=${window.profile.userId}` +
             `&jobId=${jobId}` +
             `&message=${encMsg}` +
-            `&style=${style}` +
             `&lang=${lang}` +
             `&invitedBy=${window.profile.userId}`;
     };
 
     const updatePreviewLink = () => {
-    if (previewLinkEl) {
-        const url = generatePreviewUrl();
-        previewLinkEl.setAttribute("href", url);
-        previewLinkEl.title = url;
-        
-        // 🆕 使用 i18n 翻譯設定文字
-        previewLinkEl.textContent = t('profileDashboard.previewLink') || '🔍 預覽推薦表單';
-    }
-};
-
-    // 3. 點擊「插入中性版」按鈕
-    if (insertDirectBtn) {
-        insertDirectBtn.onclick = () => updateDefaultMessage("direct");
-    }
-
-    // 4. 點擊「插入溫暖版」按鈕
-    if (insertWarmthBtn) {
-        insertWarmthBtn.onclick = () => updateDefaultMessage("warmth");
-    }
+        if (previewLinkEl) {
+            const url = generatePreviewUrl();
+            previewLinkEl.setAttribute("href", url);
+            previewLinkEl.title = url;
+            previewLinkEl.textContent = t('profileDashboard.previewLink') || '🔍 預覽推薦表單';
+        }
+    };
     
-    // 5. 點擊「取消」按鈕
+    const templates = [
+        {
+            name: t("profileDashboard.inviteTemplates.inviteSenior.name"),
+            message: t("profileDashboard.inviteTemplates.inviteSenior.message", {
+                company: job.company || t('profileDashboard.unknownCompany'),
+                userName: user.name,
+                "對方姓名": "{對方姓名}"
+            })
+        },
+        {
+            name: t("profileDashboard.inviteTemplates.invitePeer.name"),
+            message: t("profileDashboard.inviteTemplates.invitePeer.message", {
+                company: job.company || t('profileDashboard.unknownCompany'),
+                userName: user.name,
+                "對方姓名": "{對方姓名}"
+            })
+        },
+        {
+            name: t("profileDashboard.inviteTemplates.inviteJunior.name"),
+            message: t("profileDashboard.inviteTemplates.inviteJunior.message", {
+                company: job.company || t('profileDashboard.unknownCompany'),
+                userName: user.name,
+                "對方姓名": "{對方姓名}"
+            })
+        }
+    ];
+
+    templateButtonsContainer.innerHTML = '';
+    templates.forEach(template => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'template-btn';
+        button.textContent = template.name;
+        button.onclick = () => {
+            messageTextarea.value = template.message;
+            updatePreviewLink();
+        };
+        templateButtonsContainer.appendChild(button);
+    });
+    
     if (inviteCancelBtn) {
         inviteCancelBtn.onclick = () => inviteModal.close();
     }
     
-    // 🆕 6. 即時預覽更新（使用者手動輸入時）
-    inviteTextarea.addEventListener("input", updatePreviewLink);
+    messageTextarea.addEventListener("input", updatePreviewLink);
     
-    // 7. 點擊「儲存並複製」按鈕 - 增強版
     if (inviteSaveBtn) {
         inviteSaveBtn.onclick = async () => {
-            const message = inviteTextarea.value.trim();
+            const message = messageTextarea.value.trim();
             if (!message) {
                 showToast(t('profileDashboard.inviteEmpty'));
                 return;
             }
 
             try {
-                // 先建立邀請記錄
                 const inviteRef = await db.collection("invites").add({
                     userId: window.profile.userId,
                     jobId: job.id,
                     message: message,
-                    style: currentInviteStyle || "custom",
                     lang: localStorage.getItem("lang") || "zh-Hant",
                     invitedBy: window.profile.userId,
                     createdAt: new Date()
@@ -1689,71 +1882,42 @@ else if (e.target.closest(".link-btn")) {
 
                 const finalLink = `${location.origin}/pages/recommend-form.html?inviteId=${inviteRef.id}`;
                 
-                // 🎯 多重後備複製方案
                 let copySuccess = false;
-                
-                // 方案 1: 現代 Clipboard API
                 if (navigator.clipboard && window.isSecureContext) {
                     try {
                         await navigator.clipboard.writeText(finalLink);
                         copySuccess = true;
-                        console.log("✅ Clipboard API 複製成功");
-                    } catch (clipboardError) {
-                        console.warn("❌ Clipboard API 失敗:", clipboardError.message);
-                    }
+                    } catch (err) { /* fallback */ }
                 }
                 
-                // 方案 2: 傳統 execCommand
                 if (!copySuccess) {
-                    try {
-                        const tempInput = document.createElement('input');
-                        tempInput.style.position = 'fixed';
-                        tempInput.style.opacity = '0';
-                        tempInput.style.left = '-999999px';
-                        tempInput.value = finalLink;
-                        
-                        document.body.appendChild(tempInput);
-                        tempInput.select();
-                        tempInput.setSelectionRange(0, 99999);
-                        
-                        const successful = document.execCommand('copy');
-                        document.body.removeChild(tempInput);
-                        
-                        if (successful) {
-                            copySuccess = true;
-                            console.log("✅ execCommand 複製成功");
-                        }
-                    } catch (execError) {
-                        console.warn("❌ execCommand 失敗:", execError.message);
-                    }
+                    const tempInput = document.createElement('input');
+                    tempInput.value = finalLink;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    copySuccess = document.execCommand('copy');
+                    document.body.removeChild(tempInput);
                 }
                 
-                // 方案 3: 手動複製 Modal
-                if (!copySuccess) {
-                    console.log("📋 開啟手動複製 Modal");
-                    showManualCopyModal(finalLink);
-                } else {
+                if (copySuccess) {
                     showToast(t('profileDashboard.inviteLinkCopied') || '✅ 邀請連結已複製！');
                     inviteModal.close();
+                } else {
+                    showManualCopyModal(finalLink);
                 }
 
             } catch (err) {
                 console.error("❌ 建立邀請失敗:", err);
-                showToast(t('profileDashboard.inviteCreateFailed') || '❌ 建立邀請失敗，請稍後再試');
+                showToast(t('profileDashboard.inviteCreateFailed') || '❌ 建立邀請失敗');
             }
         };
     }
 
-    // --- 🔧 初始化彈窗（修正：不自動填入內容）---
-    inviteTextarea.value = ""; // ✅ 清空內容，顯示 placeholder
-    currentInviteStyle = null;  // ✅ 重置風格
-    
-    // 初始化預覽連結
+    messageTextarea.value = "";
     updatePreviewLink();
-    
-    if (inviteModal) {
-        inviteModal.showModal(); // 最後才顯示彈窗
-    }
+
+    inviteModal.showModal();
+
 }
 });
     }
@@ -1761,6 +1925,13 @@ else if (e.target.closest(".link-btn")) {
 // 🎯 綁定工作經歷表單事件
 function bindExperienceFormEvents() {
     const expForm = document.getElementById("expForm");
+    const expCancelBtn = document.getElementById("expCancelBtn");
+    if(expCancelBtn){
+        expCancelBtn.onclick = () => {
+            unlockAllFields();
+            document.getElementById("expModal").close();
+        }
+    }
     if (expForm) {
         expForm.onsubmit = async (e) => {
             e.preventDefault();
@@ -1833,13 +2004,21 @@ function bindModalCloseEvents() {
     }
 }
 
+// 函式三：綁定新用戶引導彈窗的事件
+function bindOnboardingEvents() {
+    const onboardingForm = document.getElementById('onboardingForm');
+    if (onboardingForm) {
+        // 確保只綁定一次
+        onboardingForm.removeEventListener('submit', handleOnboardingSubmit);
+        onboardingForm.addEventListener('submit', handleOnboardingSubmit);
+    }
+}
+
 // 🆕 在檔案最後新增手動複製 Modal 函數
 function showManualCopyModal(linkToCopy) {
-    // 檢查是否已有 Modal
     let copyModal = document.getElementById("manualCopyModal");
     
     if (!copyModal) {
-        // 動態建立 Modal
         copyModal = document.createElement("dialog");
         copyModal.id = "manualCopyModal";
         copyModal.className = "modal";
@@ -1877,7 +2056,6 @@ function showManualCopyModal(linkToCopy) {
         
         document.body.appendChild(copyModal);
         
-        // 綁定事件
         copyModal.addEventListener('click', (e) => {
             if (e.target.id === 'manualCopyBtn') {
                 const input = document.getElementById('manualCopyInput');
@@ -1902,15 +2080,12 @@ function showManualCopyModal(linkToCopy) {
             }
         });
     } else {
-        // 更新現有 Modal 的連結
         const input = copyModal.querySelector('#manualCopyInput');
         if (input) input.value = linkToCopy;
     }
     
-    // 顯示 Modal
     copyModal.showModal();
     
-    // 自動選取文字
     setTimeout(() => {
         const input = document.getElementById('manualCopyInput');
         if (input) {
@@ -1929,4 +2104,4 @@ console.log("📋 可用函式:", {
     業務邏輯: ['handleRecommendOthers', 'handleReplyRecommendation', 'loadUserRecommendations'],
     事件處理: ['bindProfileEditEvents', 'bindReplyModalEvents', 'initializeReplyOptionsModal'],
     工具函式: ['t', 'showToast', 'smartOpenRecommendation', 'debugRecommendationData']
-});t('common.loginRequired');
+});

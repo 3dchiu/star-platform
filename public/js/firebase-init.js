@@ -30,7 +30,7 @@ try {
   }
 
   /* <-- 從這裡開始註解
-  // 偵測是否在本地開發環境 (localhost)
+  // 偵測是否在本地開發環境 (localhost)*/  // <-- 在這裡結束註解
   if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
     console.log("🚀 偵測到本地開發環境，正在連接到 Firebase 模擬器...");
     
@@ -58,7 +58,7 @@ try {
       console.error("❌ 模擬器連接失敗:", emulatorError);
       // 不要拋出錯誤，繼續執行
     }
-  } */  // <-- 在這裡結束註解
+  } 
 
   // 🔧 新增：創建 Promise 供 profile-dashboard.js 使用
   window.firebasePromise = Promise.resolve(app);

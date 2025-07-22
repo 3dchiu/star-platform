@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title data-i18n="profileTitle">My Career Profile</title>
+  <title data-i18n="profileDashboard.profileTitle">My Career Profile</title>
 
   <link rel="stylesheet" href="../styles/main.css" />
   <link rel="stylesheet" href="../styles/level.css" />
@@ -25,14 +24,13 @@
   </script>
 
   <script type="module" src="../js/components/app-header.js"></script>
-
   <script type="module" src="../js/pages/profile-dashboard.js"></script>
 </head>
 <body>
   <div id="dashboardLoading" class="loading-overlay">
     <div style="display:flex; align-items:center; justify-content:center;">
       <div class="spinner"></div>
-      <span id="loadingDashboardText" data-i18n="loadingDashboardMessage"></span>
+      <span id="loadingDashboardText" data-i18n="profileDashboard.loadingDashboardMessage"></span>
     </div>
   </div>
   
@@ -50,117 +48,114 @@
     </div>
 
     <section id="bioSection" class="white-card soft-shadow p-6 mb-6">
-      <h3 class="text-lg font-semibold mb-2" data-i18n="bio"></h3>
+      <h3 class="text-lg font-semibold mb-2" data-i18n="profileDashboard.bio"></h3>
       <p id="bioText" class="text-gray-700 whitespace-pre-wrap"></p>
     </section>
 
-    <h2 class="mt-8 mb-4 text-xl font-semibold brand-blue-text" data-i18n="workExperiences"></h2>
+    <h2 class="mt-8 mb-4 text-xl font-semibold brand-blue-text" data-i18n="profileDashboard.workExperiences"></h2>
     <div id="experienceList"></div>
     <div id="actionBtns" class="btn-group"></div>
   </main>
 
   <dialog id="profileEditModal" class="white-card p-6 shadow-lg rounded-lg">
     <form id="profileEditForm" novalidate>
-        <h3 class="text-xl font-semibold mb-4" data-i18n="editProfileTitle"></h3>
+        <h3 class="text-xl font-semibold mb-4" data-i18n="profileDashboard.editProfileTitle"></h3>
         <hr class="my-4">
 
         <div class="form-group mb-4">
-            <label for="edit-english-name" class="form-label" data-i18n="labelEnglishName"></label>
+            <label for="edit-english-name" class="form-label" data-i18n="profileDashboard.labelEnglishName"></label>
             <input type="text" id="edit-english-name" class="form-input">
         </div>
 
         <div class="form-group mb-4">
-            <label for="edit-headline" class="form-label" data-i18n="labelHeadline"></label>
-            <input type="text" id="edit-headline" class="form-input" data-i18n-placeholder="placeholderHeadline">
+            <label for="edit-headline" class="form-label" data-i18n="profileDashboard.labelHeadline"></label>
+            <input type="text" id="edit-headline" class="form-input" data-i18n-placeholder="profileDashboard.placeholderHeadline">
         </div>
 
         <div class="form-group mb-4">
-            <label for="edit-bio" class="form-label" data-i18n="labelBio"></label>
+            <label for="edit-bio" class="form-label" data-i18n="profileDashboard.labelBio"></label>
             <textarea id="edit-bio" class="form-input" rows="5"></textarea>
         </div>
         
         <div class="flex justify-end gap-4 mt-6">
-            <button type="button" id="cancel-edit-btn" class="btn-secondary" data-i18n="cancel"></button>
-            <button type="submit" id="save-changes-btn" class="btn-primary" data-i18n="saveChanges"></button>
+            <button type="button" id="cancel-edit-btn" class="btn-secondary" data-i18n="profileDashboard.cancel"></button>
+            <button type="submit" id="save-changes-btn" class="btn-primary" data-i18n="profileDashboard.saveChanges"></button>
         </div>
     </form>
   </dialog>
 
   <dialog id="expModal" class="white-card p-6">
-    <form id="expForm" novalidate>
-      <h3 id="modalTitle" class="text-lg font-semibold mb-4" data-i18n="addExperienceTitle"></h3>
-      <div id="onboardingHint" class="onboarding-hint" style="display: none;"></div>
-      <div id="nameSection" class="form-group mb-4" hidden>
-        <label for="nameInput" data-i18n="labelName"></label>
-        <input id="nameInput" autocomplete="off" />
-        <label for="englishNameInput" data-i18n="labelEnglishNameOptional"></label>
-        <input id="englishNameInput" />
-      </div>
-      <div class="form-group">
-        <label for="companyInput" data-i18n="company"></label>
-        <input id="companyInput" />
-      </div>
-      <div class="form-group">
-        <label for="positionInput" data-i18n="position"></label>
-        <input id="positionInput" />
-      </div>
-      <div class="form-group date-fields">
-        <label data-i18n="period"></label>
-        <select id="startYear"></select>
-        <select id="startMonth"></select>
-        <span>–</span>
-        <div id="endDateContainer">
-          <select id="endYear"></select>
-          <select id="endMonth"></select>
-        </div>
-        <label class="checkbox-group">
-          <input type="checkbox" id="stillWorking"/>
-          <span data-i18n="currentlyWorking"></span>
-        </label>
-      </div>
-      <div class="form-group">
-        <label for="descInput" data-i18n="descriptionOptional"></label>
-        <textarea id="descInput" rows="4" data-i18n-placeholder="placeholderDescription"></textarea>
-      </div>
-      <div class="flex justify-end gap-4">
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('expModal').close()" data-i18n="cancel"></button>
-        <button type="submit" class="btn btn-primary" data-i18n="save"></button>
-      </div>
-    </form>
+      <form id="expForm" novalidate>
+          <h3 id="modalTitle" class="text-lg font-semibold mb-4" data-i18n="profileDashboard.addExperienceTitle"></h3>
+          <div id="onboardingHint" class="onboarding-hint" style="display: none;"></div>
+          <div id="nameSection" class="form-group mb-4" hidden>
+              <label for="nameInput" data-i18n="profileDashboard.labelName"></label>
+              <input id="nameInput" autocomplete="off" />
+              <label for="englishNameInput" data-i18n="profileDashboard.labelEnglishNameOptional"></label>
+              <input id="englishNameInput" />
+          </div>
+          <div class="form-group">
+              <label for="companyInput" data-i18n="profileDashboard.company"></label>
+              <input id="companyInput" />
+          </div>
+          <div class="form-group">
+              <label for="positionInput" data-i18n="profileDashboard.position"></label>
+              <input id="positionInput" />
+          </div>
+          <div id="editLockHint" class="form-hint warning hidden" data-i18n="profileDashboard.editLockWarning"></div>
+          <div class="form-group date-fields">
+              <label data-i18n="profileDashboard.period"></label>
+              <select id="startYear"></select>
+              <select id="startMonth"></select>
+              <span>–</span>
+              <div id="endDateContainer">
+                  <select id="endYear"></select>
+                  <select id="endMonth"></select>
+              </div>
+              <label class="checkbox-group">
+                  <input type="checkbox" id="stillWorking"/>
+                  <span data-i18n="profileDashboard.currentlyWorking"></span>
+              </label>
+          </div>
+          <div class="form-group">
+              <label for="descInput" data-i18n="profileDashboard.descriptionOptional"></label>
+              <textarea id="descInput" rows="4" data-i18n-placeholder="profileDashboard.placeholderDescription"></textarea>
+          </div>
+          <div class="flex justify-end gap-4">
+              <button type="button" id="expCancelBtn" class="btn btn-secondary" data-i18n="profileDashboard.cancel"></button>
+              <button type="submit" class="btn btn-primary" data-i18n="profileDashboard.save"></button>
+          </div>
+      </form>
   </dialog>
    
   <dialog id="inviteModal" class="white-card p-6">
-    <h3 data-i18n="editInviteTitle"></h3>
-    <textarea id="inviteTextarea" rows="4" data-i18n-placeholder="invitePlaceholder"></textarea>
-    <p id="templateHint" style="font-size: 0.9rem; margin-top: 6px; color: #555;">
-      <span data-i18n="templateHintPrefix"></span>
-      <span id="insertDirect" role="button" tabindex="0" style="color:#005bbb; text-decoration:underline; cursor:pointer;" data-i18n="insertDirect"></span>
-      <span data-i18n="or"></span>
-      <span id="insertWarmth" style="color:#bb4400; text-decoration:underline; cursor:pointer;" data-i18n="insertWarmth"></span>
-    </p>
-    <p id="previewReminder" data-i18n="previewReminder" style="font-size: 0.9rem; color: #cc3300; margin-bottom: 0.5rem;"></p>
-    <div class="form-group mt-4">
-      <label data-i18n="previewLinkLabel"></label>
+    <h3 data-i18n="profileDashboard.inviteModalTitle"></h3>
+    <textarea id="inviteTextarea" rows="4" data-i18n-placeholder="profileDashboard.invitePlaceholder"></textarea>
+    <p style="font-size: 0.9rem; margin-top: 8px; color: #555;" data-i18n="profileDashboard.templateHint"></p>
+    <div id="message-templates" class="template-buttons-container"></div>
+    <p id="previewReminder" data-i18n="profileDashboard.previewReminder" style="font-size: 0.9rem; color: #cc3300; margin-top: 1rem; margin-bottom: 0.5rem;"></p>
+    <div class="form-group mt-2">
+      <label data-i18n="profileDashboard.previewLinkLabel"></label>
       <a id="invitePreviewLink" href="#" target="_blank" style="display:block; word-break:break-all; margin-top:4px;"></a>
     </div>
     <div class="flex justify-end gap-4 mt-4">
-      <button id="inviteCancelBtn" class="btn btn-secondary" data-i18n="cancel"></button>
-      <button id="inviteSaveBtn" class="btn btn-primary" data-i18n="inviteSaveAndCopy"></button>
+      <button id="inviteCancelBtn" class="btn btn-secondary" data-i18n="profileDashboard.inviteCancelBtn"></button>
+      <button id="inviteSaveBtn" class="btn btn-primary" data-i18n="profileDashboard.inviteSaveAndCopy"></button>
     </div>    
-  </dialog>  
+  </dialog>
   
   <dialog id="copyModal" class="white-card p-6">
-    <p data-i18n="linkCopyFailed"></p>
+    <p data-i18n="profileDashboard.linkCopyFailed"></p>
     <input id="copyLinkInput" readonly style="width:100%; padding:8px; margin:8px 0; border:1px solid #ccc; border-radius:4px;" />
     <menu style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
-      <button id="copyConfirmBtn" class="btn btn-primary" data-i18n="copy"></button>
-      <button id="copyCancelBtn" class="btn btn-secondary" data-i18n="cancel"></button>
+      <button id="copyConfirmBtn" class="btn btn-primary" data-i18n="profileDashboard.copy"></button>
+      <button id="copyCancelBtn" class="btn btn-secondary" data-i18n="profileDashboard.cancel"></button>
     </menu>
   </dialog>
 
   <dialog id="replyOptionsModal" class="white-card p-6">
     <div class="modal-header">
-      <h3 data-i18n="replyOptions"></h3>
+      <h3 data-i18n="profileDashboard.replyOptions"></h3>
       <button class="close-btn" id="replyOptionsCloseBtn">&times;</button>
     </div>
     <div class="modal-body">
@@ -168,24 +163,24 @@
         <div class="reply-option" data-option="recommend">
           <div class="option-icon">📝</div>
           <div class="option-content">
-            <h4 data-i18n="recommendReply"></h4>
-            <p data-i18n="recommendReplyDesc"></p>
+            <h4 data-i18n="profileDashboard.recommendReply"></h4>
+            <p data-i18n="profileDashboard.recommendReplyDesc"></p>
           </div>
           <div class="option-action">
-            <button class="option-btn primary" data-i18n="select"></button>
+            <button class="option-btn primary" data-i18n="profileDashboard.select"></button>
           </div>
         </div>
         <div class="reply-option coming-soon" data-option="coffee">
           <div class="option-icon">☕</div>
           <div class="option-content">
             <h4>
-              <span data-i18n="coffeeGratitude"></span>
-              <span class="coming-soon-badge" data-i18n="comingSoon"></span>
+              <span data-i18n="profileDashboard.coffeeGratitude"></span>
+              <span class="coming-soon-badge" data-i18n="profileDashboard.comingSoon"></span>
             </h4>
-            <p data-i18n="coffeeGratitudeDesc"></p>
+            <p data-i18n="profileDashboard.coffeeGratitudeDesc"></p>
           </div>
           <div class="option-action">
-            <button class="option-btn secondary" data-i18n="joinWaitlist"></button>
+            <button class="option-btn secondary" data-i18n="profileDashboard.joinWaitlist"></button>
           </div>
         </div>
       </div>
@@ -194,7 +189,7 @@
 
   <dialog id="replyModal" class="white-card p-6">
     <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h3 id="replyModalTitle" data-i18n="selectColleagueToReply"></h3>
+      <h3 id="replyModalTitle" data-i18n="profileDashboard.selectColleagueToReply"></h3>
       <button class="close-btn" id="replyCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
     </div>
     <div class="modal-body">
@@ -204,35 +199,86 @@
 
   <dialog id="waitlistModal" class="white-card p-6">
     <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-      <h3 data-i18n="waitlistTitle"></h3>
+      <h3 data-i18n="profileDashboard.waitlistTitle"></h3>
       <button class="close-btn" id="waitlistCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
     </div>
     <div class="modal-body">
-      <p style="margin-bottom: 16px;" data-i18n="waitlistDesc1"></p>
-      <p style="margin-bottom: 24px; color: #6b7280;" data-i18n="waitlistDesc2"></p>
+      <p style="margin-bottom: 16px;" data-i18n="profileDashboard.waitlistDesc1"></p>
+      <p style="margin-bottom: 24px; color: #6b7280;" data-i18n="profileDashboard.waitlistDesc2"></p>
       <form id="waitlistForm">
         <div class="form-group">
-          <label for="waitlistEmail" data-i18n="labelEmail"></label>
-          <input type="email" id="waitlistEmail" required data-i18n-placeholder="placeholderEmail">
+          <label for="waitlistEmail" data-i18n="profileDashboard.labelEmail"></label>
+          <input type="email" id="waitlistEmail" required data-i18n-placeholder="profileDashboard.placeholderEmail">
         </div>
         <div class="form-group">
-          <label for="coffeePreference" data-i18n="labelCoffeePrice"></label>
+          <label for="coffeePreference" data-i18n="profileDashboard.labelCoffeePrice"></label>
           <select id="coffeePreference">
-            <option value="100" data-i18n="coffeePriceOption1"></option>
-            <option value="200" data-i18n="coffeePriceOption2"></option>
-            <option value="250" data-i18n="coffeePriceOption3"></option>
-            <option value="flexible" data-i18n="coffeePriceOption4"></option>
+            <option value="100" data-i18n="profileDashboard.coffeePriceOption1"></option>
+            <option value="200" data-i18n="profileDashboard.coffeePriceOption2"></option>
+            <option value="250" data-i18n="profileDashboard.coffeePriceOption3"></option>
+            <option value="flexible" data-i18n="profileDashboard.coffeePriceOption4"></option>
           </select>
         </div>
         <div class="flex justify-end gap-4" style="margin-top: 20px;">
-          <button type="button" class="btn btn-secondary" onclick="document.getElementById('waitlistModal').close()" data-i18n="cancel"></button>
-          <button type="submit" class="btn btn-primary" data-i18n="joinWaitlist"></button>
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('waitlistModal').close()" data-i18n="profileDashboard.cancel"></button>
+          <button type="submit" class="btn btn-primary" data-i18n="profileDashboard.joinWaitlist"></button>
         </div>
       </form>
     </div>
   </dialog>
 
+  <dialog id="onboardingModal" class="white-card p-6">
+    <form id="onboardingForm">
+      <h3 class="text-xl font-semibold mb-2" data-i18n="profileDashboard.onboardingModal.modalTitle"></h3>
+      <p class="text-gray-600 mb-6" data-i18n="profileDashboard.onboardingModal.modalSubtitle"></p>
+    
+      <fieldset>
+        <legend class="font-semibold mb-2" data-i18n="profileDashboard.onboardingModal.step1"></legend>
+        <div class="form-group">
+          <label for="onboarding-name" data-i18n="profileDashboard.labelName"></label>
+          <input type="text" id="onboarding-name" required data-i18n-placeholder="profileDashboard.onboardingModal.placeholderNameWithWarning" />
+        </div>
+        <div class="form-group">
+          <label for="onboarding-english-name" data-i18n="profileDashboard.labelEnglishNameOptional"></label>
+          <input type="text" id="onboarding-english-name" />
+        </div>
+      </fieldset>
+
+      <hr style="margin: 1.5rem 0;">
+
+      <fieldset>
+        <legend class="font-semibold mb-2" data-i18n="profileDashboard.onboardingModal.step2"></legend>
+        <div class="form-group">
+          <label for="onboarding-company" data-i18n="profileDashboard.company"></label>
+          <input type="text" id="onboarding-company" required />
+        </div>
+        <div class="form-group">
+          <label for="onboarding-position" data-i18n="profileDashboard.position"></label>
+          <input type="text" id="onboarding-position" required />
+        </div>
+         <div class="form-group date-fields">
+          <label data-i18n="profileDashboard.period"></label>
+          <select id="onboarding-startYear" required></select>
+          <select id="onboarding-startMonth" required></select>
+          <span>–</span>
+          <div id="onboarding-endDateContainer">
+            <select id="onboarding-endYear"></select>
+            <select id="onboarding-endMonth"></select>
+          </div>
+          <label class="checkbox-group">
+            <input type="checkbox" id="onboarding-stillWorking"/>
+            <span data-i18n="profileDashboard.currentlyWorking"></span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
+        <button type="submit" class="btn btn-primary" data-i18n="profileDashboard.onboardingModal.getStarted"></button>
+      </div>
+    </form>
+  </dialog>
+
   <div id="appFooter"></div>
-<script type="module" src="../js/components/app-footer.js"></script>
+  <script type="module" src="../js/components/app-footer.js"></script>
 </body>
 </html>
