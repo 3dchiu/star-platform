@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxyz 展場幻燈片 | Presentation Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            color: #333333;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* 軌道背景裝飾 */
+        .orbital-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.03;
+        }
+
+        .orbit {
+            position: absolute;
+            border: 2px solid #1e5bc6;
+            border-radius: 50%;
+            animation: rotate 30s linear infinite;
+        }
+
+        .orbit-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: -100px;
+        }
+
+        .orbit-2 {
+            width: 500px;
+            height: 500px;
+            bottom: 10%;
+            right: -150px;
+            animation-direction: reverse;
+            animation-duration: 45s;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 幻燈片容器 */
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            padding: clamp(20px, 5vh, 60px) clamp(20px, 5vw, 80px);
+            padding-bottom: clamp(80px, 12vh, 140px); /* 為導航留出空間 */
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.6s ease-in-out;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            transform: translateX(-50px);
+        }
+
+        /* 投影片內容樣式 */
+        .slide-content {
+            max-width: min(1200px, 90vw);
+            width: 100%;
+            text-align: center;
+            z-index: 2;
+        }
+
+        /* 標題投影片 */
+        .title-slide {
+            background: linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%);
+        }
+
+        .brand-logo {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            margin-bottom: clamp(20px, 4vh, 30px);
+            letter-spacing: -0.05em;
+        }
+
+        .gala-part {
+            color: #1e5bc6;
+        }
+
+        .xyz-part {
+            color: #ff8c42;
+        }
+
+        .tagline {
+            font-size: clamp(1rem, 3vw, 1.8rem);
+            color: #1e5bc6;
+            font-weight: 600;
+            margin-bottom: clamp(25px, 5vh, 40px);
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: #666666;
+        }
+
+        /* 內容投影片 */
+        .content-slide {
+            background: #ffffff;
+            flex-direction: column;
+        }
+
+        .slide-header {
+            text-align: center;
+            margin-bottom: clamp(30px, 6vh, 60px);
+        }
+
+        .slide-icon {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: clamp(15px, 3vh, 20px);
+            filter: drop-shadow(0 4px 8px rgba(30, 91, 198, 0.3));
+        }
+
+        .slide-title {
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 800;
+            color: #1e5bc6;
+            margin-bottom: clamp(10px, 2vh, 20px);
+            letter-spacing: -0.02em;
+        }
+
+        .slide-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: #ff8c42;
+            font-weight: 600;
+        }
+
+        /* 投影片內容區域 */
+        .slide-body {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(20px, 4vh, 40px);
+            max-width: min(1000px, 85vw);
+            margin: 0 auto;
+        }
+
+        /* 描述文字 */
+        .description {
+            text-align: center;
+            padding: clamp(20px, 4vw, 40px);
+            background: #f8faff;
+            border-radius: clamp(12px, 2vw, 20px);
+            border: 2px solid #e0e7ff;
+            box-shadow: 0 4px 15px rgba(30, 91, 198, 0.1);
+        }
+
+        .description-zh {
+            font-size: clamp(1.1rem, 3vw, 1.8rem);
+            line-height: 1.6;
+            color: #333333;
+            margin-bottom: clamp(10px, 2vh, 20px);
+            font-weight: 600;
+        }
+
+        .description-en {
+            font-size: clamp(0.9rem, 2.2vw, 1.4rem);
+            line-height: 1.5;
+            color: #666666;
+            font-style: italic;
+        }
+
+        .highlight {
+            color: #ff8c42;
+            font-weight: 800;
+            background: rgba(255, 140, 66, 0.15);
+            padding: 0.2em 0.5em;
+            border-radius: 0.3em;
+        }
+
+        /* 項目列表 */
+        .items-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: clamp(15px, 3vh, 30px);
+        }
+
+        .item {
+            background: #ffffff;
+            border: 2px solid #f0f4ff;
+            border-radius: clamp(10px, 2vw, 16px);
+            padding: clamp(20px, 4vw, 40px);
+            text-align: left;
+            border-left: clamp(3px, 0.5vw, 5px) solid #ff8c42;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .item:hover {
+            background: #fafbff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 91, 198, 0.1);
+        }
+
+        .item-zh {
+            font-size: clamp(1rem, 2.5vw, 1.6rem);
+            font-weight: 700;
+            color: #333333;
+            margin-bottom: clamp(8px, 2vh, 15px);
+            line-height: 1.4;
+        }
+
+        .item-en {
+            font-size: clamp(0.85rem, 2vw, 1.3rem);
+            color: #666666;
+            font-style: italic;
+            line-height: 1.3;
+        }
+
+        /* 價值主張樣式 */
+        .value-item {
+            border-left-color: #22c55e;
+        }
+
+        .value-category {
+            font-size: clamp(1.1rem, 2.8vw, 1.8rem);
+            font-weight: 800;
+            color: #1e5bc6;
+            margin-bottom: clamp(8px, 2vh, 15px);
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 1.5vw, 15px);
+        }
+
+        .value-category::before {
+            content: '→';
+            color: #ff8c42;
+            font-size: clamp(1.2rem, 3vw, 2rem);
+        }
+
+        /* 技術投影片 */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(280px, 80vw), 1fr));
+            gap: clamp(20px, 4vw, 40px);
+            margin-top: clamp(20px, 4vh, 40px);
+        }
+
+        .tech-item {
+            background: #f0f4ff;
+            border: 2px solid #c7d2fe;
+            border-radius: clamp(12px, 2vw, 20px);
+            padding: clamp(20px, 4vw, 40px);
+            text-align: center;
+            border-left: clamp(3px, 0.5vw, 5px) solid #1e5bc6;
+            box-shadow: 0 4px 15px rgba(30, 91, 198, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            background: #e0e7ff;
+            transform: scale(1.02);
+        }
+
+        .tech-arrow {
+            color: #ff8c42;
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 900;
+            margin: clamp(10px, 2vh, 20px) 0;
+        }
+
+        /* CTA 投影片 */
+        .cta-slide {
+            background: linear-gradient(135deg, #1e5bc6 0%, #1d4ed8 50%, #3b82f6 100%);
+            color: #ffffff;
+        }
+
+        .cta-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 80vw), 1fr));
+            gap: clamp(30px, 6vw, 80px);
+            margin: clamp(30px, 6vh, 60px) 0;
+            justify-items: center;
+        }
+
+        .invite-section, .qr-section {
+            width: 100%;
+            text-align: center;
+        }
+
+        .invite-code-container {
+            background: rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-radius: clamp(12px, 2vw, 20px);
+            padding: clamp(25px, 5vw, 40px);
+            backdrop-filter: blur(10px);
+        }
+
+        .invite-code-label {
+            font-size: clamp(1rem, 2.2vw, 1.4rem);
+            color: #ffffff;
+            margin-bottom: clamp(12px, 3vh, 20px);
+            font-weight: 600;
+        }
+
+        .invite-code {
+            font-size: clamp(2rem, 6vw, 4rem);
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.1em;
+        }
+
+        .qr-container {
+            background: #ffffff;
+            padding: clamp(15px, 3vw, 30px);
+            border-radius: clamp(12px, 2vw, 20px);
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .qr-placeholder {
+            width: clamp(120px, 25vw, 200px);
+            height: clamp(120px, 25vw, 200px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border: 3px dashed #ff8c42;
+            border-radius: clamp(8px, 1.5vw, 15px);
+            color: #666;
+        }
+
+        .qr-icon {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            margin-bottom: clamp(8px, 2vh, 15px);
+        }
+
+        .qr-text {
+            font-weight: 700;
+            color: #1e5bc6;
+            font-size: clamp(0.9rem, 2vw, 1.5rem);
+            margin-bottom: clamp(5px, 1vh, 10px);
+        }
+
+        .qr-note {
+            font-size: clamp(0.7rem, 1.5vw, 1rem);
+            text-align: center;
+            color: #999;
+            line-height: 1.3;
+        }
+
+        .website-url {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 700;
+            margin: clamp(25px, 5vh, 40px) 0;
+            color: #ffffff;
+        }
+
+        .website-url a {
+            color: #ffffff;
+            text-decoration: none;
+            text-shadow: 0 0 15px rgba(255, 140, 66, 0.6);
+        }
+
+        .oneliner-container {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: clamp(12px, 2vw, 20px);
+            padding: clamp(25px, 5vw, 50px);
+            backdrop-filter: blur(10px);
+            margin-top: clamp(30px, 6vh, 60px);
+        }
+
+        .oneliner-title {
+            font-size: clamp(1rem, 2.2vw, 1.4rem);
+            font-weight: 600;
+            margin-bottom: clamp(15px, 3vh, 25px);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .oneliner-zh {
+            font-size: clamp(1.3rem, 3.5vw, 2.2rem);
+            font-weight: 800;
+            margin-bottom: clamp(12px, 2vh, 20px);
+            line-height: 1.4;
+            color: #ffffff;
+        }
+
+        .oneliner-en {
+            font-size: clamp(1.1rem, 2.8vw, 1.8rem);
+            font-weight: 700;
+            font-style: italic;
+            color: #ff8c42;
+            line-height: 1.4;
+        }
+
+        /* 側邊導航控制 */
+        .side-navigation {
+            position: fixed;
+            left: clamp(10px, 2vw, 30px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 1.5vh, 15px);
+            z-index: 10;
+        }
+
+        .side-nav-btn {
+            background: rgba(30, 91, 198, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: clamp(8px, 1.5vw, 12px);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            width: clamp(40px, 8vw, 60px);
+            height: clamp(40px, 8vw, 60px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .side-nav-btn:hover {
+            background: rgba(30, 91, 198, 1);
+            transform: scale(1.1);
+        }
+
+        .side-nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        /* 投影片指示器（移到右側） */
+        .slide-indicators {
+            position: fixed;
+            right: clamp(10px, 2vw, 30px);
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: clamp(8px, 1.5vh, 12px);
+            z-index: 10;
+        }
+
+        .indicator {
+            width: clamp(10px, 2vw, 16px);
+            height: clamp(10px, 2vw, 16px);
+            border-radius: 50%;
+            background: rgba(30, 91, 198, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .indicator.active {
+            background: #ff8c42;
+            transform: scale(1.3);
+            border-color: #ffffff;
+        }
+
+        /* 自動播放控制（移到右上角） */
+        .auto-play-control {
+            position: fixed;
+            top: clamp(15px, 3vh, 30px);
+            right: clamp(15px, 3vw, 40px);
+            z-index: 10;
+        }
+
+        .auto-play-btn {
+            background: rgba(30, 91, 198, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            padding: clamp(8px, 1.5vw, 12px) clamp(12px, 2.5vw, 20px);
+            border-radius: clamp(15px, 3vw, 25px);
+            cursor: pointer;
+            font-size: clamp(0.8rem, 1.8vw, 1rem);
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .auto-play-btn:hover {
+            background: rgba(30, 91, 198, 1);
+            transform: scale(1.05);
+        }
+
+        .auto-play-btn.playing {
+            background: rgba(239, 68, 68, 0.9);
+        }
+
+        /* 響應式設計 - 極小螢幕 */
+        @media (max-width: 480px) {
+            .slide {
+                padding: 15px 10px 100px;
+            }
+            
+            .cta-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .tech-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .side-navigation {
+                left: 5px;
+            }
+            
+            .slide-indicators {
+                right: 5px;
+            }
+            
+            .auto-play-control {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        /* 響應式設計 - 平板 */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .cta-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 40px;
+            }
+            
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 響應式設計 - 大螢幕 */
+        @media (min-width: 1200px) {
+            .tech-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .cta-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 80px;
+            }
+        }
+
+        /* 移除hover效果在觸控設備上 */
+        @media (hover: none) {
+            .item:hover,
+            .tech-item:hover {
+                transform: none;
+                background: initial;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="orbital-bg">
+        <div class="orbit orbit-1"></div>
+        <div class="orbit orbit-2"></div>
+    </div>
+
+    <div class="slideshow-container">
+        <!-- 投影片 1: 標題 -->
+        <div class="slide title-slide active">
+            <div class="slide-content">
+                <div class="brand-logo">
+                    <span class="gala-part">Gala</span><span class="xyz-part">xyz</span>
+                </div>
+                <div class="tagline">Every star has a story. Together, we form a Galaxy.</div>
+                <div class="subtitle">展場速覽手卡 | Exhibition Quick Guide</div>
+            </div>
+        </div>
+
+        <!-- 投影片 2: 我們是誰 -->
+        <div class="slide content-slide">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="slide-icon">✨</div>
+                    <div class="slide-title">我們是誰</div>
+                    <div class="slide-subtitle">Who We Are</div>
+                </div>
+                <div class="slide-body">
+                    <div class="description">
+                        <div class="description-zh">
+                            Galaxyz 是第一個以<span class="highlight">真實合作推薦</span>為基礎的職涯平台
+                        </div>
+                        <div class="description-en">
+                            The first career network built on authentic collaboration
+                        </div>
+                    </div>
+                    <div class="description">
+                        <div class="description-zh">
+                            將「人品、軟實力、硬實力」轉化為可信任的職涯資產
+                        </div>
+                        <div class="description-en">
+                            Transform character, soft skills, and hard skills into trusted career assets
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 投影片 3: 解決的問題 -->
+        <div class="slide content-slide">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="slide-icon">🎯</div>
+                    <div class="slide-title">我們解決的問題</div>
+                    <div class="slide-subtitle">The Problem We Solve</div>
+                </div>
+                <div class="slide-body">
+                    <div class="items-grid">
+                        <div class="item">
+                            <div class="item-zh">LinkedIn 的推薦誰都能寫，真假難辨</div>
+                            <div class="item-en">LinkedIn endorsements are often vague or unreliable</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-zh">履歷無法反映合作過程與影響力</div>
+                            <div class="item-en">Resumes don't capture real collaboration and impact</div>
+                        </div>
+                        <div class="item">
+                            <div class="item-zh">企業找不到「真正適合」的人才</div>
+                            <div class="item-en">Companies struggle to identify the right cultural and role fit</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 投影片 4: 我們的價值 -->
+        <div class="slide content-slide">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="slide-icon">🚀</div>
+                    <div class="slide-title">我們的價值</div>
+                    <div class="slide-subtitle">Our Value</div>
+                </div>
+                <div class="slide-body">
+                    <div class="items-grid">
+                        <div class="item value-item">
+                            <div class="value-category">對投資人 | For Investors</div>
+                            <div class="item-zh">建立全球最大「信任人脈圖譜」，AI 驅動人才數據新市場</div>
+                            <div class="item-en">Building the world's largest "Trust Graph" with AI-driven talent data</div>
+                        </div>
+                        <div class="item value-item">
+                            <div class="value-category">對企業 | For Companies</div>
+                            <div class="item-zh">真實合作推薦，降低用錯人成本</div>
+                            <div class="item-en">Verified collaboration records reduce hiring risks</div>
+                        </div>
+                        <div class="item value-item">
+                            <div class="value-category">對個人 | For Individuals</div>
+                            <div class="item-zh">讓你的合作口碑成為職涯資產，清晰展現影響力</div>
+                            <div class="item-en">Turn peer recommendations into career capital and showcase your impact</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 投影片 5: 技術應用 -->
+        <div class="slide content-slide">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="slide-icon">🤖</div>
+                    <div class="slide-title">技術應用</div>
+                    <div class="slide-subtitle">Tech & AI</div>
+                </div>
+                <div class="slide-body">
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <div class="item-zh">推薦數據分析</div>
+                            <div class="tech-arrow">↓</div>
+                            <div class="item-zh">人才績效預測</div>
+                            <div class="item-en">Recommendation data → Talent performance prediction</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="item-zh">信任指數模型</div>
+                            <div class="tech-arrow">↓</div>
+                            <div class="item-zh">組織診斷與匹配</div>
+                            <div class="item-en">Trust index model → Organizational insights & matching</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="item-zh">AI 驅動</div>
+                            <div class="tech-arrow">↓</div>
+                            <div class="item-zh">文化契合人才匹配</div>
+                            <div class="item-en">AI-powered → Cultural fit hiring</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 投影片 6: 立即加入 -->
+        <div class="slide cta-slide">
+            <div class="slide-content">
+                <div class="slide-header">
+                    <div class="slide-icon">🔑</div>
+                    <div class="slide-title">立即加入 Galaxyz</div>
+                    <div class="slide-subtitle">Join Now</div>
+                </div>
+                
+                <div class="cta-content">
+                    <div class="invite-section">
+                        <div class="invite-code-container">
+                            <div class="invite-code-label">現場專屬邀請碼</div>
+                            <div class="invite-code">GS2025</div>
+                        </div>
+                    </div>
+                    
+                    <div class="qr-section">
+                        <div class="qr-container">
+                            <img src="../img/galaxyz-qr-code.png" alt="Galaxyz QR Code" style="width: clamp(120px, 25vw, 200px); height: clamp(120px, 25vw, 200px); border-radius: clamp(8px, 1.5vw, 15px); object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="website-url">
+                    👉 <a href="https://galaxyz.ai" target="_blank">https://galaxyz.ai</a>
+                </div>
+                
+                <div class="oneliner-container">
+                    <div class="oneliner-title">一句話介紹 | One-liner</div>
+                    <div class="oneliner-zh">「Galaxyz 把真實合作推薦，變成你最有力的履歷。」</div>
+                    <div class="oneliner-en">"Galaxyz turns authentic collaboration into your most powerful career profile."</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 側邊導航控制 -->
+    <div class="side-navigation">
+        <button class="side-nav-btn" id="prevBtn" onclick="changeSlide(-1)" title="上一頁">◀</button>
+        <button class="side-nav-btn" id="nextBtn" onclick="changeSlide(1)" title="下一頁">▶</button>
+    </div>
+
+    <!-- 投影片指示器 -->
+    <div class="slide-indicators">
+        <span class="indicator active" onclick="currentSlide(1)" title="第 1 頁"></span>
+        <span class="indicator" onclick="currentSlide(2)" title="第 2 頁"></span>
+        <span class="indicator" onclick="currentSlide(3)" title="第 3 頁"></span>
+        <span class="indicator" onclick="currentSlide(4)" title="第 4 頁"></span>
+        <span class="indicator" onclick="currentSlide(5)" title="第 5 頁"></span>
+        <span class="indicator" onclick="currentSlide(6)" title="第 6 頁"></span>
+    </div>
+
+    <!-- 自動播放控制 -->
+    <div class="auto-play-control">
+        <button class="auto-play-btn" id="autoPlayBtn" onclick="toggleAutoPlay()">▶ 自動播放</button>
+    </div>
+
+    <script>
+        let slideIndex = 1;
+        let autoPlayInterval = null;
+        let isAutoPlaying = false;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            const indicators = document.querySelectorAll('.indicator');
+            
+            if (n > slides.length) { slideIndex = 1; }
+            if (n < 1) { slideIndex = slides.length; }
+            
+            // 隱藏所有投影片
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // 移除所有指示器的 active 狀態
+            indicators.forEach(indicator => {
+                indicator.classList.remove('active');
+            });
+            
+            // 顯示當前投影片
+            slides[slideIndex - 1].classList.add('active');
+            indicators[slideIndex - 1].classList.add('active');
+            
+            // 更新導航按鈕狀態
+            document.getElementById('prevBtn').disabled = slideIndex === 1;
+            document.getElementById('nextBtn').disabled = slideIndex === slides.length;
+        }
+
+        function changeSlide(n) {
+            slideIndex += n;
+            showSlide(slideIndex);
+            
+            // 如果正在自動播放，重置計時器
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+                startAutoPlay();
+            }
+        }
+
+        function currentSlide(n) {
+            slideIndex = n;
+            showSlide(slideIndex);
+            
+            // 如果正在自動播放，重置計時器
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+                startAutoPlay();
+            }
+        }
+
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(() => {
+                slideIndex++;
+                if (slideIndex > document.querySelectorAll('.slide').length) {
+                    slideIndex = 1; // 重新開始循環
+                }
+                showSlide(slideIndex);
+            }, 8000); // 每8秒切換一次
+        }
+
+        function toggleAutoPlay() {
+            const btn = document.getElementById('autoPlayBtn');
+            
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+                btn.textContent = '▶ 自動播放';
+                btn.classList.remove('playing');
+                isAutoPlaying = false;
+            } else {
+                startAutoPlay();
+                btn.textContent = '⏸ 停止播放';
+                btn.classList.add('playing');
+                isAutoPlaying = true;
+            }
+        }
+
+        // 鍵盤控制
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                    changeSlide(-1);
+                    break;
+                case 'ArrowRight':
+                case 'ArrowDown':
+                case ' ': // 空白鍵
+                    event.preventDefault(); // 防止頁面滾動
+                    changeSlide(1);
+                    break;
+                case 'Home':
+                    currentSlide(1);
+                    break;
+                case 'End':
+                    currentSlide(6);
+                    break;
+                case 'Escape':
+                    if (isAutoPlaying) {
+                        toggleAutoPlay();
+                    }
+                    break;
+                case 'p':
+                case 'P':
+                    toggleAutoPlay();
+                    break;
+            }
+        });
+
+        // 初始化
+        showSlide(slideIndex);
+
+        // 滑鼠滾輪控制（節流處理）
+        let wheelTimeout;
+        document.addEventListener('wheel', function(event) {
+            event.preventDefault();
+            
+            if (wheelTimeout) return;
+            
+            wheelTimeout = setTimeout(() => {
+                if (event.deltaY > 0) {
+                    changeSlide(1); // 向下滾動，下一頁
+                } else {
+                    changeSlide(-1); // 向上滾動，上一頁
+                }
+                wheelTimeout = null;
+            }, 300); // 300ms 節流
+        }, { passive: false });
+
+        // 觸控支援
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.touches[0].clientX;
+            touchStartY = event.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].clientX;
+            touchEndY = event.changedTouches[0].clientY;
+            
+            const deltaX = touchStartX - touchEndX;
+            const deltaY = touchStartY - touchEndY;
+            const minSwipeDistance = 50;
+            
+            // 水平滑動優先
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+                if (deltaX > 0) {
+                    changeSlide(1); // 向左滑動，下一頁
+                } else {
+                    changeSlide(-1); // 向右滑動，上一頁
+                }
+            }
+            // 垂直滑動
+            else if (Math.abs(deltaY) > minSwipeDistance) {
+                if (deltaY > 0) {
+                    changeSlide(1); // 向上滑動，下一頁
+                } else {
+                    changeSlide(-1); // 向下滑動，上一頁
+                }
+            }
+        });
+
+        // 防止頁面刷新時自動播放
+        window.addEventListener('beforeunload', function() {
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+            }
+        });
+
+        // 視窗失去焦點時暫停自動播放，獲得焦點時恢復
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                if (isAutoPlaying) {
+                    clearInterval(autoPlayInterval);
+                }
+            } else {
+                if (isAutoPlaying) {
+                    startAutoPlay();
+                }
+            }
+        });
+
+        // 響應式字體調整
+        function adjustFontSize() {
+            const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+            
+            // 根據視窗大小動態調整根字體大小
+            const baseFontSize = Math.min(vw / 80, vh / 60);
+            document.documentElement.style.fontSize = Math.max(baseFontSize, 14) + 'px';
+        }
+
+        // 視窗大小改變時調整字體
+        window.addEventListener('resize', adjustFontSize);
+        window.addEventListener('orientationchange', adjustFontSize);
+        
+        // 初始化字體大小
+        adjustFontSize();
+    </script>
+</body>
+</html>
